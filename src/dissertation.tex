@@ -1,0 +1,331 @@
+
+% book example for classicthesis.sty
+\documentclass[
+  % Replace twoside with oneside if you are printing your thesis on a single side
+  % of the paper, or for viewing on screen.
+  oneside,
+  %twoside,
+  11pt, a4paper,
+  footinclude=true,
+  headinclude=true,
+  cleardoublepage=empty
+]{scrbook}
+
+\usepackage{dissertation}
+%---
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+%---
+\usepackage[titles]{tocloft}
+%% Aesthetic spacing redefines that look nicer to me than the defaults.
+\setlength{\cftbeforechapskip}{2ex}
+\setlength{\cftbeforesecskip}{0.5ex}
+%% Use Helvetica-Narrow Bold for Chapter entries
+\renewcommand{\cftpartfont}{%
+  \fontsize{12}{14}\usefont{OT1}{phv}{bc}{n}\selectfont
+}
+\renewcommand{\cftchapfont}{%
+  \fontsize{11}{13}\usefont{OT1}{phv}{bc}{n}\selectfont
+}
+\renewcommand{\cftsecfont}{%
+  \fontsize{10}{11}\usefont{OT1}{phv}{}{n}\selectfont
+}
+\renewcommand{\cftsubsecfont}{%
+  \fontsize{9}{10}\usefont{OT1}{phv}{}{n}\selectfont
+}
+\renewcommand{\cftfigfont}{%
+  \fontsize{9}{10}\usefont{OT1}{phv}{}{n}\selectfont
+}
+\renewcommand{\cfttabfont}{%
+  \fontsize{9}{10}\usefont{OT1}{phv}{}{n}\selectfont
+}
+%---
+
+\newcommand{\eqname}[1]{\tag*{#1}}% Tag equation with name
+
+%usepackage[scaled=.92]{helvet}
+\usepackage[all]{xy}
+\usepackage{circuitikz}
+% \usepackage[sorting=none,style=numeric]{biblatex}
+
+% Title
+
+\titleA{Study on FFT on the GPU}
+% \titleB{Second line in title (if any)}
+% \titleC{Third  line in title (if any)}
+
+% Author
+
+\author{Jorge Francisco Teixeira Bastos da Mota}
+
+% Supervisor(es)
+
+\supervisor{Supervisor}
+
+\cosupervisor{Co-supervisor (if any)}
+
+% Date
+
+\date{\myear} % change to text if date is not today
+
+\makeglossaries  %  either use this ...
+
+\makeindex	% ... or this
+
+\begin{document}\fontfamily{phv}\fontseries{mc}\selectfont
+    
+% Add acronym definitions
+    
+% Cover page ---------------------------------------------
+%	\thispagestyle{empty}
+    \input{def/title}
+%rm
+    \cleardoublepage
+%---------------------------------------------------------
+    \pagenumbering{alph}
+    \setcounter{page}{0}
+%---------------------------------------------------------
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% NOTES:
+% There are some commented chapters and sections to improve readability when writing the dissertation
+% In the end some of those chapters could or could not be included in the final pre-dissertation submission
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \chapter*{Copyright and Terms of Use for Third Party Work}
+
+% This dissertation reports on academic work that can be used by third parties as long as the internationally accepted standards and good practices are respected concerning copyright and related rights.
+% \vskip 1em
+% \noindent This work can thereafter be used under the terms established in the license below.
+% \vskip 1em
+% \noindent Readers needing authorization conditions not provided for in the indicated licensing should contact the author through the RepositóriUM of the University of Minho.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \section*{License granted to users of this work:}
+
+% \CCBY % or replace by one in***************** the list below, cf https://alunos.uminho.pt/PT/estudantes/Formataes/3_Despacho_RT-31_2019_Anexo%203-Informa%c3%a7%c3%a3o-Direitor%20de%20Autor.docx 
+%---------
+%\CBYNCND
+%\CCBYNCSA
+%\CCBYNC
+%\CCBYND
+%\CCBYSA
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \chapter*{Acknowledgements}
+% Write your acknowledgements here. Do not forget to mention the projects and grants that you have benefited from while doing your research, if any. Ask your supervisor about the specific textual format to use. (Funding agencies are quite strict about this.) 
+
+% 	\cleardoublepage
+    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \chapter*{Statement of Integrity}
+
+% I hereby declare having conducted this academic work with integrity.
+% \vskip 1em\noindent
+% I confirm that I have not used plagiarism or any form of undue use of information or falsification of results along the process leading to its elaboration. 
+% \vskip 1em\noindent
+% I further declare that I have fully acknowledged the Code of Ethical Conduct of the University of Minho.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter*{Abstract}
+    Write abstract here (en) or import corresponding file
+
+\paragraph{Keywords} keywords, here, comma, separated.
+
+    \cleardoublepage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter*{Resumo}
+    Escrever aqui resumo (pt) ou importar respectivo ficheiro
+    
+\paragraph{Palavras-chave} palavras, chave, aqui, separadas, por, v\'{\i}rgulas
+
+
+    \cleardoublepage
+    
+    \pagenumbering{roman}
+    \setcounter{page}{3}
+    %pagestyle{fancy}   % -------- removed
+    
+    % Document
+    \cleardoublepage
+    \phantomsection
+    % Adds 'Contents' to Contents chapter
+    % \addcontentsline{toc}{chapter}{Contents}
+    \tableofcontents
+    
+    % \cleardoublepage
+    % \listoffigures
+    
+    % \cleardoublepage
+    % \listoftables
+    
+    % \cleardoublepage
+    % \lstlistoflistings
+    
+    % Add list of acronyms
+    \cleardoublepage
+    \pagenumbering{arabic}
+    \setcounter{page}{5}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Introduction}
+
+\section{Contextualization}
+
+%TODO: 
+Empty
+
+\section{Motivation}
+
+%TODO: 
+Empty
+
+\section{Objectives}
+
+The main objective of this dissertation is to provide efficient FFT alternatives in GLSL compared with dedicated tools for high performance of FFT computations like NVIDIA cuFFT library, while analysing the intrinsic of a good Fast Fourier Transform implementation on the GPU.
+To accomplish the main objective there are two stages taken in consideration, "\textit{Analysis of CUDA and GLSL kernels}" to be well settled in their differences and to have a reference for the second stage "Analysis of cuFFT and GLSL FFT" which will cluster the study's main objective.
+
+To compose a final verdict conclusion, we will use as case of study applications with implementation of the FFT in the field of Computer Graphics that require realtime performance.
+
+test \cite{brigham1988fast}
+
+\section{Document Organization}
+
+%TODO: 
+Empty
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{State of the Art}
+
+\section{Fourier Transform}
+
+%TODO:
+
+\subsection{What is Fourier Transform}
+
+The \textbf{Fourier Transform} is a mathematical method to transform the domain refered to as \textit{time} of a function, to the \textit{frequency} domain, intuitively the Inverse Fourier Transform is the corresponding method to reverse that process and reconstruct the original function from the one in \textit{frequency} domain representation.
+
+Although there are many forms, the Fourier Transform key definition can be described as:
+
+% Forward Fourier Transform
+%FIXME: This equations are replacing the reference number for the name with '\eqname'
+% It must show the name AND the number
+\begin{equation} \label{eq1}
+    % \begin{split}
+    X(\omega) = \int_{-\infty}^{+\infty} x(t)e^{-i \omega t} dt \\ \eqname{Forward Fourier Transform} \\
+    % \end{split}
+\end{equation}
+
+% Invense Fourier Transform
+%FIXME: This equations are replacing the reference number for the name with '\eqname'
+% It must show the name AND the number
+\begin{equation} \label{eq2}
+        x(t) = \frac{1}{2\pi} \int_{-\infty}^{+\infty} X(\omega)e^{-i \omega t} d\omega \\ \eqname{Inverse Fourier Transform} \\
+\end{equation}
+
+\begin{itemize}
+    \item \( x(t) \rightarrow \) function in \textit{time} domain representation
+    \item \( X(\omega) \rightarrow \) function in \textit{frequency} domain representation
+    \item \( i \rightarrow \) imaginary unit \( i = \sqrt{-1} \)
+\end{itemize}
+
+% TODO: explain formula
+
+This model of the fourier transform applied to infinite domain functions is called \textbf{Continous Fourier Transform} and its targeted to the calculation of the this transform directly to functions with only finite discontinuities in \( x(t) \).
+
+\subsection{Where it is used}
+\subsection{Discrete Fourier Transform}
+
+The Fourier Transform of a finite sequence of equally-spaced samples of a function is the called the \textbf{Discrete Fourier Transform} (DFT), it converts a finite set of values in \textit{time} domain to \textit{frequency} domain representation. Its the most important type of transform since it deals with a discrete amount of data, which can be implemented in computers and be computed by specialized hardware.
+
+% Forward Discrete Fourier Transform
+\begin{equation} \label{eq3}
+    X{\scriptstyle k} = \sum_{n=0}^{N-1}x{\scriptstyle n} \cdot e^{- \frac{i 2 \pi}{N}kn} \\ \eqname{Forward Discrete Fourier Transform} \\
+\end{equation}
+% Inverse Discrete Fourier Transform
+\begin{equation} \label{eq4}
+    x{\scriptstyle n} = \frac{1}{N} \sum_{k=0}^{N-1}X{\scriptstyle k} \cdot e^{\frac{i 2 \pi}{N}kn} \\ \eqname{Inverse Discrete Fourier Transform} \\
+\end{equation}
+
+% TODO: describe symbols like (1) and (2)
+
+\section{Fast Fourier Transform}
+
+%TODO: 
+Empty
+
+\subsection{Computation of FFT}
+
+%TODO: 
+Empty
+
+\section{Related Work}
+
+%TODO: 
+Empty
+
+\bookmarksetup{startatroot} % Ends last part.
+\addtocontents{toc}{\bigskip} % Making the table of contents look good.
+\cleardoublepage
+
+% Bibliography (requires 'bibtex'  package)
+\bibliographystyle{acm}
+\bibliography{dissertation}
+% Index of terms (required 'makeindex' package)
+\printindex
+
+    
+    \appendix
+    \renewcommand\chaptername{Appendix}
+
+    % Add appendix chapters
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \part{Appendices}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \chapter{Support work}
+% 	Auxiliary results which are not main-stream
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \chapter{Details of results}
+%          Details of results whose length would compromise readability of main text.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \chapter{Listings}
+% 	Should this be the case
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \chapter{Tooling}
+% 	(Should this be the case)
+
+% 	Anyone using \Latex\ should consider having a look at \TUG,
+% 	the \tug{\TeX\ Users Group}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{backcover}
+\thispagestyle{empty} \pagecolor{white} \textcolor{black} {\fontfamily{phv}\fontseries{mc}\selectfont ~\vfill
+\noindent
+NB: place here information about funding, FCT project, etc in which the work is framed. Leave empty otherwise.
+%
+\vfill ~}
+\end{backcover}
+
+\end{document}
