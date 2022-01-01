@@ -276,10 +276,11 @@ Empty
 Empty
 
 \bookmarksetup{startatroot} % Ends last part.
-\addtocontents{toc}{\bigskip} % Making the table of contents look good.
+% \addtocontents{toc}{\bigskip} % Making the table of contents look good.
 \cleardoublepage
 
 % Bibliography (requires 'bibtex'  package)
+\addcontentsline{toc}{chapter}{Bibliography}
 \bibliographystyle{acm}
 \bibliography{dissertation}
 % Index of terms (required 'makeindex' package)
