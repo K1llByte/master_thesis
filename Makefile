@@ -1,5 +1,10 @@
+.ONESHELL:
+
 all:
-	
+	cd src
+	latexmk -f -synctex=1 -interaction=nonstopmode -file-line-error -pdf -outdir=./ dissertation
+	cd ..
+
 
 clean:
 	rm -f src/dissertation.acn
