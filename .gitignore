@@ -20,3 +20,5 @@ src/dissertation.toc
 *.fls
 *.aux
 *.fdb_latexmk
+
+todo.md

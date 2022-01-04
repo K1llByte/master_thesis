@@ -15,6 +15,9 @@
 %---
 \usepackage[T1]{fontenc}
 \usepackage{textcomp}
+
+\usepackage{listings}
+\usepackage{xcolor}
 %---
 \usepackage[titles]{tocloft}
 %% Aesthetic spacing redefines that look nicer to me than the defaults.
@@ -40,6 +43,31 @@
   \fontsize{9}{10}\usefont{OT1}{phv}{}{n}\selectfont
 }
 %---
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
 
 \newcommand{\eqname}[1]{\tag*{#1}}% Tag equation with name
 
@@ -197,8 +225,6 @@ To accomplish the main objective there are two stages taken in consideration, "\
 
 To compose a final verdict conclusion, we will use as case of study applications with implementation of the FFT in the field of Computer Graphics that require realtime performance.
 
-test \cite{brigham1988fast}
-
 \section{Document Organization}
 
 %TODO: 
@@ -216,6 +242,8 @@ Empty
 
 The \textbf{Fourier Transform} is a mathematical method to transform the domain refered to as \textit{time} of a function, to the \textit{frequency} domain, intuitively the Inverse Fourier Transform is the corresponding method to reverse that process and reconstruct the original function from the one in \textit{frequency} domain representation.
 
+In general the Fourier Transform of a function is a complex-valued function of frequency.
+
 Although there are many forms, the Fourier Transform key definition can be described as:
 
 % Forward Fourier Transform
@@ -223,7 +251,7 @@ Although there are many forms, the Fourier Transform key definition can be descr
 % It must show the name AND the number
 \begin{equation} \label{eq1}
     % \begin{split}
-    X(\omega) = \int_{-\infty}^{+\infty} x(t)e^{-i \omega t} dt \\ \eqname{Forward Fourier Transform} \\
+    X(f) = \int_{-\infty}^{+\infty} x(t)e^{-i f t} dt \\ \eqname{Forward Fourier Transform} \\
     % \end{split}
 \end{equation}
 
@@ -231,23 +259,28 @@ Although there are many forms, the Fourier Transform key definition can be descr
 %FIXME: This equations are replacing the reference number for the name with '\eqname'
 % It must show the name AND the number
 \begin{equation} \label{eq2}
-        x(t) = \frac{1}{2\pi} \int_{-\infty}^{+\infty} X(\omega)e^{-i \omega t} d\omega \\ \eqname{Inverse Fourier Transform} \\
+        x(t) = \frac{1}{2\pi} \int_{-\infty}^{+\infty} X(f)e^{-i f t} df \\ \eqname{Inverse Fourier Transform} \\
 \end{equation}
 
 \begin{itemize}
     \item \( x(t) \rightarrow \) function in \textit{time} domain representation
-    \item \( X(\omega) \rightarrow \) function in \textit{frequency} domain representation
+    \item \( X(f) \rightarrow \) function in \textit{frequency} domain representation, also called the Fourier Transform of \( x(t) \)
     \item \( i \rightarrow \) imaginary unit \( i = \sqrt{-1} \)
 \end{itemize}
 
 % TODO: explain formula
-
-This model of the fourier transform applied to infinite domain functions is called \textbf{Continous Fourier Transform} and its targeted to the calculation of the this transform directly to functions with only finite discontinuities in \( x(t) \).
+The above definition of the Fourier Integral can only be valid if the integral exists for every value of the parameter \(f\). This model of the fourier transform applied to infinite domain functions is called \textbf{Continous Fourier Transform} and its targeted to the calculation of the this transform directly to functions with only finite discontinuities in \( x(t) \).
 
 \subsection{Where it is used}
+
+It's noticieable the presence of Fourier Transforms in a great variety apparent unrelated fields of application, even the FFT its often called ubiquitous\footnote{present, appearing, or found everywhere.} due to its effective nature of solving a great hand of problems for the most intended complexity time. Some of the fields of application include Applied Mechanics, Signal Processing, Sonics and Acoustics, Biomedical Engineering, Instrumentation, Radar, Numerical Methods, Electromagnetics, Computer Graphics and more \cite{brigham1988fast}.
+
+
+
+
 \subsection{Discrete Fourier Transform}
 
-The Fourier Transform of a finite sequence of equally-spaced samples of a function is the called the \textbf{Discrete Fourier Transform} (DFT), it converts a finite set of values in \textit{time} domain to \textit{frequency} domain representation. Its the most important type of transform since it deals with a discrete amount of data, which can be implemented in computers and be computed by specialized hardware.
+The Fourier Transform of a finite sequence of equally-spaced samples of a function is the called the \textbf{Discrete Fourier Transform} (DFT), it converts a finite set of values in \textit{time} domain to \textit{frequency} domain representation. Its the most important type of transform since it deals with a discrete amount of data and has the popular algorithm in which is the center of attention of fourier transforms, which can be implemented in machines and be computed by specialized hardware.
 
 % Forward Discrete Fourier Transform
 \begin{equation} \label{eq3}
@@ -257,6 +290,16 @@ The Fourier Transform of a finite sequence of equally-spaced samples of a functi
 \begin{equation} \label{eq4}
     x{\scriptstyle n} = \frac{1}{N} \sum_{k=0}^{N-1}X{\scriptstyle k} \cdot e^{\frac{i 2 \pi}{N}kn} \\ \eqname{Inverse Discrete Fourier Transform} \\
 \end{equation}
+
+% \begin{lstlisting}[language=Python]
+% def dft(x):
+%   x = np.asarray(x, dtype=float)
+%   N = x.shape[0]
+%   n = np.arange(N)
+%   k = n.reshape((N, 1))
+%   M = np.exp(-2j * np.pi * k * n / N)
+%   return np.dot(M, x)
+% \end{lstlisting}
 
 % TODO: describe symbols like (1) and (2)
 

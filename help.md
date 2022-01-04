@@ -5,34 +5,6 @@
 > - empirical - based on, concerned with, or verifiable by observation or experience rather than theory or pure logic. ("they provided considerable empirical evidence to support their argument")
 > - culminate -  to reach the highest point, summit, or highest development
 
-<!-- ================= TODO ================= -->
-
-- [ ] *Discrete Fourier Transforms*
-    - Example implementation in python of a DFT
-- [ ] *Fast Fourier Transforms*
-- [ ] *Computation of FFT*
-    - Mention that this algorithm is used as a benchmark in parallel computers due to its hard nature
-    - Computation of this algorithm on the CPU vs GPU
-    - Example of implementation in python of FFT (compare with DFT)
-        - Mention this is CPU computation
-        - Mention that this is just an implementation to provide a simple algorithmic description of the  computation of the Cookley... FFT
-- [ ] *Related Work*
-
-- [ ] Extra: Ponder making an extra chapter with nomenclature
-    - FFT
-    - DFT
-    - FFFT* (or just FFT) -> Forward Fast Fourier Transform
-    - IFFT* -> Inverse Fast Fourier Transform
-
-- After finishing the State of the art:
-    - [ ] *Document Organization*
-    - [ ] Finish *Objectives*
-        - Mention that this dissertation is focused on the optimization of computation of fft so the
-        fourier transform theory wont be proven and we wont go on a deep explanation on the way it works
-    - [ ] *Motivation*
-    - [ ] *Contextualization*
-        - Say that its required knowledge in complex numbers and basic linear algebra
-
 <!-- =============== TEMPLATE =============== -->
 
 **Template**
