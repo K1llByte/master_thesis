@@ -2,8 +2,9 @@
 > **PALAVRAS CHIQUES:**
 > - aforesaid - mencionado anteriormente/acima
 > - ubiquitous - onipresente
-> - empirical - based on, concerned with, or verifiable by observation or experience rather than theory or pure logic. ("they provided considerable empirical evidence to support their argument")
-> - culminate -  to reach the highest point, summit, or highest development
+> - empirical - 'based on, concerned with, or verifiable by observation or experience rather than theory or pure logic. ("they provided considerable empirical evidence to support their argument")'
+> - culminate -  'to reach the highest point, summit, or highest development'
+> - Hence - portanto
 
 <!-- =============== TEMPLATE =============== -->
 

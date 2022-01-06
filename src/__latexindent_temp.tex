@@ -241,9 +241,13 @@ Empty
 
 \section{Fourier Transform}
 
+%TODO:
+
 \subsection{What is Fourier Transform}
 
 The \textbf{Fourier Transform} is a mathematical method to transform the domain refered to as \textit{time} of a function, to the \textit{frequency} domain, intuitively the Inverse Fourier Transform is the corresponding method to reverse that process and reconstruct the original function from the one in \textit{frequency} domain representation.
+
+In general the Fourier Transform of a function is a complex-valued function of frequency.
 
 Although there are many forms, the Fourier Transform key definition can be described as:
 
@@ -263,69 +267,30 @@ Although there are many forms, the Fourier Transform key definition can be descr
         x(t) = \frac{1}{2\pi} \int_{-\infty}^{+\infty} X(f)e^{-i f t} df \\ \eqname{Inverse Fourier Transform} \\
 \end{equation}
 
-% REVIEW
 \begin{itemize}
-    \item \( x(t), \forall t \in \mathbb{R} \rightarrow \) function in \textit{time} domain representation with real \( t \).
-    \item \( X(f), \forall f \in \mathbb{R} \rightarrow \) function in \textit{frequency} domain representation with real \( f \), also called the Fourier Transform of \( x(t) \)
+    \item \( x(t) \rightarrow \) function in \textit{time} domain representation
+    \item \( X(f) \rightarrow \) function in \textit{frequency} domain representation, also called the Fourier Transform of \( x(t) \)
     \item \( i \rightarrow \) imaginary unit \( i = \sqrt{-1} \)
 \end{itemize}
 
-This formulation shows the usage of complex-valued domain since the imaginary unit \( i \) doesn't represent a value in the set of real numbers, making the fourier transform range from real to complex values, one complex coefficient per frequency \( X : \mathbb{R} \rightarrow \mathbb{C} \) 
-
-If we take into account the Euler's formula, we can replace the Fourier Transform for an equivalent, fragmenting the euler constant for a sine and cosine
-
-% Euler's Formula
-\begin{equation} \label{euler_formula}
-    e^{ix} = \cos x + i \sin x \\ \eqname{Euler's Formula} \\
-\end{equation}
-
-% Forward Fourier Transform with Euler's Formula
-\begin{equation}
-    X(f) = \int_{-\infty}^{+\infty} x(t) (\cos (-f t) + i \sin (-f t)) dt \\
-\end{equation}
-
-Hence, we can break the Fourier Transform apart into two formulas that give each coefficient of the sine and cosine components as functions without dealing with complex numbers.
-
-% Forward Fourier Transform sine and consine
-\begin{equation}
-    \begin{split}
-        X_{a}(f) = \int_{-\infty}^{+\infty} x(t) \cos (f t) dt \\
-        X_{b}(f) = \int_{-\infty}^{+\infty} x(t) \sin (f t) dt \\
-    \end{split}
-\end{equation}
-
-
-% FIXME: This might also be applied to the Inverse, study this later and try to deduce the correspondant pair of formulas
-% NOTE: This is important for future reference
-
-% Fourier's original formulation of the transform did not use complex numbers, but rather sines and cosines. % Chatfield, Chris (2004), The Analysis of Time Series: An Introduction, Texts in Statistical Science (6th ed.), London: Chapman & Hall/CRC, ISBN 9780203491683.
-
 % TODO: explain the formula better
-The above definition of the Fourier Integral\ref{eq1} can only be valid if the integral exists for every value of the parameter \(f\). This model of the fourier transform applied to infinite domain functions is called \textbf{Continous Fourier Transform} and its targeted to the calculation of the this transform directly to functions with only finite discontinuities in \( x(t) \).
+The above definition of the Fourier Integral can only be valid if the integral exists for every value of the parameter \(f\). This model of the fourier transform applied to infinite domain functions is called \textbf{Continous Fourier Transform} and its targeted to the calculation of the this transform directly to functions with only finite discontinuities in \( x(t) \).
 
 \subsection{Where it is used}
 
 It's noticieable the presence of Fourier Transforms in a great variety of apparent unrelated fields of application, even the FFT is often called ubiquitous\footnote{present, appearing, or found everywhere.} due to its effective nature of solving a great hand of problems for the most intended complexity time. Some of the fields of application include Applied Mechanics, Signal Processing, Sonics and Acoustics, Biomedical Engineering, Instrumentation, Radar, Numerical Methods, Electromagnetics, Computer Graphics and more \cite{brigham1988fast}.
 
-One of the most well known cases of application is \textbf{Signal Analysis}, the Fourier Transform is probably the most important tool for analyzing signals, when representing a signal with amplitude as function of time, a signal can be translated to the frequency domain, a domain that consists of signals of sines and consines waves of varied frequencies, but to calculate the coefficients of those waves we need to use the Fourier Transform.
+One of the most well known cases of application is \textbf{Signal Analysis}, the Fourier Transform is probably the most important tool for analyzing signals, when representing a signal with amplitude as function of time, a signal can be translated to the frequency domain, a domain that consists of signals of sines and consines of varied frequencies, but to calculate the coefficients of those waves we need to use the Fourier Transform.
 
 \begin{figure}[h]
-    \centering
-    \includegraphics[width=0.5\textwidth]{imgs/fft_time_freq.png}
-    \caption{Time to frequency signal decomposition}
-\end{figure}
+	\caption{Example of a parametric plot ($\sin (x), \cos(x), x$)}
+	\centering
+	\includegraphics[width=0.5\textwidth]{spiral}
+	\end{figure}
 
-% REVIEW
-Since the sines and consines waves are in simple waveforms they can then be manipulated with relative ease. This process is constantly present in communications since the transmission of data over wires and radio circuits through signals and most devices nowadays perform ir frequently
-
-
-% TODO:
-% - Elaborate more
-% - Maybe describe the polynomial multiplication too
-% - Move the 'jia2014polynomial' citation
 % . . .
 
-And much more applications such as polynomial multiplication \cite{jia2014polynomial}, numerical integration, time-domain interpolation, x-ray diffracition ...
+And much more application such as polynomial multiplication\cite{jia2014polynomial}, numerical integration, time-domain interpolation, x-ray diffracition, etc ...
 
 % \begin{tikzpicture}
 %   \begin{axis}[
@@ -363,15 +328,10 @@ And much more applications such as polynomial multiplication \cite{jia2014polyno
 The Fourier Transform of a finite sequence of equally-spaced samples of a function is the called the \textbf{Discrete Fourier Transform} (DFT), it converts a finite set of values in \textit{time} domain to \textit{frequency} domain representation. Its the most important type of transform since it deals with a discrete amount of data and has the popular algorithm in which is the center of attention of fourier transforms, which can be implemented in machines and be computed by specialized hardware.
 
 % Forward Discrete Fourier Transform
-%FIXME: This equations are replacing the reference number for the name with '\eqname'
-% It must show the name AND the number
 \begin{equation} \label{eq3}
     X{\scriptstyle k} = \sum_{n=0}^{N-1}x{\scriptstyle n} \cdot e^{- \frac{i 2 \pi}{N}kn} \\ \eqname{Forward Discrete Fourier Transform} \\
 \end{equation}
-
 % Inverse Discrete Fourier Transform
-%FIXME: This equations are replacing the reference number for the name with '\eqname'
-% It must show the name AND the number
 \begin{equation} \label{eq4}
     x{\scriptstyle n} = \frac{1}{N} \sum_{k=0}^{N-1}X{\scriptstyle k} \cdot e^{\frac{i 2 \pi}{N}kn} \\ \eqname{Inverse Discrete Fourier Transform} \\
 \end{equation}
