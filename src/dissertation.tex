@@ -359,6 +359,7 @@ And much more applications such as polynomial multiplication \cite{jia2014polyno
 
 
 \subsection{Discrete Fourier Transform}
+% \section{Discrete Fourier Transform}
 
 The Fourier Transform of a finite sequence of equally-spaced samples of a function is the called the \textbf{Discrete Fourier Transform} (DFT), it converts a finite set of values in \textit{time} domain to \textit{frequency} domain representation. Its the most important type of transform since it deals with a discrete amount of data and has the popular algorithm in which is the center of attention of fourier transforms, which can be implemented in machines and be computed by specialized hardware.
 
@@ -366,15 +367,50 @@ The Fourier Transform of a finite sequence of equally-spaced samples of a functi
 %FIXME: This equations are replacing the reference number for the name with '\eqname'
 % It must show the name AND the number
 \begin{equation} \label{eq3}
-    X{\scriptstyle k} = \sum_{n=0}^{N-1}x{\scriptstyle n} \cdot e^{- \frac{i 2 \pi}{N}kn} \\ \eqname{Forward Discrete Fourier Transform} \\
+    X_{k} = \sum_{n=0}^{N-1}x_{n} \cdot e^{- \frac{i 2 \pi}{N}kn} \\ \eqname{Forward Discrete Fourier Transform} \\
 \end{equation}
 
 % Inverse Discrete Fourier Transform
 %FIXME: This equations are replacing the reference number for the name with '\eqname'
 % It must show the name AND the number
 \begin{equation} \label{eq4}
-    x{\scriptstyle n} = \frac{1}{N} \sum_{k=0}^{N-1}X{\scriptstyle k} \cdot e^{\frac{i 2 \pi}{N}kn} \\ \eqname{Inverse Discrete Fourier Transform} \\
+    x_{n} = \frac{1}{N} \sum_{k=0}^{N-1}X_{k} \cdot e^{\frac{i 2 \pi}{N}kn} \\ \eqname{Inverse Discrete Fourier Transform} \\
 \end{equation}
+
+% REVIEW (english)
+Notably, the discrete version of the Fourier Transform has some obvious differences since it deals with a discrete time sequence, the first difference is the sum covers all elements of the input values instead of integrating the infinite domain of the function, but we can also notice that the exponential, similar to the aforesaid, divides the values by \(N\) (\(N\) being the total number of elements in the sequence) due to the inability to look at frequency and time \(ft\) continuously we instead take the \(k\)'th frequency over \(n\).
+
+We can have a more simplified expansion of this formula with:
+
+\begin{equation*}
+    X_{k} = x_{0} + x_{1}e^{\frac{i 2 \pi}{N}k} + ... + x_{N-1}e^{\frac{i 2 \pi}{N}k(N-1)} \\
+\end{equation*}
+
+% FIXME: Maybe the word i want isn't simplified because the equation is getting longer
+Having this sum simplified we then only need to resolve the complex exponential, and we can do that by replacing the \(e^{\frac{i 2 \pi}{N}kn}\) by the euler formula as mentioned before to reduce the maths to a simple summation of real and imaginary numbers.
+
+% REVIEW (math)
+\begin{equation*}
+    X_{k} = x_{0} + x_{1} (\cos{b_{1}} + i\sin{b_{1}}) + ... + x_{N-1} (\cos{b_{N-1}} + i\sin{b_{N-1}}) \\
+\end{equation*}
+
+\begin{equation*}
+    \text{where } \\ b_{n} = \frac{ 2 \pi}{N}kn \\
+\end{equation*}
+
+
+Finally we'll be left with the result as a complex number
+
+\begin{equation*}
+    X_{k} = A_{k} + i B_{k}
+\end{equation*}
+
+
+% Breakline
+
+% 1. Explicar como funciona a aplicação da DFT a uma sequência (fazer um exemplo para sinais visto que vamos ter que mencionar a frequencia de nyquist)
+
+% TODO: Explain the Discrete Fourier Transform
 
 % \begin{lstlisting}[language=Python]
 % def dft(x):
