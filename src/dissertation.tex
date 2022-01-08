@@ -414,7 +414,7 @@ Finally we'll be left with the result as a complex number
 
 % 1. Explicar como funciona a aplicação da DFT a uma sequência (fazer um exemplo para sinais visto que vamos ter que mencionar a frequencia de nyquist)
 
-\paragraph{Example} Let us now follow an example of calculation of the DFT for a sequence \(x\) with N number of elements.
+\paragraph{Example} \label{example1} Let us now follow an example of calculation of the DFT for a sequence \(x\) with N number of elements.
 
 \pagestyle{empty}
 % Plot the cosine wave graph with the sample values
@@ -508,21 +508,36 @@ And that will produce our complex-valued output in frequency domain, as simple a
 % [x] 4. Last phrase that introduces the next chapter FFT
 
 % NOTE: 2.
-The example shown above is done sequentially as if each frequency pin is computed individually, but there's a way to calculate the same result by using matrix multiplication \cite{rao2018transform}. Since the operations are done equally without any extra step we can group all analysing function sinusoids (\(e^{- \frac{i 2 \pi}{N} k n}\))
+\subsubsection{\textbf{Matrix multiplication}}
+The example shown above is done sequentially as if each frequency pin is computed individually, but there's a way to calculate the same result by using matrix multiplication \cite{rao2018transform}. Since the operations are done equally without any extra step we can group all analysing function sinusoids (\(e^{- \frac{i 2 \pi}{N} k n}\)),
 
+% \ref{example1}
 
 \begin{equation*}
-    x = 
+    W = 
     \begin{bmatrix}
-        1 & 2 & 3 & 4 \\
-        1 & 2 & 3 & 4 \\
-        1 & 2 & 3 & 4 \\
-        1 & 2 & 3 & 4 \\
+        \omega^{0 \cdot 0}     & \omega^{1 \cdot 0}     & \dots  & \omega^{(N-1) \cdot 0}     \\
+        \omega^{0 \cdot 1}     & \omega^{1 \cdot 1}     & \dots  & \omega^{(N-1) \cdot 1}     \\
+        \vdots                 & \vdots                 & \ddots & \vdots                     \\
+        \omega^{0 \cdot (N-1)} & \omega^{1 \cdot (N-1)} & \dots  & \omega^{(N-1) \cdot (N-1)} \\
+    \end{bmatrix} =
+    \begin{bmatrix}
+        1      & 1              & \dots  & 1                          \\
+        1      & \omega         & \dots  & \omega^{(N-1)}             \\
+        \vdots & \vdots         & \ddots & \vdots                     \\
+        1      & \omega^{(N-1)} & \dots  & \omega^{(N-1) \cdot (N-1)} \\
     \end{bmatrix}
 \end{equation*}
+\begin{equation*}
+    \text{where } \omega = e^{- \frac{i 2 \pi}{N}}
+\end{equation*}
 
-% NOTE: 3.
+The substitution variable \(\omega\) allows us o avoid writing extensive exponents
 
+The symbol \(W\) represents the transformation matrix of the Discrete Fourier Transform, also called DFT matrix
+This matrix multiplication form represents a more efficient way to compute the DFT in hardware.  
+
+% NOTE: 3. Algorithmic preview of the dft
 
 % NOTE: 4. Last phrase that introduces the next chapter FFT
 It's conspicuous that the complexity time for each multiplication of every singular term of the sequence with the complex exponential value is \(O(N^{2})\), hence, the computation of the Discrete Fourier Transform rises exponentially as we use longer sequences. Therefore, over time new algorithms and techniques where developed to increase the performance of this transform due to its usefulness. 
