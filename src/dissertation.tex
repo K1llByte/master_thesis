@@ -504,6 +504,7 @@ And that will produce our complex-valued output in frequency domain, as simple a
 % [ ] 1. Justify why the hz 1 isn't with just 1 since the input sequence comes from a sampled cosine wave and mention the nyquist limit (Not sure if i want to add this)
 %   [ ] 1.1. Talk about the properties of the magnitude and phase 
 % [ ] 2. Perform this calculation as a matrix dot product and that makes it better for the computer to compute
+%   [ ] 2.1 Continue previous example but now with matrix multiplication form
 % [ ] 3. Algorithmic preview of the dft
 % [x] 4. Last phrase that introduces the next chapter FFT
 
@@ -532,15 +533,75 @@ The example shown above is done sequentially as if each frequency pin is compute
     \text{where } \omega = e^{- \frac{i 2 \pi}{N}}
 \end{equation*}
 
-The substitution variable \(\omega\) allows us o avoid writing extensive exponents
+% FIXME: I dont like the way this two phrases are right now, change later
+The substitution variable \(\omega\) allows us to avoid writing extensive exponents.
 
-The symbol \(W\) represents the transformation matrix of the Discrete Fourier Transform, also called DFT matrix
-This matrix multiplication form represents a more efficient way to compute the DFT in hardware.  
+The symbol \(W\) represents the transformation matrix of the Discrete Fourier Transform, also called DFT matrix, and its inverse can be defined as.
+
+\begin{equation*}
+    W^{-1} = \frac{1}{N} \cdot
+    \begin{bmatrix}
+        1      & 1              & \dots  & 1                          \\
+        1      & \omega         & \dots  & \omega^{(N-1)}             \\
+        \vdots & \vdots         & \ddots & \vdots                     \\
+        1      & \omega^{(N-1)} & \dots  & \omega^{(N-1) \cdot (N-1)} \\
+    \end{bmatrix}
+\end{equation*}
+\begin{equation*}
+    \text{where } \omega = e^{\frac{i 2 \pi}{N}}
+\end{equation*}
+
+By using this matrix multiplication form we can have a more efficient way to compute the DFT in hardware.  
+
+\begin{equation*}
+    X = W \cdot x \\ \eqname{Matrix DFT} \\
+\end{equation*}
+\begin{equation*}
+    x = W^{-1} \cdot X \\ \eqname{Matrix IDFT} \\
+\end{equation*}
+
+Moreover we might also want to normalize the matrix by \( \sqrt{N} \) for both Matrix DFT and IDFT instead of just normalizing the IDFT by \(N\), that will make \(W\) a unitary matrix \cite{horn2012matrix}.
+The advantage of using a unitary matrix is that we only need to reasign the constant substution variable \(\omega\) to be able to invert the dft, the matrix multiplication stays the same for both DFT and IDFT. Nevertheless later we will verify that the use of sqrt function isn't desirable for the implementation of any dft.
+
+% NOTE: 2.1.
+\paragraph{Example} \label{example1.2} Continuing the example \ref{example1}, we can adapt the aplication of the DFT to the matrix multiplication form.
+
+\begin{equation*}
+    W =
+    \begin{bmatrix}
+        1      & 1              & \dots  & 1                          \\
+        1      & \omega         & \dots  & \omega^{7}             \\
+        \vdots & \vdots         & \ddots & \vdots                     \\
+        1      & \omega^{7} & \dots  & \omega^{49} \\
+    \end{bmatrix}
+\end{equation*}
+\begin{equation*}
+    \text{where } \omega = e^{\frac{i 2 \pi}{8}}
+\end{equation*}
+
+\begin{equation*}
+    X = W \cdot x = W \cdot 
+    \begin{bmatrix}
+        1      \\
+        0.707  \\
+        \vdots \\
+        0.707  \\
+    \end{bmatrix} =
+    \begin{bmatrix}
+        0      \\
+        4+0i  \\
+        \vdots \\
+        4+0i  \\
+    \end{bmatrix}
+\end{equation*}
+
 
 % NOTE: 3. Algorithmic preview of the dft
-
+\hfill \break
 % NOTE: 4. Last phrase that introduces the next chapter FFT
+% REVIEW: (english) Usage of word conspicuous
 It's conspicuous that the complexity time for each multiplication of every singular term of the sequence with the complex exponential value is \(O(N^{2})\), hence, the computation of the Discrete Fourier Transform rises exponentially as we use longer sequences. Therefore, over time new algorithms and techniques where developed to increase the performance of this transform due to its usefulness. 
+
 
 \section{Fast Fourier Transform}
 
