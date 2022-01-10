@@ -308,9 +308,9 @@ Hence, we can break the Fourier Transform apart into two formulas that give each
 % Fourier's original formulation of the transform did not use complex numbers, but rather sines and cosines. % Chatfield, Chris (2004), The Analysis of Time Series: An Introduction, Texts in Statistical Science (6th ed.), London: Chapman & Hall/CRC, ISBN 9780203491683.
 
 % TODO: explain the formula better
-The above definition of the Fourier Integral\ref{eq1} can only be valid if the integral exists for every value of the parameter \(f\). This model of the fourier transform applied to infinite domain functions is called \textbf{Continous Fourier Transform} and its targeted to the calculation of the this transform directly to functions with only finite discontinuities in \( x(t) \).
+The above definition of the Fourier Integral \autoref{eq1} can only be valid if the integral exists for every value of the parameter \(f\). This model of the fourier transform applied to infinite domain functions is called \textbf{Continous Fourier Transform} and its targeted to the calculation of the this transform directly to functions with only finite discontinuities in \( x(t) \).
 
-\subsection{Where it is used}
+\subsection{Where it is used} \label{subsec:where_it_is_used}
 
 It's noticieable the presence of Fourier Transforms in a great variety of apparent unrelated fields of application, even the FFT is often called ubiquitous\footnote{present, appearing, or found everywhere.} due to its effective nature of solving a great hand of problems for the most intended complexity time. Some of the fields of application include Applied Mechanics, Signal Processing, Sonics and Acoustics, Biomedical Engineering, Instrumentation, Radar, Numerical Methods, Electromagnetics, Computer Graphics and more \cite{brigham1988fast}.
 
@@ -510,7 +510,7 @@ And that will produce our complex-valued output in frequency domain, as simple a
 
 % NOTE: 2.
 \subsubsection{\textbf{Matrix multiplication}}
-The example shown above is done sequentially as if each frequency pin is computed individually, but there's a way to calculate the same result by using matrix multiplication \cite{rao2018transform}. Since the operations are done equally without any extra step we can group all analysing function sinusoids (\(e^{- \frac{i 2 \pi}{N} k n}\)),
+The example shown above is done sequentially as if each frequency pin is computed individually, but there's a way to calculate the same result by using matrix multiplication \cite{rao2018transform}. Since the operations are done equally without any extra step we can group all analysing function sinusoids (\(e^{- \frac{i 2 \pi}{N} k n}\)), also refered to as twiddle factors.
 
 % \ref{example1}
 
@@ -564,7 +564,7 @@ Moreover we might also want to normalize the matrix by \( \sqrt{N} \) for both M
 The advantage of using a unitary matrix is that we only need to reasign the constant substution variable \(\omega\) to be able to invert the dft, the matrix multiplication stays the same for both DFT and IDFT. Nevertheless later we will verify that the use of sqrt function isn't desirable for the implementation of any dft.
 
 % NOTE: 2.1.
-\paragraph{Example} \label{example1.2} Continuing the example \ref{example1}, we can adapt the aplication of the DFT to the matrix multiplication form.
+\paragraph{Example} \label{example1.2} Continuing the example \autoref{example1}, we can adapt the aplication of the DFT to the matrix multiplication form.
 
 \begin{equation*}
     W =
