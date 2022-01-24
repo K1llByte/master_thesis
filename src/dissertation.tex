@@ -217,26 +217,26 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\chapter{Introduction}
+\chapter{Introduction} \label{chap:introduction}
 
-\section{Contextualization}
-
-%TODO: 
-Empty
-
-\section{Motivation}
+\section{Contextualization} \label{sec:contextualization}
 
 %TODO: 
 Empty
 
-\section{Objectives}
+\section{Motivation} \label{sec:motivation}
+
+%TODO: 
+Empty
+
+\section{Objectives} \label{sec:objectives}
 
 The main objective of this dissertation is to provide efficient FFT alternatives in GLSL compared with dedicated tools for high performance of FFT computations like NVIDIA cuFFT library, while analysing the intrinsic of a good Fast Fourier Transform implementation on the GPU.
 To accomplish the main objective there are two stages taken in consideration, "\textit{Analysis of CUDA and GLSL kernels}" to be well settled in their differences and to have a reference for the second stage "Analysis of cuFFT and GLSL FFT" which will cluster the study's main objective.
 
 To compose a final verdict conclusion, we will use as case of study applications with implementation of the FFT in the field of Computer Graphics that require realtime performance.
 
-\section{Document Organization}
+\section{Document Organization} \label{sec:document-organization}
 
 %TODO: 
 Empty
@@ -244,11 +244,11 @@ Empty
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\chapter{State of the Art}
+\chapter{State of the Art} \label{chap:state-of-the-art}
 
-\section{Fourier Transform}
+\section{Fourier Transform} \label{sec:fourier-transform}
 
-\subsection{What is Fourier Transform}
+\subsection{What is Fourier Transform} \label{subsec:what-is-fourier-transform}
 
 The \textbf{Fourier Transform} is a mathematical method to transform the domain refered to as \textit{time} of a function, to the \textit{frequency} domain, intuitively the Inverse Fourier Transform is the corresponding method to reverse that process and reconstruct the original function from the one in \textit{frequency} domain representation.
 
@@ -259,7 +259,7 @@ Although there are many forms, the Fourier Transform key definition can be descr
 % It must show the name AND the number
 \begin{equation} \label{eq1}
     % \begin{split}
-    X(f) = \int_{-\infty}^{+\infty} x(t)e^{-i f t} dt \\ \eqname{Forward Fourier Transform} \\
+    X(f) = \int_{-\infty}^{+\infty} x(t)e^{-i f t} dt \\ %\eqname{Forward Fourier Transform} \\
     % \end{split}
 \end{equation}
 
@@ -267,7 +267,7 @@ Although there are many forms, the Fourier Transform key definition can be descr
 %FIXME: This equations are replacing the reference number for the name with '\eqname'
 % It must show the name AND the number
 \begin{equation} \label{eq2}
-        x(t) = \frac{1}{2\pi} \int_{-\infty}^{+\infty} X(f)e^{-i f t} df \\ \eqname{Inverse Fourier Transform} \\
+        x(t) = \frac{1}{2\pi} \int_{-\infty}^{+\infty} X(f)e^{-i f t} df \\ %\eqname{Inverse Fourier Transform} \\
 \end{equation}
 
 % REVIEW
@@ -279,11 +279,11 @@ Although there are many forms, the Fourier Transform key definition can be descr
 
 This formulation shows the usage of complex-valued domain since the imaginary unit \( i \) doesn't represent a value in the set of real numbers, making the fourier transform range from real to complex values, one complex coefficient per frequency \( X : \mathbb{R} \rightarrow \mathbb{C} \) 
 
-If we take into account the Euler's formula, we can replace the Fourier Transform for an equivalent, fragmenting the euler constant for a sine and cosine
+If we take into account the Euler's formula, we can replace the Fourier Transform for an equivalent, fragmenting the euler constant for a sine and cosine pair.
 
 % Euler's Formula
 \begin{equation} \label{euler_formula}
-    e^{ix} = \cos x + i \sin x \\ \eqname{Euler's Formula} \\
+    e^{ix} = \cos x + i \sin x \\ %\eqname{Euler's Formula} \\
 \end{equation}
 
 % Forward Fourier Transform with Euler's Formula
@@ -310,13 +310,14 @@ Hence, we can break the Fourier Transform apart into two formulas that give each
 % TODO: explain the formula better
 The above definition of the Fourier Integral \autoref{eq1} can only be valid if the integral exists for every value of the parameter \(f\). This model of the fourier transform applied to infinite domain functions is called \textbf{Continous Fourier Transform} and its targeted to the calculation of the this transform directly to functions with only finite discontinuities in \( x(t) \).
 
-\subsection{Where it is used} \label{subsec:where_it_is_used}
+\subsection{Where it is used} \label{subsec:where-it-is-used}
 
 It's noticieable the presence of Fourier Transforms in a great variety of apparent unrelated fields of application, even the FFT is often called ubiquitous\footnote{present, appearing, or found everywhere.} due to its effective nature of solving a great hand of problems for the most intended complexity time. Some of the fields of application include Applied Mechanics, Signal Processing, Sonics and Acoustics, Biomedical Engineering, Instrumentation, Radar, Numerical Methods, Electromagnetics, Computer Graphics and more \cite{brigham1988fast}.
 
-One of the most well known cases of application is \textbf{Signal Analysis}, the Fourier Transform is probably the most important tool for analyzing signals, when representing a signal with amplitude as function of time, a signal can be translated to the frequency domain, a domain that consists of signals of sines and consines waves of varied frequencies, but to calculate the coefficients of those waves we need to use the Fourier Transform.
+One of the most well known cases of application is \textbf{Signal Analysis}, the Fourier Transform is probably the most important tool for analyzing signals, when representing a signal with amplitude as function of time, a signal can be translated to the frequency domain, a domain that consists of signals of sines and consines waves of varied frequencies, as demonstrated in \autoref{fig:signal-decomposition}, but to calculate the coefficients of those waves we need to use the Fourier Transform.
 
-\begin{figure}[h]
+\begin{figure}[h] 
+    \label{fig:signal-decomposition}
     \centering
     \includegraphics[width=0.5\textwidth]{imgs/fft_time_freq.png}
     \caption{Time to frequency signal decomposition}
@@ -365,7 +366,7 @@ And much more applications such as polynomial multiplication \cite{jia2014polyno
 % Denote in the end that we'll use a different case of application for this comparisson (might not be true since we could use the image processing case as study)
 
 
-\subsection{Discrete Fourier Transform}
+\section{Discrete Fourier Transform} \label{sec:discrete-fourier-transform}
 % \section{Discrete Fourier Transform}
 
 The Fourier Transform of a finite sequence of equally-spaced samples of a function is the called the \textbf{Discrete Fourier Transform} (DFT), it converts a finite set of values in \textit{time} domain to \textit{frequency} domain representation. Its the most important type of transform since it deals with a discrete amount of data and has the popular algorithm in which is the center of attention of fourier transforms, which can be implemented in machines and be computed by specialized hardware.
@@ -374,18 +375,18 @@ The Fourier Transform of a finite sequence of equally-spaced samples of a functi
 %FIXME: This equations are replacing the reference number for the name with '\eqname'
 % It must show the name AND the number
 \begin{equation} \label{eq3}
-    X_{k} = \sum_{n=0}^{N-1}x_{n} \cdot e^{- \frac{i 2 \pi}{N}kn} \\ \eqname{Forward Discrete Fourier Transform} \\
+    X_{k} = \sum_{n=0}^{N-1}x_{n} \cdot e^{- \frac{i 2 \pi}{N}kn} \\ %\eqname{Forward Discrete Fourier Transform} \\
 \end{equation}
 
 % Inverse Discrete Fourier Transform
 %FIXME: This equations are replacing the reference number for the name with '\eqname'
 % It must show the name AND the number
 \begin{equation} \label{eq4}
-    x_{n} = \frac{1}{N} \sum_{k=0}^{N-1}X_{k} \cdot e^{\frac{i 2 \pi}{N}kn} \\ \eqname{Inverse Discrete Fourier Transform} \\
+    x_{n} = \frac{1}{N} \sum_{k=0}^{N-1}X_{k} \cdot e^{\frac{i 2 \pi}{N}kn} \\ %\eqname{Inverse Discrete Fourier Transform} \\
 \end{equation}
 
 % REVIEW (english)
-Notably, the discrete version of the Fourier Transform has some obvious differences since it deals with a discrete time sequence, the first difference is the sum covers all elements of the input values instead of integrating the infinite domain of the function, but we can also notice that the exponential, similar to the aforesaid, divides the values by \(N\) (\(N\) being the total number of elements in the sequence) due to the inability to look at frequency and time \(ft\) continuously we instead take the \(k\)'th frequency over \(n\).
+Notably, the discrete version of the Fourier Transform has some obvious differences since it deals with a discrete time sequence, the first difference is that the sum covers all elements of the input values instead of integrating the infinite domain of the function, but we can also notice that the exponential, similar to the aforesaid, divides the values by \(N\) (\(N\) being the total number of elements in the sequence) due to the inability to look at frequency and time \(ft\) continuously we instead take the \(k\)'th frequency over \(n\).
 
 We can have a more simplified expansion of this formula with:
 
@@ -501,15 +502,15 @@ And that will produce our complex-valued output in frequency domain, as simple a
 
 
 % TODO:
-% [ ] 1. Justify why the hz 1 isn't with just 1 since the input sequence comes from a sampled cosine wave and mention the nyquist limit (Not sure if i want to add this)
-%   [ ] 1.1. Talk about the properties of the magnitude and phase 
-% [ ] 2. Perform this calculation as a matrix dot product and that makes it better for the computer to compute
-%   [ ] 2.1 Continue previous example but now with matrix multiplication form
+% [-] 1. Justify why the hz 1 isn't with just 1 since the input sequence comes from a sampled cosine wave and mention the nyquist limit (Not sure if i want to add this)
+%   [-] 1.1. Talk about the properties of the magnitude and phase 
+% [x] 2. Perform this calculation as a matrix dot product and that makes it better for the computer to compute
+%   [1/2] 2.1 Continue previous example but now with matrix multiplication form
 % [ ] 3. Algorithmic preview of the dft
 % [x] 4. Last phrase that introduces the next chapter FFT
 
 % NOTE: 2.
-\subsubsection{\textbf{Matrix multiplication}}
+\subsection{Matrix multiplication} \label{subsec:matrix-multiplication}
 The example shown above is done sequentially as if each frequency pin is computed individually, but there's a way to calculate the same result by using matrix multiplication \cite{rao2018transform}. Since the operations are done equally without any extra step we can group all analysing function sinusoids (\(e^{- \frac{i 2 \pi}{N} k n}\)), also refered to as twiddle factors.
 
 % \ref{example1}
@@ -554,10 +555,10 @@ The symbol \(W\) represents the transformation matrix of the Discrete Fourier Tr
 By using this matrix multiplication form we can have a more efficient way to compute the DFT in hardware.  
 
 \begin{equation*}
-    X = W \cdot x \\ \eqname{Matrix DFT} \\
+    X = W \cdot x \\ %\eqname{Matrix DFT} \\
 \end{equation*}
 \begin{equation*}
-    x = W^{-1} \cdot X \\ \eqname{Matrix IDFT} \\
+    x = W^{-1} \cdot X \\ %\eqname{Matrix IDFT} \\
 \end{equation*}
 
 Moreover we might also want to normalize the matrix by \( \sqrt{N} \) for both Matrix DFT and IDFT instead of just normalizing the IDFT by \(N\), that will make \(W\) a unitary matrix \cite{horn2012matrix}.
@@ -603,21 +604,42 @@ The advantage of using a unitary matrix is that we only need to reasign the cons
 It's conspicuous that the complexity time for each multiplication of every singular term of the sequence with the complex exponential value is \(O(N^{2})\), hence, the computation of the Discrete Fourier Transform rises exponentially as we use longer sequences. Therefore, over time new algorithms and techniques where developed to increase the performance of this transform due to its usefulness. 
 
 
-\section{Fast Fourier Transform}
+\section{Fast Fourier Transform} \label{sec:fast-fourier-transform}
 
-%TODO: 
-Empty
+The Fast Fourier Transform (FFT) is a family of algorithms that effectively compute the Discrete Fourier Transform (DFT) of a sequence and its inverse. These algorihtms essentially compute the the same result as the DFT but the direct usage of the DFT formulation is too slow for its applications. Thus, FFT algorithms exploit the DFT matrix structure by employing a divide-and-conquer approach \cite{chu1999inside} to segment its application.
+
+Over time serveral variations of the algorithms were developed to improve the performance of the DFT and many aspects were rethought in the way we apply and produce the resulting transform, in this section we'll cover at some of those variations and utilities. % FIXME: Here 'utilities' doesn't fit quite right but i cant find the word i want.
+
+% TODO:
+% 1.1 Mention some of the algorithms and authors names
+% 1.2 'The one well discuss now is Radix-2' and here talk about how this two main algorithms work and why its only for power of 2 cases
+% Algorithms
+% 2.1
+
+% 1.1
+There are many algorithms and aproaches on the FFT family such as the well known Cooley-Tukey, known for its simplicity and effectiveness to compute any sequence with size as a power of two, but also Rader's algorithm \cite{rader1968discrete} and Bluestein's algorithm \cite{bluestein1970linear} which both deal prime sized sequences, and even the Split-radix FFT \cite{yavne1968economical} that recursively expresses a DFT of length N in terms of one smaller DFT of length N/2 and two smaller DFTs of length N/4. 
+% FIXME: 'that recursively expresses a DFT of length N in terms of one smaller DFT of length N/2 and two smaller DFTs of length N/4.' this is cited directly from https://en.wikipedia.org/wiki/Split-radix_FFT_algorithm try to rewrite later from a good source
+
+% 1.2
+We'll focus for now on the Cooley–Tukey algorithm, most specifically the radix-2 decimation-in-time (DIT) FFT and radix-2 decimation-in-frequency (DIF) FFT, which assume that the input sequence is a power of two sized.
+
+\subsection{Radix-2 Decimation-in-Time FFT} \label{subsec:radix-2-decimation-in-time-fft}
+
+
+\subsection{Radix-2 Decimation-in-Frequency FFT} \label{subsec:radix-2-decimation-in-frequency-fft}
 
 % Code listing example
 % \begin{lstlisting}[language=Python]
 % \end{lstlisting}
 
-\subsection{Computation of FFT}
+\autoref{eq1}
 
 %TODO: 
 Empty
 
 \section{Related Work}
+
+% Talk about that microsoft paper which implements efficiently in HLSL
 
 %TODO: 
 Empty

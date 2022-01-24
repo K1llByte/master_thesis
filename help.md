@@ -56,11 +56,16 @@
 ### Fourier Transform
 #### What is Fourier Transform
 #### Where it is used
-#### Discrete Fourier Transform
+### Discrete Fourier Transform
+#### Matrix Formulation
 ### Fast Fourier Transform
-#### Computation of FFT
-#### cuFFT
+#### Radix-2 Decimation-in-Time FFT
+#### Radix-2 Decimation-in-Frequency FFT
 ### Related Work
+#### cuFFT
+#### (microsoft article)
+#### FFTW*
+
 <!-- Final work will have the Part III - Core of Dissertation -->
 ```
 
