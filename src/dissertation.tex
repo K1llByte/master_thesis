@@ -22,6 +22,7 @@
 \usepackage{tikz}
 % \usepackage{gnuplot-lua-tikz}
 % \usepackage{mathpazo}
+\usepackage[acronym]{glossaries}
 \pgfplotsset{width=10cm,compat=1.9}
 % We will externalize the figures
 \usepgfplotslibrary{external}
@@ -82,6 +83,10 @@
 
 \newcommand{\eqname}[1]{\tag*{#1}}% Tag equation with name
 
+\newcommand*{\source}[1]{%
+    \textbf{Source:} \cite{#1}%
+}
+
 %usepackage[scaled=.92]{helvet}
 \usepackage[all]{xy}
 \usepackage{circuitikz}
@@ -114,6 +119,8 @@
 \begin{document}\fontfamily{phv}\fontseries{mc}\selectfont
     
 % Add acronym definitions
+\newacronym{gcd}{GCD}{Greatest Common Divisor}
+\newacronym{lcm}{LCM}{Least Common Multiple}
     
 % Cover page ---------------------------------------------
 %	\thispagestyle{empty}
@@ -122,7 +129,7 @@
     \cleardoublepage
 %---------------------------------------------------------
     \pagenumbering{alph}
-    \setcounter{page}{0}
+    \setcounter{page}{1}
 %---------------------------------------------------------
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -209,6 +216,8 @@
     
     % \cleardoublepage
     % \lstlistoflistings
+
+    \printglossary[type=\acronymtype]
     
     % Add list of acronyms
     \cleardoublepage
@@ -312,15 +321,16 @@ The above definition of the Fourier Integral \autoref{eq1} can only be valid if 
 
 \subsection{Where it is used} \label{subsec:where-it-is-used}
 
-It's noticieable the presence of Fourier Transforms in a great variety of apparent unrelated fields of application, even the FFT is often called ubiquitous\footnote{present, appearing, or found everywhere.} due to its effective nature of solving a great hand of problems for the most intended complexity time. Some of the fields of application include Applied Mechanics, Signal Processing, Sonics and Acoustics, Biomedical Engineering, Instrumentation, Radar, Numerical Methods, Electromagnetics, Computer Graphics and more \cite{brigham1988fast}.
+It's noticieable the presence of Fourier Transforms in a great variety of apparent unrelated fields of application, even the FFT is often called ubiquitous\footnote{present, appearing, or found everywhere.} due to its effective nature of solving a great hand of problems for the most intended complexity time. Some of the fields of application include Applied Mechanics, Signal Processing, Sonics and Acoustics, Biomedical Engineering, Instrumentation, Radar, Numerical Methods, Electromagnetics, Computer Graphics and more \cite{brigham1988fast}. % \gls{gcd}
 
 One of the most well known cases of application is \textbf{Signal Analysis}, the Fourier Transform is probably the most important tool for analyzing signals, when representing a signal with amplitude as function of time, a signal can be translated to the frequency domain, a domain that consists of signals of sines and consines waves of varied frequencies, as demonstrated in \autoref{fig:signal-decomposition}, but to calculate the coefficients of those waves we need to use the Fourier Transform.
 
+% TODO: reference the author
 \begin{figure}[h] 
     \label{fig:signal-decomposition}
     \centering
     \includegraphics[width=0.5\textwidth]{imgs/fft_time_freq.png}
-    \caption{Time to frequency signal decomposition}
+    \caption{Time to frequency signal decomposition \source{fftntiaudio}}
 \end{figure}
 
 % REVIEW
@@ -330,7 +340,7 @@ Since the sines and consines waves are in simple waveforms they can then be mani
 % TODO:
 % - Elaborate more
 % - Maybe describe the polynomial multiplication too
-% - Move the 'jia2014polynomial' citation
+% - Maybe move the 'jia2014polynomial' citation
 % . . .
 
 And much more applications such as polynomial multiplication \cite{jia2014polynomial}, numerical integration, time-domain interpolation, x-ray diffracition ...
@@ -518,10 +528,10 @@ The example shown above is done sequentially as if each frequency pin is compute
 \begin{equation*}
     W = 
     \begin{bmatrix}
-        \omega^{0 \cdot 0}     & \omega^{1 \cdot 0}     & \dots  & \omega^{(N-1) \cdot 0}     \\
-        \omega^{0 \cdot 1}     & \omega^{1 \cdot 1}     & \dots  & \omega^{(N-1) \cdot 1}     \\
-        \vdots                 & \vdots                 & \ddots & \vdots                     \\
-        \omega^{0 \cdot (N-1)} & \omega^{1 \cdot (N-1)} & \dots  & \omega^{(N-1) \cdot (N-1)} \\
+        \omega_{N}^{0 \cdot 0}     & \omega_{N}^{1 \cdot 0}     & \dots  & \omega_{N}^{(N-1) \cdot 0}     \\
+        \omega_{N}^{0 \cdot 1}     & \omega_{N}^{1 \cdot 1}     & \dots  & \omega_{N}^{(N-1) \cdot 1}     \\
+        \vdots                     & \vdots                     & \ddots & \vdots                          \\
+        \omega_{N}^{0 \cdot (N-1)} & \omega_{N}^{1 \cdot (N-1)} & \dots  & \omega_{N}^{(N-1) \cdot (N-1)} \\
     \end{bmatrix} =
     \begin{bmatrix}
         1      & 1              & \dots  & 1                          \\
@@ -531,7 +541,7 @@ The example shown above is done sequentially as if each frequency pin is compute
     \end{bmatrix}
 \end{equation*}
 \begin{equation*}
-    \text{where } \omega = e^{- \frac{i 2 \pi}{N}}
+    \text{where } \omega_{N} = e^{- \frac{i 2 \pi}{N}}
 \end{equation*}
 
 % FIXME: I dont like the way this two phrases are right now, change later
@@ -542,14 +552,15 @@ The symbol \(W\) represents the transformation matrix of the Discrete Fourier Tr
 \begin{equation*}
     W^{-1} = \frac{1}{N} \cdot
     \begin{bmatrix}
-        1      & 1              & \dots  & 1                          \\
-        1      & \omega         & \dots  & \omega^{(N-1)}             \\
-        \vdots & \vdots         & \ddots & \vdots                     \\
-        1      & \omega^{(N-1)} & \dots  & \omega^{(N-1) \cdot (N-1)} \\
+        1      & 1                  & \dots  & 1                              \\
+        1      & \omega_{N}         & \dots  & \omega_{N}^{(N-1)}             \\
+        \vdots & \vdots             & \ddots & \vdots                         \\
+        1      & \omega_{N}^{(N-1)} & \dots  & \omega_{N}^{(N-1) \cdot (N-1)} \\
     \end{bmatrix}
 \end{equation*}
+
 \begin{equation*}
-    \text{where } \omega = e^{\frac{i 2 \pi}{N}}
+    \text{where } \omega_{N} = e^{- \frac{i 2 \pi}{N}} \\
 \end{equation*}
 
 By using this matrix multiplication form we can have a more efficient way to compute the DFT in hardware.  
@@ -562,22 +573,22 @@ By using this matrix multiplication form we can have a more efficient way to com
 \end{equation*}
 
 Moreover we might also want to normalize the matrix by \( \sqrt{N} \) for both Matrix DFT and IDFT instead of just normalizing the IDFT by \(N\), that will make \(W\) a unitary matrix \cite{horn2012matrix}.
-The advantage of using a unitary matrix is that we only need to reasign the constant substution variable \(\omega\) to be able to invert the dft, the matrix multiplication stays the same for both DFT and IDFT. Nevertheless later we will verify that the use of sqrt function isn't desirable for the implementation of any dft.
+The advantage of using a unitary matrix is that we only need to reasign the constant substution variable \(\omega_{N}\) to be able to invert the dft, the matrix multiplication stays the same for both DFT and IDFT. Nevertheless later we will verify that the use of sqrt function isn't desirable for the implementation of any dft.
 
 % NOTE: 2.1.
-\paragraph{Example} \label{example1.2} Continuing the example \autoref{example1}, we can adapt the aplication of the DFT to the matrix multiplication form.
+\paragraph{Example} \label{example1.2} Continuing the example \ref{example1}, we can adapt the aplication of the DFT to the matrix multiplication form.
 
 \begin{equation*}
     W =
     \begin{bmatrix}
-        1      & 1              & \dots  & 1                          \\
-        1      & \omega         & \dots  & \omega^{7}             \\
-        \vdots & \vdots         & \ddots & \vdots                     \\
-        1      & \omega^{7} & \dots  & \omega^{49} \\
+        1      & 1              & \dots  & 1               \\
+        1      & \omega_{8}     & \dots  & \omega_{8}^{7}  \\
+        \vdots & \vdots         & \ddots & \vdots          \\
+        1      & \omega_{8}^{7} & \dots  & \omega_{8}^{49} \\
     \end{bmatrix}
 \end{equation*}
 \begin{equation*}
-    \text{where } \omega = e^{\frac{i 2 \pi}{8}}
+    \text{where } \omega_{8} = e^{\frac{i 2 \pi}{8}}
 \end{equation*}
 
 \begin{equation*}
@@ -608,7 +619,9 @@ It's conspicuous that the complexity time for each multiplication of every singu
 
 The Fast Fourier Transform (FFT) is a family of algorithms that effectively compute the Discrete Fourier Transform (DFT) of a sequence and its inverse. These algorihtms essentially compute the the same result as the DFT but the direct usage of the DFT formulation is too slow for its applications. Thus, FFT algorithms exploit the DFT matrix structure by employing a divide-and-conquer approach \cite{chu1999inside} to segment its application.
 
-Over time serveral variations of the algorithms were developed to improve the performance of the DFT and many aspects were rethought in the way we apply and produce the resulting transform, in this section we'll cover at some of those variations and utilities. % FIXME: Here 'utilities' doesn't fit quite right but i cant find the word i want.
+Over time serveral variations of the algorithms were developed to improve the performance of the DFT and many aspects were rethought in the way we apply and produce the resulting transform, in this section we'll cover at some of those variations. % and utilities. % FIXME: Here 'utilities' doesn't fit quite right but i cant find the word i want. 
+
+% NOTE: There's a newline here since the first block of text is introducing the FFT concept, and the next paragraph is about the algorithms and what well talk about next.
 
 % TODO:
 % 1.1 Mention some of the algorithms and authors names
@@ -617,25 +630,58 @@ Over time serveral variations of the algorithms were developed to improve the pe
 % 2.1
 
 % 1.1
-There are many algorithms and aproaches on the FFT family such as the well known Cooley-Tukey, known for its simplicity and effectiveness to compute any sequence with size as a power of two, but also Rader's algorithm \cite{rader1968discrete} and Bluestein's algorithm \cite{bluestein1970linear} which both deal prime sized sequences, and even the Split-radix FFT \cite{yavne1968economical} that recursively expresses a DFT of length N in terms of one smaller DFT of length N/2 and two smaller DFTs of length N/4. 
+\paragraph{}
+There are many algorithms and aproaches on the FFT family such as the well known Cooley-Tukey, known for its simplicity and effectiveness to compute any sequence with size as a power of two, but also Rader's algorithm \cite{rader1968discrete} and Bluestein's algorithm \cite{bluestein1970linear} which both deal prime sized sequences, and even the Split-radix FFT \cite{yavne1968economical} that recursively expresses a DFT of length \(N\) in terms of one smaller DFT of length \(N/2\) and two smaller DFTs of length \(N/4\). 
 % FIXME: 'that recursively expresses a DFT of length N in terms of one smaller DFT of length N/2 and two smaller DFTs of length N/4.' this is cited directly from https://en.wikipedia.org/wiki/Split-radix_FFT_algorithm try to rewrite later from a good source
 
 % 1.2
 We'll focus for now on the Cooley–Tukey algorithm, most specifically the radix-2 decimation-in-time (DIT) FFT and radix-2 decimation-in-frequency (DIF) FFT, which assume that the input sequence is a power of two sized.
 
+% Describe here everything that the DIT and DIF have in common
+
 \subsection{Radix-2 Decimation-in-Time FFT} \label{subsec:radix-2-decimation-in-time-fft}
+
+% 1. Explain the objective and what the DIT term means in the applied algorithm
+% (is one of the most used)
+
+The Radix-2 Decimation-in-Time FFT algorithm rearranges the original Discrete Fourier Transform (DFT) formula into two subtransforms, one as a sum over the even indexed elements and other as a sum over the odd indexed elements; as in this simplified formulation \autoref{eq:dit}.
+
+\begin{equation} \label{eq:dit}
+    X_{k} = \sum_{n=0}^{\frac{N}{2}-1}x_{2n} \cdot \omega_{\frac{N}{2}}^{k(2n)} + \omega_{N}^{k} \sum_{n=0}^{\frac{N}{2}-1}x_{2n+1} \cdot \omega_{\frac{N}{2}}^{k(2n+1)} \\
+\end{equation}
+
+This formulation successfully segments the full sized DFT into two \(N/2\) sized DFT's
+
+% TODO: Cite this somewhere in these two topics
+\cite{jones2014digital}
+
+\begin{figure}[h] 
+    \label{fig:dit-fft}
+    \centering
+    \includegraphics[width=0.5\textwidth]{imgs/dit_fft.png}
+    \caption{Radix-2 Decimation-in-Time FFT}
+\end{figure}
 
 
 \subsection{Radix-2 Decimation-in-Frequency FFT} \label{subsec:radix-2-decimation-in-frequency-fft}
 
+% 1. Explain the objective and what the DIF term means in the applied algorithm
+The Radix-2 Decimation-in-Frequency FFT algorithm, just like the Decimation in Time does, rearranges the original Discrete Fourier Transform (DFT) formula into two subtransforms, one as a sum over the even indexed elements and other as a sum over the odd indexed elements; as in this simplified formulation \autoref{eq:dif}.
+
+\begin{equation} \label{eq:dif}
+    X_{k} = \sum_{n=0}^{N-1}x_{n} \cdot e^{- \frac{i 2 \pi}{N}kn} \\
+\end{equation}
+
+\begin{figure}[h] 
+    \label{fig:dif-fft}
+    \centering
+    \includegraphics[width=0.5\textwidth]{imgs/dif_fft.png}
+    \caption{Radix-2 Decimation-in-Frequency FFT}
+\end{figure}
+
 % Code listing example
 % \begin{lstlisting}[language=Python]
 % \end{lstlisting}
-
-\autoref{eq1}
-
-%TODO: 
-Empty
 
 \section{Related Work}
 
