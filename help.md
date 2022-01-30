@@ -64,7 +64,6 @@
 ### Related Work
 #### cuFFT
 #### (microsoft article)
-#### FFTW*
 
 <!-- Final work will have the Part III - Core of Dissertation -->
 ```

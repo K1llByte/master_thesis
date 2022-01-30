@@ -14,6 +14,7 @@
 %---
 \usepackage[T1]{fontenc}
 \usepackage{textcomp}
+\usepackage{algorithm2e}
 
 \usepackage{listings}
 \usepackage{xcolor}
@@ -323,14 +324,14 @@ The above definition of the Fourier Integral \autoref{eq1} can only be valid if 
 
 It's noticieable the presence of Fourier Transforms in a great variety of apparent unrelated fields of application, even the FFT is often called ubiquitous\footnote{present, appearing, or found everywhere.} due to its effective nature of solving a great hand of problems for the most intended complexity time. Some of the fields of application include Applied Mechanics, Signal Processing, Sonics and Acoustics, Biomedical Engineering, Instrumentation, Radar, Numerical Methods, Electromagnetics, Computer Graphics and more \cite{brigham1988fast}. % \gls{gcd}
 
-One of the most well known cases of application is \textbf{Signal Analysis}, the Fourier Transform is probably the most important tool for analyzing signals, when representing a signal with amplitude as function of time, a signal can be translated to the frequency domain, a domain that consists of signals of sines and consines waves of varied frequencies, as demonstrated in \autoref{fig:signal-decomposition}, but to calculate the coefficients of those waves we need to use the Fourier Transform.
+One of the most well known cases of application is \textbf{Signal Analysis}, the Fourier Transform is probably the most important tool for analyzing signals, when representing a signal with amplitude as function of time, a signal can be translated to the frequency domain, a domain that consists of signals of sines and consines waves of varied frequencies, as demonstrated in \ref{fig:signal-decomposition}, but to calculate the coefficients of those waves we need to use the Fourier Transform.
 
 % TODO: reference the author
 \begin{figure}[h] 
-    \label{fig:signal-decomposition}
     \centering
     \includegraphics[width=0.5\textwidth]{imgs/fft_time_freq.png}
     \caption{Time to frequency signal decomposition \source{fftntiaudio}}
+    \label{fig:signal-decomposition}
 \end{figure}
 
 % REVIEW
@@ -644,23 +645,35 @@ We'll focus for now on the Cooley–Tukey algorithm, most specifically the radix
 % 1. Explain the objective and what the DIT term means in the applied algorithm
 % (is one of the most used)
 
-The Radix-2 Decimation-in-Time FFT algorithm rearranges the original Discrete Fourier Transform (DFT) formula into two subtransforms, one as a sum over the even indexed elements and other as a sum over the odd indexed elements; as in this simplified formulation \autoref{eq:dit}.
+The Radix-2 Decimation-in-Time FFT algorithm rearranges the original Discrete Fourier Transform (DFT) formula into two subtransforms, one as a sum over the even indexed elements and other as a sum over the odd indexed elements. The \autoref{eq:dit} describes this procedure with already simplified math, and hints the recursive decomposition of the DFT of size \(N/2\).
 
 \begin{equation} \label{eq:dit}
-    X_{k} = \sum_{n=0}^{\frac{N}{2}-1}x_{2n} \cdot \omega_{\frac{N}{2}}^{k(2n)} + \omega_{N}^{k} \sum_{n=0}^{\frac{N}{2}-1}x_{2n+1} \cdot \omega_{\frac{N}{2}}^{k(2n+1)} \\
+    X_{k} = \sum_{n=0}^{\frac{N}{2}-1}x_{2n} \cdot \omega_{N/2}^{k(2n)} + \omega_{N}^{k} \sum_{n=0}^{\frac{N}{2}-1}x_{2n+1} \cdot \omega_{N/2}^{k(2n+1)} \\
 \end{equation}
 
-This formulation successfully segments the full sized DFT into two \(N/2\) sized DFT's
+\begin{equation*}
+    \text{where } \omega_{N} = e^{\frac{i 2 \pi}{N}}
+\end{equation*}
+
+This formulation successfully segments the full sized DFT into two \(N/2\) sized DFT's of the even and odd indexed elements where the later is multiplied by a twiddle factor \( \omega_{N}^{k} \). 
+% \( X_{N} = E_{N/2} + W * O_{N/2} \)
+
+This algorithm is a Radix-2 Decimation-in-Time in the sence that the time values are regrouped in 2 subtransforms, and the decomposition reduces the time values to the frequency domain, since the understanding of this algorithm can be aplied recursively, the \autoref{fig:dit-fft} illustrates the basic behaviour and represents the \(N/2\) subtransforms with boxes that can be filled by the recursive application of this algorithm to produce the frequency domain sequence.
+
 
 % TODO: Cite this somewhere in these two topics
-\cite{jones2014digital}
+% \cite{jones2014digital}
 
 \begin{figure}[h] 
-    \label{fig:dit-fft}
     \centering
     \includegraphics[width=0.5\textwidth]{imgs/dit_fft.png}
-    \caption{Radix-2 Decimation-in-Time FFT}
+    \caption{Radix-2 Decimation-in-Time FFT \source{jones2014digital}}
+    \label{fig:dit-fft}
 \end{figure}
+
+% 2. Continue explaining this algorithm
+
+% 3. Algorithmic implementations
 
 
 \subsection{Radix-2 Decimation-in-Frequency FFT} \label{subsec:radix-2-decimation-in-frequency-fft}
@@ -669,14 +682,14 @@ This formulation successfully segments the full sized DFT into two \(N/2\) sized
 The Radix-2 Decimation-in-Frequency FFT algorithm, just like the Decimation in Time does, rearranges the original Discrete Fourier Transform (DFT) formula into two subtransforms, one as a sum over the even indexed elements and other as a sum over the odd indexed elements; as in this simplified formulation \autoref{eq:dif}.
 
 \begin{equation} \label{eq:dif}
-    X_{k} = \sum_{n=0}^{N-1}x_{n} \cdot e^{- \frac{i 2 \pi}{N}kn} \\
+    X_{k} = \sum_{n=0}^{\frac{N}{2}-1}x_{2n} \cdot \omega_{N/2}^{k(2n)} + \omega_{N}^{k} \sum_{n=0}^{\frac{N}{2}-1}x_{2n+1} \cdot \omega_{N/2}^{k(2n+1)} \\
 \end{equation}
 
 \begin{figure}[h] 
-    \label{fig:dif-fft}
     \centering
     \includegraphics[width=0.5\textwidth]{imgs/dif_fft.png}
-    \caption{Radix-2 Decimation-in-Frequency FFT}
+    \caption{Radix-2 Decimation-in-Frequency FFT \source{jones2014digital}}
+    \label{fig:dif-fft}
 \end{figure}
 
 % Code listing example
