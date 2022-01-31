@@ -245,11 +245,24 @@ The main objective of this dissertation is to provide efficient FFT alternatives
 To accomplish the main objective there are two stages taken in consideration, "\textit{Analysis of CUDA and GLSL kernels}" to be well settled in their differences and to have a reference for the second stage "Analysis of cuFFT and GLSL FFT" which will cluster the study's main objective.
 
 To compose a final verdict conclusion, we will use as case of study applications with implementation of the FFT in the field of Computer Graphics that require realtime performance.
+% TODO: Finish this section
 
 \section{Document Organization} \label{sec:document-organization}
 
-%TODO: 
-Empty
+% chap 1
+This dissertation is organized in N chapters. Firstly, the \autoref{chap:introduction} exposes the main introduction to the subject of this dissertation with the respective background information and defines objectives including contextualization and this document organization section.
+
+% chap 2
+To give a state of the art overview of the theory and practice associated with Fourier Transforms, \autoref{chap:state-of-the-art} covers most of basic understandings and algorithms needed for later chapters, this will only take simple approachs to each concept to give intuitive insight and empirical explanations without proving it formally.
+
+% chap 3 % TODO: When chapter 3 label is available, autoref it in the paragraph
+Following the state of the art, chapter 3 will build a in depth analysis of FFT computation comparisons having several conditions in mind and comparing tradeoffs in different implementations, since this chapter will in only focus on raw FFT computations most of the application driven alternatives will be pushed to the next chapter
+
+% chap 4 % TODO: When chapter 4 label is available, autoref it in the paragraph
+Finally, to culminate the past chapters, the chapter 4 is going to provide application driven implementations with performance-wise approaches, with a real application scenario were its performance is critical.
+
+%TODO: Finish this
+
 % A reaader with a good understanding of how the FFT works can skip to chapter <chaper_name>
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -326,7 +339,6 @@ It's noticieable the presence of Fourier Transforms in a great variety of appare
 
 One of the most well known cases of application is \textbf{Signal Analysis}, the Fourier Transform is probably the most important tool for analyzing signals, when representing a signal with amplitude as function of time, a signal can be translated to the frequency domain, a domain that consists of signals of sines and consines waves of varied frequencies, as demonstrated in \ref{fig:signal-decomposition}, but to calculate the coefficients of those waves we need to use the Fourier Transform.
 
-% TODO: reference the author
 \begin{figure}[h] 
     \centering
     \includegraphics[width=0.5\textwidth]{imgs/fft_time_freq.png}
@@ -374,7 +386,7 @@ And much more applications such as polynomial multiplication \cite{jia2014polyno
 % Dar 2 exemplos principais de como é aplicado e uma breve explicação
 % - Signal processing
 
-% Denote in the end that we'll use a different case of application for this comparisson (might not be true since we could use the image processing case as study)
+% Denote in the end that we'll use a different case of application for this comparison (might not be true since we could use the image processing case as study)
 
 
 \section{Discrete Fourier Transform} \label{sec:discrete-fourier-transform}
