@@ -247,6 +247,20 @@ To accomplish the main objective there are two stages taken in consideration, "\
 To compose a final verdict conclusion, we will use as case of study applications with implementation of the FFT in the field of Computer Graphics that require realtime performance.
 % TODO: Finish this section
 
+% **Objetivos de alto nivel:**
+
+% 1. Explicar em um primeiro paragrafo o que quero com esta dissertação:
+% - Explorar os graus de performance de fft em aplicações em concreto, comparando ferramentas dedicadas para alta performance desses algoritmos, com implementações especializadas
+
+% Informar:
+% - que esta dissertação irá focar em implementaçoes de fft baseadas no algoritmo de divide and conquer de Cooley–Tukey 
+
+% **Objetivos de baixo nivel / O que vamos fazer em concreto:**
+
+% e que um dos principais objetivos vai ser otimizar a utilização destes algoritmos em tempo real nos casos de estudo, que vao estar principalmente no dominio de computação gráfica (apesar de haver diversas outras áreas qe podiam ser estudadas)
+
+% Similarly, many studies have their work focused on the optimized computation of the FFT
+
 \section{Document Organization} \label{sec:document-organization}
 
 % chap 1
@@ -685,8 +699,41 @@ This algorithm is a Radix-2 Decimation-in-Time in the sence that the time values
 
 % 2. Continue explaining this algorithm
 
-% 3. Algorithmic implementations
+Effectivelly, this smaller DFT's are recursively reduced by this algorithm until theres only the computation of a length-2 DFT where its only applied the basic butterfly operation illustrated in \autoref{fig:dit-butterfly}.
 
+% NOTE: Handmade since there wan't one that had exacly what i wanted
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.5\textwidth]{imgs/dit_butterfly.png}
+    \caption{Cooley-Tukey butterfly}
+    \label{fig:dit-butterfly}
+\end{figure}
+
+% "Whereas direct computation of all N DFT frequencies according to the DFT equation would require N2 complex multiplies and N2−N complex additions (for complex-valued data), by reusing the results of the two short-length DFTs as illustrated in Figure, the computational cost is now" 
+
+The complexity work within the algorithm is distributed with the DIT approach which decomposes each DFT by 2 having \(log N\) stages \cite{smith2007mathematics} while there are approximately \(N\) complex multiplications needed for each stage of the DIT decomposition, therefore the multiplication complexity for a \(N\) sized DFT is reduced from \(O(N^{2})\) to \(O(N \log{N})\) without any programming specific optimizations.
+
+% 3. Algorithmic overview
+\SetKwComment{Comment}{/* }{ */}
+\RestyleAlgo{ruled}
+\begin{algorithm}
+    \caption{Radix-2 Decimation-in-Time FFT} \label{alg:dit}
+    \KwData{$n \geq 0$}
+    \KwResult{$y = x^n$}
+    $y \gets 1$\;
+    $X \gets x$\;
+    $N \gets n$\;
+    \While{$N \neq 0$}{
+      \eIf{$N$ is even}{
+        $X \gets X \times X$\;
+        $N \gets \frac{N}{2}$ % \Comment*[r]{This is a comment}
+      }{\If{$N$ is odd}{
+          $y \gets y \times X$\;
+          $N \gets N - 1$\;
+        }
+      }
+    }
+\end{algorithm}
 
 \subsection{Radix-2 Decimation-in-Frequency FFT} \label{subsec:radix-2-decimation-in-frequency-fft}
 
@@ -708,8 +755,27 @@ The Radix-2 Decimation-in-Frequency FFT algorithm, just like the Decimation in T
 % \begin{lstlisting}[language=Python]
 % \end{lstlisting}
 
+\subsection{2D and 3D transforms}
+
+Altough we've already gonne through a lot of information ... its still unclear how these primitive functions on multidimentional targets, such as images and.
+
+% TODO:
+Empty
+
 \section{Related Work}
 
+%TODO: 
+Empty
+
+\subsection{cuFFT}
+
+%TODO: 
+Empty
+
+\subsection{Fast Computation of general Fourier Transforms on GPUS}
+
+%TODO: 
+Empty
 % Talk about that microsoft paper which implements efficiently in HLSL
 
 %TODO: 
