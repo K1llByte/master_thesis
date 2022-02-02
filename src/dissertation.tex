@@ -718,21 +718,30 @@ The complexity work within the algorithm is distributed with the DIT approach wh
 \RestyleAlgo{ruled}
 \begin{algorithm}
     \caption{Radix-2 Decimation-in-Time FFT} \label{alg:dit}
-    \KwData{$n \geq 0$}
-    \KwResult{$y = x^n$}
-    $y \gets 1$\;
-    $X \gets x$\;
-    $N \gets n$\;
-    \While{$N \neq 0$}{
-      \eIf{$N$ is even}{
-        $X \gets X \times X$\;
-        $N \gets \frac{N}{2}$ % \Comment*[r]{This is a comment}
-      }{\If{$N$ is odd}{
-          $y \gets y \times X$\;
-          $N \gets N - 1$\;
-        }
-      }
+    \KwData{Sequence $in$ with size $N$ power of 2 }
+    \KwResult{Sequence $out$ with size $N$ with the DFT of the input}
+
+    \Comment{Bit reversal step}
+    \ForEach{$i = 0$ \textbf{to} $N-1$}{
+        $out[bit\_reverse(i)] \gets in[i]$
     }
+
+    \Comment{FFT}
+    \ForEach{$s = 1$ \textbf{to} $\log{N} $}{
+        $m \gets 2^{s}$\;
+        $w_{m} \gets \exp(-2\pi i / m)$\;
+        \ForEach{$k = 0$ \textbf{to} $N-1$ \textbf{by} $m$}{
+            $w \gets 1$\;
+            \ForEach{$j = 0$ \textbf{to} $m/2$}{
+                $t \gets w \dot out[k + j + m/2] $\;
+                $u \gets out[k + j] $\;
+                $out[k + j] \gets u + t$\;
+                $out[k + j + m/2] \gets u - t$\;
+                $w \gets w \space w_{m}$\;
+            }
+        }
+    }
+    \textbf{return} $out$\;
 \end{algorithm}
 
 \subsection{Radix-2 Decimation-in-Frequency FFT} \label{subsec:radix-2-decimation-in-frequency-fft}
@@ -754,6 +763,37 @@ The Radix-2 Decimation-in-Frequency FFT algorithm, just like the Decimation in T
 % Code listing example
 % \begin{lstlisting}[language=Python]
 % \end{lstlisting}
+
+% 3. Algorithmic overview
+\SetKwComment{Comment}{/* }{ */}
+\RestyleAlgo{ruled}
+\begin{algorithm}
+    \caption{Radix-2 Decimation-in-Frequency FFT} \label{alg:dit}
+    \KwData{Sequence $in$ with size $N$ power of 2 }
+    \KwResult{Sequence $out$ with size $N$ with the DFT of the input}
+    % TODO: Change implementation to decimation in frequency
+    \Comment{Bit reversal step}
+    \ForEach{$i = 0$ \textbf{to} $N-1$}{
+        $out[bit\_reverse(i)] \gets in[i]$
+    }
+
+    \Comment{FFT}
+    \ForEach{$s = 1$ \textbf{to} $\log{N} $}{
+        $m \gets 2^{s}$\;
+        $w_{m} \gets \exp(2\pi i / m)$\;
+        \ForEach{$k = 0$ \textbf{to} $N-1$ \textbf{by} $m$}{
+            $w \gets 1$\;
+            \ForEach{$j = 0$ \textbf{to} $m/2$}{
+                $t \gets w  out[k + j + m/2] $\;
+                $u \gets out[k + j] $\;
+                $out[k + j] \gets u + t$\;
+                $out[k + j + m/2] \gets u - t$\;
+                $w \gets w \space w_{m}$\;
+            }
+        }
+    }
+    \textbf{return} $out$\;
+\end{algorithm}
 
 \subsection{2D and 3D transforms}
 

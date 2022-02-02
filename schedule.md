@@ -13,8 +13,6 @@ Each Schedule entry can have:
 
 - [x] {fig:signal-decomposition} is saying Source: "Audio" but im not sure about this reference, maybe the bibtex entry i have rn isn't ideal?
 
-- [x] Ask about the Work Plan, we heard the final date was today so how do we know if it's already signed/done.
-
 - Maybe some state of the art sections might have very light information in the beggining specially for the RPD submission but with the writing of chapters 3 and 4 this will most likely change.
 
 ### Todo
@@ -27,3 +25,8 @@ Each Schedule entry can have:
 
 ## 4 Jan - RPD Submission
 ### Todo
+
+- Fix acronyms/glossary
+- Add Chapter experiments
+- Add section with new work plan of the work that will be produced next and reflection of what was done
+- Fix the Audio reference problem where i want "NTi Audio" to appear instead of just "Audio"
