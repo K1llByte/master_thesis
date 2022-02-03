@@ -15,6 +15,11 @@
 \usepackage[T1]{fontenc}
 \usepackage{textcomp}
 \usepackage{algorithm2e}
+% ===========
+\usepackage[font=small,labelfont=bf,tableposition=top]{caption}
+\usepackage[font=footnotesize]{subcaption}
+\usepackage{algorithmic}
+% ===========
 
 \usepackage{listings}
 \usepackage{xcolor}
@@ -684,7 +689,7 @@ The Radix-2 Decimation-in-Time FFT algorithm rearranges the original Discrete Fo
 This formulation successfully segments the full sized DFT into two \(N/2\) sized DFT's of the even and odd indexed elements where the later is multiplied by a twiddle factor \( \omega_{N}^{k} \). 
 % \( X_{N} = E_{N/2} + W * O_{N/2} \)
 
-This algorithm is a Radix-2 Decimation-in-Time in the sence that the time values are regrouped in 2 subtransforms, and the decomposition reduces the time values to the frequency domain, since the understanding of this algorithm can be aplied recursively, the \autoref{fig:dit-fft} illustrates the basic behaviour and represents the \(N/2\) subtransforms with boxes that can be filled by the recursive application of this algorithm to produce the frequency domain sequence.
+This algorithm is a Radix-2 Decimation-in-Time in the sence that the time values are regrouped in 2 subtransforms, and the decomposition reduces the time values to the frequency domain. Since the understanding of this algorithm can be aplied recursively, the \autoref{fig:dit-fft} illustrates the basic behaviour and represents the \(N/2\) subtransforms with boxes that can be filled by the recursive application of this algorithm to produce the frequency domain sequence.
 
 
 % TODO: Cite this somewhere in these two topics
@@ -699,7 +704,7 @@ This algorithm is a Radix-2 Decimation-in-Time in the sence that the time values
 
 % 2. Continue explaining this algorithm
 
-Effectivelly, this smaller DFT's are recursively reduced by this algorithm until theres only the computation of a length-2 DFT where its only applied the basic butterfly operation illustrated in \autoref{fig:dit-butterfly}.
+Effectivelly, this smaller DFT's are recursively reduced by this algorithm until theres only the computation of a length-2 DFT where its only applied the Cooley-Tukey butterfly operation \cite{chu1999inside} illustrated in \autoref{fig:dit-butterfly}.
 
 % NOTE: Handmade since there wan't one that had exacly what i wanted
 \begin{figure}[h] 
@@ -711,12 +716,14 @@ Effectivelly, this smaller DFT's are recursively reduced by this algorithm until
 
 % "Whereas direct computation of all N DFT frequencies according to the DFT equation would require N2 complex multiplies and N2−N complex additions (for complex-valued data), by reusing the results of the two short-length DFTs as illustrated in Figure, the computational cost is now" 
 
-The complexity work within the algorithm is distributed with the DIT approach which decomposes each DFT by 2 having \(log N\) stages \cite{smith2007mathematics} while there are approximately \(N\) complex multiplications needed for each stage of the DIT decomposition, therefore the multiplication complexity for a \(N\) sized DFT is reduced from \(O(N^{2})\) to \(O(N \log{N})\) without any programming specific optimizations.
+The complexity work within the algorithm is distributed with the DIT approach which decomposes each DFT by 2 having \(\log{N}\) stages \cite{smith2007mathematics} while there are approximately \(N\) complex multiplications needed for each stage of the DIT decomposition, therefore the multiplication complexity for a \(N\) sized DFT is reduced from \(O(N^{2})\) to \(O(N \log{N})\) without any programming specific optimizations.
+
+In practice, \autoref{alg:dit} demonstrates the aforesaid with an iterative representation of a possible implementation. Although this algorithm is congruent with a code implementation, its worth noting that the input sequence can either have real or complex numbers, since the arithmetic is the same for both domains the only thing that needs to be specialized is the operator overloading in the inner most loop.
 
 % 3. Algorithmic overview
 \SetKwComment{Comment}{/* }{ */}
 \RestyleAlgo{ruled}
-\begin{algorithm}
+\begin{algorithm}[H]
     \caption{Radix-2 Decimation-in-Time Forward FFT} \label{alg:dit}
     \KwData{Sequence $in$ with size $N$ power of 2 }
     \KwResult{Sequence $out$ with size $N$ with the DFT of the input}
@@ -747,11 +754,26 @@ The complexity work within the algorithm is distributed with the DIT approach wh
 \subsection{Radix-2 Decimation-in-Frequency FFT} \label{subsec:radix-2-decimation-in-frequency-fft}
 
 % 1. Explain the objective and what the DIF term means in the applied algorithm
-The Radix-2 Decimation-in-Frequency FFT algorithm, just like the Decimation in Time does, rearranges the original Discrete Fourier Transform (DFT) formula into two subtransforms, one as a sum over the even indexed elements and other as a sum over the odd indexed elements; as in this simplified formulation \autoref{eq:dif}.
+The Radix-2 Decimation-in-Frequency FFT algorithm is very similar to the DIT approach, its based on the same principle of divide-and-conquer but it rearranges the original Discrete Fourier Transform (DFT) into the computation of two transforms, one with the even indexed elements and other with the odd indexed elements; as in this simplified formulation \autoref{eq:dif}.
 
 \begin{equation} \label{eq:dif}
-    X_{k} = \sum_{n=0}^{\frac{N}{2}-1}x_{2n} \cdot \omega_{N/2}^{k(2n)} + \omega_{N}^{k} \sum_{n=0}^{\frac{N}{2}-1}x_{2n+1} \cdot \omega_{N/2}^{k(2n+1)} \\
+    \begin{aligned}
+        X_{2k} &= \sum_{n=0}^{\frac{N}{2}-1} (x_{n} + x_{n + \frac{N}{2}}) \cdot \omega_{N/2}^{kn} \\
+        X_{2k+1} &= \sum_{n=0}^{\frac{N}{2}-1} ((x_{n} - x_{n + \frac{N}{2}}) \cdot \omega_{N/2}^{kn}) \cdot \omega_{N}^{n} \\
+    \end{aligned}
 \end{equation}
+
+\begin{equation*}
+    \text{where } \omega_{N} = e^{\frac{i 2 \pi}{N}}
+\end{equation*}
+
+The DFT divided into these two transforms from the full sized DFT
+By separating these two transforms from the full sized DFT we get two distinct 
+
+Notably, this formulation distinguishes the full sized DFT into two \(N/2\) sized DFT's of the even and odd indexed elements where the later is multiplied by a twiddle factor \( \omega_{N}^{k} \) with both outside the same context. 
+% \( X_{N} = E_{N/2} + W * O_{N/2} \)
+
+This algorithm is a Radix-2 Decimation-in-Frequency since the DFT is deciminated into two distinct smaller DFT's and the frequency samples will be computed separately in different groups, as if the regrouping of the DFT's would reduce directly to the frequency domain. Since the understanding of this algorithm can be aplied recursively, the \autoref{fig:dif-fft} illustrates the this behaviour and represents the \(N/2\) subtransforms with boxes that can be filled by the recursive application of this algorithm to produce the frequency domain sequence. Aditionally this illustration can be compared to \autoref{fig:dit-fft} since both are symmetrically identical.
 
 \begin{figure}[h] 
     \centering
@@ -760,20 +782,33 @@ The Radix-2 Decimation-in-Frequency FFT algorithm, just like the Decimation in T
     \label{fig:dif-fft}
 \end{figure}
 
-% Code listing example
-% \begin{lstlisting}[language=Python]
-% \end{lstlisting}
+Similarly to the DIT version, the DFT can be recursively reduced by the DIF algorithm until theres only the computation of a length-2 DFT where its only applied the Gentleman-Sande butterfly operation \cite{chu1999inside} illustrated in \autoref{fig:dif-butterfly}.
+
+% NOTE: Handmade since there wan't one that had exacly what i wanted
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{imgs/dif_butterfly.png}
+    \caption{Gentleman-Sande butterfly}
+    \label{fig:dif-butterfly}
+\end{figure}
+
+Since this algorithm has similarities with the DIT, its complexity also lives to this similarity, maintaining the same \(O(N \log{N})\) for number of multiplications, despite that, \autoref{fig:dif-butterfly} and \autoref{fig:dit-butterfly} might look different in number of arithmetic operations since the first has 1 addition, 1 subtraction, and 2 multiplications, and the second has 1 addition, 1 subtraction, and 1 multiplication, but effectively the \(W_{N} \cdot b\) can be reused and only computed once as seen in \autoref{alg:dit}.
+% FIXME: The complexity work within the algorithm is distributed with the DIT approach which decomposes each DFT by 2 having \(\log{N}\) stages \cite{smith2007mathematics} while there are approximately \(N\) complex multiplications needed for each stage of the DIT decomposition, therefore the multiplication complexity for a \(N\) sized DFT is reduced from \(O(N^{2})\) to \(O(N \log{N})\) without any programming specific optimizations.
+
+
+% FIXME: im repeating exactly whats in the DIT but its exactly what i want to say, what to do? keep this or change?
+In practice, \autoref{alg:dif} demonstrates the aforesaid with an iterative representation of a possible implementation. Although this algorithm is congruent with a code implementation, its worth noting that the input sequence can either have real or complex numbers, since the arithmetic is the same for both domains the only thing that needs to be specialized is the operator overloading in the inner most loop.
 
 % 3. Algorithmic overview
 \SetKwComment{Comment}{/* }{ */}
 \RestyleAlgo{ruled}
-\begin{algorithm}
+\begin{algorithm}[H]
     \caption{Radix-2 Decimation-in-Frequency Forward FFT} \label{alg:dif}
     \KwData{Sequence $in$ with size $N$ power of 2 }
     \KwResult{Sequence $out$ with size $N$ with the DFT of the input}
 
     \Comment{FFT}
-    \ForEach{$s = 1$ \textbf{to} $\log{N} $}{
+    \ForEach{$s = 0$ \textbf{to} $\log{N}-1 $}{
         $gs \gets N \gg s$\;
         $w_{gs} \gets \exp(2\pi i / gs)$\;
         \ForEach{$k = 0$ \textbf{to} $N-1$ \textbf{by} $gs$}{
@@ -796,9 +831,31 @@ The Radix-2 Decimation-in-Frequency FFT algorithm, just like the Decimation in T
     \textbf{return} $out$\;
 \end{algorithm}
 
+
+
+% % Algorithms side by side
+% \begin{figure}[!ht]
+%     \centering
+%     \begin{subfigure}{.45\textwidth}
+%         \centering
+%         % Alg 1
+%         \caption{Test Algorithm No.1}\label{alg:alg-1}
+%     \end{subfigure}
+
+%     \hfill
+
+%     \begin{subfigure}{.45\textwidth}
+%         \centering
+%         % Alg 2
+%         \caption{Test Algorithm No.2}\label{alg:alg-2}
+%     \end{subfigure}
+% \end{figure}
+
+
+
 \subsection{2D and 3D transforms}
 
-Altough we've already gonne through a lot of information ... its still unclear how these primitive functions on multidimentional targets, such as images and.
+Altough we've already gonne through a lot of information ... its still unclear how these primitive functions on multidimentional targets, such as images.
 
 % TODO:
 Empty
