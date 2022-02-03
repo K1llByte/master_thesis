@@ -214,8 +214,8 @@
     % \addcontentsline{toc}{chapter}{Contents}
     \tableofcontents
     
-    % \cleardoublepage
-    % \listoffigures
+    \cleardoublepage
+    \listoffigures
     
     % \cleardoublepage
     % \listoftables
@@ -246,10 +246,8 @@ Empty
 
 \section{Objectives} \label{sec:objectives}
 
-The main objective of this dissertation is to provide efficient FFT alternatives in GLSL compared with dedicated tools for high performance of FFT computations like NVIDIA cuFFT library, while analysing the intrinsic of a good Fast Fourier Transform implementation on the GPU.
-To accomplish the main objective there are two stages taken in consideration, "\textit{Analysis of CUDA and GLSL kernels}" to be well settled in their differences and to have a reference for the second stage "Analysis of cuFFT and GLSL FFT" which will cluster the study's main objective.
-
-To compose a final verdict conclusion, we will use as case of study applications with implementation of the FFT in the field of Computer Graphics that require realtime performance.
+The main objective of this dissertation is to provide efficient FFT alternatives in GLSL compared with dedicated tools for high performance of FFT computations like NVIDIA cuFFT library or FFTW, while analysing the intrinsic of a good Fast Fourier Transform implementation on the GPU.
+To accomplish the main objective there are two stages taken in consideration, \textit{Analysis of CUDA and GLSL kernels} to be well settled in their differences and to have a reference for the second stage \textit{Analysis of application specific implementations} which will cluster the study's main objective and where we'll use as case of study applications with implementation of the FFT in the field of Computer Graphics that require realtime performance.
 % TODO: Finish this section
 
 % **Objetivos de alto nivel:**
@@ -269,16 +267,16 @@ To compose a final verdict conclusion, we will use as case of study applications
 \section{Document Organization} \label{sec:document-organization}
 
 % chap 1
-This dissertation is organized in N chapters. Firstly, the \autoref{chap:introduction} exposes the main introduction to the subject of this dissertation with the respective background information and defines objectives including contextualization and this document organization section.
+This dissertation is organized in 3 chapters. Firstly, the \autoref{chap:introduction} exposes the main introduction to the subject of this dissertation with the respective background information and defines objectives including contextualization and this document organization section.
 
 % chap 2
 To give a state of the art overview of the theory and practice associated with Fourier Transforms, \autoref{chap:state-of-the-art} covers most of basic understandings and algorithms needed for later chapters, this will only take simple approachs to each concept to give intuitive insight and empirical explanations without proving it formally.
 
 % chap 3 % TODO: When chapter 3 label is available, autoref it in the paragraph
-Following the state of the art, chapter 3 will build a in depth analysis of FFT computation comparisons having several conditions in mind and comparing tradeoffs in different implementations, since this chapter will in only focus on raw FFT computations most of the application driven alternatives will be pushed to the next chapter
+% Following the state of the art, chapter 3 will build a in depth analysis of FFT computation comparisons having several conditions in mind and comparing tradeoffs in different implementations, since this chapter will in only focus on raw FFT computations most of the application driven alternatives will be pushed to the next chapter
 
 % chap 4 % TODO: When chapter 4 label is available, autoref it in the paragraph
-Finally, to culminate the past chapters, the chapter 4 is going to provide application driven implementations with performance-wise approaches, with a real application scenario were its performance is critical.
+% Finally, to culminate the past chapters, the chapter 4 is going to provide application driven implementations with performance-wise approaches, with a real application scenario were its performance is critical.
 
 %TODO: Finish this
 
@@ -852,12 +850,16 @@ In practice, \autoref{alg:dif} demonstrates the aforesaid with an iterative repr
 % \end{figure}
 
 
-
 \subsection{2D and 3D transforms}
 
 Altough we've already gonne through a lot of information ... its still unclear how these primitive functions on multidimentional targets, such as images.
 
 % TODO:
+Empty
+
+\section{Conclusion and Work Plan}
+
+%TODO: 
 Empty
 
 \section{Related Work}

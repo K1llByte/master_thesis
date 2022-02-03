@@ -19,20 +19,23 @@ Each Schedule entry can have:
 - [x] Document Organization
 - [x] Radix-2 DIT
 - [x] Radix-2 DIF
-- [ ] 2D and 3D transforms
-- [ ] Add that the Cooley-Tukey can be performed in-place if the input sequence is already bit-reversed. I wanted to add this 
+
 <!-- "It is important to note that, if the input signal data are placed in bit-reversed order before beginning the FFT computations, the outputs of each butterfly throughout the computation can be placed in the same memory locations from which the inputs were fetched, resulting in an in-place algorithm that requires no extra memory to perform the FFT." -->
 
 ## 4 Jan - RPD Submission
 
 ### Questions
 
-- Check "In practice, \autoref{alg:dif}" and decide to keep like that or what do i change
+<!-- - Check "In practice, \autoref{alg:dif}" and decide to keep like that or what do i change -->
+- List of figures with source?
 
 ### Todo
 
-- Fix all sums that need explicit parentisis change from 'sum x+1' to sum(x+1)
-- Fix acronyms/glossary
-- Add Chapter experiments
-- Add section with new work plan of the work that will be produced next and reflection of what was done
-- Fix the Audio reference problem where i want "NTi Audio" to appear instead of just "Audio"
+- [ ] Fix acronyms/glossary
+- [ ] Fix all sums that need explicit parentisis change from 'sum x+1' to sum(x+1)
+- [ ] Add Chapter experiments
+- [ ] Add section with new work plan of the work that will be produced next and reflection of what was done
+- [ ] Fix the Audio reference problem where i want "NTi Audio" to appear instead of just "Audio"
+
+- [ ] 2D and 3D transforms
+- [ ] Add that the Cooley-Tukey can be performed in-place if the input sequence is already bit-reversed. I wanted to add this 
