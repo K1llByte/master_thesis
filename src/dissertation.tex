@@ -189,8 +189,13 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter*{Abstract}
-% The continuous progress of the evolution of GPUs has increased the popularity of parallelizable algorithm implementations on this type of hardware.
-% One of these algorithms used as a case of study is Fast Fourier Transforms, which are very useful for the computation of Discrete Fourier Transforms, utilized in many practical use cases in serveral areas.
+
+The continuous progress of the evolution of GPUs has increased the popularity of parallelizable algorithm implementations on this type of hardware.
+Fast Fourier Transforms is a family of algorithms which are very useful for the computation of Discrete Fourier Transforms which is applied in many practical scenarios for serveral areas.
+
+Due to its usefullness and the need to optimize Fast Fourier Transforms this algorithms are effectively computed on the GPU to take advantage of its parallelizable variants
+
+In this dissertation we provide, compare and analyze FFT implementations with popular libraries that are known to compute this efficiently, and provide specially forged GLSL implementations in the context of applications.
 
 \paragraph{Keywords} FFT, GLSL, cuFFT, analysis, performance.
 
@@ -199,7 +204,13 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter*{Resumo}
-    Escrever aqui resumo (pt) ou importar respectivo ficheiro
+
+O progresso contínuo da evolução dos GPUs aumentou a popularidade das implementações de algoritmos paralelizáveis ​​neste tipo de hardware.
+\textit{Fast Fourier Transforms} são uma família de algoritmos úteis para o cálculo de transformadas de Fourier discretas que são aplicadas em muitos cenários práticos para diversas áreas.
+
+Devido à sua utilidade e à necessidade de otimizar as Transformadas Rápidas de Fourier, esses algoritmos são efetivamente computados na GPU para aproveitar suas variantes paralelizáveis
+
+Nesta dissertação, fornecemos, comparamos e analisamos implementações de FFT com bibliotecas populares que são conhecidas por computar isso de forma eficiente e fornecemos implementações GLSL especialmente forjadas no contexto de aplicativos.
     
 \paragraph{Palavras-chave} FFT, GLSL, cuFFT, análise, performance
 
@@ -256,7 +267,6 @@ Although this libraries can provide efficient transforms with specialized cases 
 
 The main objective of this dissertation is to provide efficient FFT alternatives in GLSL compared with dedicated tools for high performance of FFT computations like NVIDIA cuFFT library or FFTW, while analysing the intrinsic of a good Fast Fourier Transform implementation on the GPU.
 To accomplish the main objective there are two stages taken in consideration, \textit{Analysis of CUDA and GLSL kernels} to be well settled in their differences and to have a reference for the second stage \textit{Analysis of application specific implementations} which will cluster the study's main objective and where we'll use as case of study applications with implementation of the FFT in the field of Computer Graphics that require realtime performance.
-% TODO: Finish this section
 
 % ====== New Planning Schedule
 
@@ -967,12 +977,12 @@ In practice, \autoref{alg:dif} demonstrates the aforesaid with an iterative repr
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{backcover}
-\thispagestyle{empty} \pagecolor{white} \textcolor{black} {\fontfamily{phv}\fontseries{mc}\selectfont ~\vfill
-\noindent
-NB: place here information about funding, FCT project, etc in which the work is framed. Leave empty otherwise.
-%
-\vfill ~}
-\end{backcover}
+% \begin{backcover}
+% \thispagestyle{empty} \pagecolor{white} \textcolor{black} {\fontfamily{phv}\fontseries{mc}\selectfont ~\vfill
+% \noindent
+% NB: place here information about funding, FCT project, etc in which the work is framed. Leave empty otherwise.
+% %
+% \vfill ~}
+% \end{backcover}
 
 \end{document}
