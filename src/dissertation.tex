@@ -20,13 +20,10 @@
 \usepackage[font=footnotesize]{subcaption}
 \usepackage{algorithmic}
 % ===========
-\usepackage[a4paper, total={6.5in, 10in}]{geometry}
-\usepackage[table]{xcolor}
 \usepackage{colortbl}
 \usepackage{tabularx}
-% \usepackage[most]{tcolorbox}
+\usepackage[most]{tcolorbox}
 \usepackage{listings}
-\usepackage{xcolor}
 \usepackage{pgfplots}
 % \usepackage[miktex]{gnuplottex}
 \usepackage{tikz}
@@ -192,8 +189,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter*{Abstract}
-The continuous progress of the evolution of GPUs has increased the popularity of parallelizable algorithm implementations on this type of hardware.
-One of these algorithms used as a case of study is Fast Fourier Transforms, which are very useful for the computation of Discrete Fourier Transforms, utilized in many practical use cases in serveral areas.
+% The continuous progress of the evolution of GPUs has increased the popularity of parallelizable algorithm implementations on this type of hardware.
+% One of these algorithms used as a case of study is Fast Fourier Transforms, which are very useful for the computation of Discrete Fourier Transforms, utilized in many practical use cases in serveral areas.
 
 \paragraph{Keywords} FFT, GLSL, cuFFT, analysis, performance.
 
@@ -204,7 +201,7 @@ One of these algorithms used as a case of study is Fast Fourier Transforms, whic
 \chapter*{Resumo}
     Escrever aqui resumo (pt) ou importar respectivo ficheiro
     
-\paragraph{Palavras-chave} palavras, chave, aqui, separadas, por, v\'{\i}rgulas
+\paragraph{Palavras-chave} FFT, GLSL, cuFFT, análise, performance
 
 
     \cleardoublepage
@@ -229,7 +226,7 @@ One of these algorithms used as a case of study is Fast Fourier Transforms, whic
     % \cleardoublepage
     % \lstlistoflistings
 
-    \printglossary[type=\acronymtype]
+    % \printglossary[type=\acronymtype]
     
     % Add list of acronyms
     \cleardoublepage
@@ -242,13 +239,18 @@ One of these algorithms used as a case of study is Fast Fourier Transforms, whic
 
 \section{Contextualization} \label{sec:contextualization}
 
-%TODO: 
-Empty
+% % 1.1 O que sao transofrmadas de fourier e em que contexto se enquadram
+The Fast Fourier Transforms have been present in our sorroundings for a long time, they're used extensively in digital signal processing and many other areas and they often need to be used in a realtime context, where the computations must be performed fast enough. Fast Fourier Transforms essentially are just optimized algorithms to compute the Discrete Fourier Transform of some data, data that might be sampled from a signal, an oscilating object or  even an image, which is transformed into the frequency domain allowing any kind of processing for a relativelly low computational cost.
+
+% 2. De que forma este algoritmo pode beneficiar ao ser usado no GPU eao ser usado para aplicações  
 
 \section{Motivation} \label{sec:motivation}
 
-%TODO: 
-Empty
+The continuous progress of the evolution of GPUs has increased the popularity of parallelizable algorithm implementations on this type of hardware.
+% % UNUSED: \cite{zhang2013design}
+Notably the FFT algorithms family is constantly present in Computer Graphics, it's usual to find inlined implementations in shader code which offer reliable Fast Fourier Transforms \cite{flugge2017realtime}, but lack tuning of settings for a more optimized versions of these computations. On the other hand there's already out there libraries that provide efficient implementations of FFT on the GPU and CPU like cuFFT \cite{nvidiacufft}, a library provided by NVIDIA exclusively for their GPU's implemented for CUDA, and FFTW \cite{frigo2012fftw}, a library dedicated to computations of FFT on the CPU.
+
+Although this libraries can provide efficient transforms with specialized cases over a proper plan, in some applications its performance might be compromised for cases where, for example, the graphics pipeline needs to be sincronized with the computation of the Fourier Transform.
 
 \section{Objectives} \label{sec:objectives}
 
@@ -272,7 +274,6 @@ With constant progression of the research needed for this project, some steps of
 
 
 \begin{table}[ht]
-    
     % \label{tab:planning}
     \centering
     \scriptsize
@@ -309,20 +310,6 @@ With constant progression of the research needed for this project, some steps of
     \caption{Dissertation schedule}
     \label{tab:schedule}
 \end{table}
-
-% **Objetivos de alto nivel:**
-
-% 1. Explicar em um primeiro paragrafo o que quero com esta dissertação:
-% - Explorar os graus de performance de fft em aplicações em concreto, comparando ferramentas dedicadas para alta performance desses algoritmos, com implementações especializadas
-
-% Informar:
-% - que esta dissertação irá focar em implementaçoes de fft baseadas no algoritmo de divide and conquer de Cooley–Tukey 
-
-% **Objetivos de baixo nivel / O que vamos fazer em concreto:**
-
-% e que um dos principais objetivos vai ser otimizar a utilização destes algoritmos em tempo real nos casos de estudo, que vao estar principalmente no dominio de computação gráfica (apesar de haver diversas outras áreas qe podiam ser estudadas)
-
-% Similarly, many studies have their work focused on the optimized computation of the FFT
 
 \section{Document Organization} \label{sec:document-organization}
 
@@ -910,12 +897,12 @@ In practice, \autoref{alg:dif} demonstrates the aforesaid with an iterative repr
 % \end{figure}
 
 
-\subsection{2D and 3D transforms}
+% \subsection{2D and 3D transforms}
 
-Altough we've already gonne through a lot of information ... its still unclear how these primitive functions on multidimentional targets, such as images.
+% Altough we've already gonne through a lot of information ... its still unclear how these primitive functions on multidimentional targets, such as images.
 
-% TODO:
-Empty
+% % TODO:
+% Empty
 
 
 % \section{Related Work}

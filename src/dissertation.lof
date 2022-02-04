@@ -7,9 +7,8 @@
 \ttl@tocsep 
 \ttl@tocsep 
 \contentsline {figure}{\numberline {1}{\ignorespaces Time to frequency signal decomposition \textbf {Source:} \cite {fftntiaudio}\relax }}{8}{figure.caption.5}%
-\contentsline {figure}{\numberline {2}{\ignorespaces Radix-2 Decimation-in-Time FFT \textbf {Source:} \cite {jones2014digital}\relax }}{12}{figure.caption.9}%
-\contentsline {figure}{\numberline {3}{\ignorespaces Cooley-Tukey butterfly\relax }}{12}{figure.caption.10}%
-\contentsline {figure}{\numberline {4}{\ignorespaces Radix-2 Decimation-in-Frequency FFT \textbf {Source:} \cite {jones2014digital}\relax }}{14}{figure.caption.11}%
-\contentsline {figure}{\numberline {5}{\ignorespaces Gentleman-Sande butterfly\relax }}{14}{figure.caption.12}%
-\ttl@tocsep 
+\contentsline {figure}{\numberline {2}{\ignorespaces Radix-2 Decimation-in-Time FFT \textbf {Source:} \cite {jones2014digital}\relax }}{13}{figure.caption.9}%
+\contentsline {figure}{\numberline {3}{\ignorespaces Cooley-Tukey butterfly\relax }}{13}{figure.caption.10}%
+\contentsline {figure}{\numberline {4}{\ignorespaces Radix-2 Decimation-in-Frequency FFT \textbf {Source:} \cite {jones2014digital}\relax }}{15}{figure.caption.11}%
+\contentsline {figure}{\numberline {5}{\ignorespaces Gentleman-Sande butterfly\relax }}{15}{figure.caption.12}%
 \providecommand \tocbasic@end@toc@file {}\tocbasic@end@toc@file 
