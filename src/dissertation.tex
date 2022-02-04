@@ -208,7 +208,7 @@ In this dissertation we provide, compare and analyze FFT implementations with po
 O progresso contínuo da evolução dos GPUs aumentou a popularidade das implementações de algoritmos paralelizáveis ​​neste tipo de hardware.
 \textit{Fast Fourier Transforms} são uma família de algoritmos úteis para o cálculo de transformadas de Fourier discretas que são aplicadas em muitos cenários práticos para diversas áreas.
 
-Devido à sua utilidade e à necessidade de otimizar as Transformadas Rápidas de Fourier, esses algoritmos são efetivamente computados na GPU para aproveitar suas variantes paralelizáveis
+Devido à sua utilidade e à necessidade de otimizar as \textit{Fast Fourier Transforms}, esses algoritmos são efetivamente computados na GPU para aproveitar suas variantes paralelizáveis
 
 Nesta dissertação, fornecemos, comparamos e analisamos implementações de FFT com bibliotecas populares que são conhecidas por computar isso de forma eficiente e fornecemos implementações GLSL especialmente forjadas no contexto de aplicativos.
     
@@ -930,6 +930,38 @@ In practice, \autoref{alg:dif} demonstrates the aforesaid with an iterative repr
 % %TODO: 
 % Empty
 % Talk about that microsoft paper which implements efficiently in HLSL
+
+\chapter{Algorithms analysis}
+
+
+To flavour this pre-dissertation report some work of benchmarking and analysis were done to compete with the theoretical explanations addressed on \autoref{chap:state-of-the-art}. Hence, some implementations were tested to provide coherence to what has been studied, and algorithms such as \autoref{alg:dit} Radix-2 Decimantion-in-Time \autoref{alg:dif} Radix-2 Decimantion-in-Frequency were timed in \autoref{tab:benchmarking}.
+
+\begin{table}[h]
+    \centering
+    \normalsize
+    \sffamily
+    \renewcommand{\arraystretch}{1.5}%
+    \begin{tabular}{|c|l|l|l|l|l|}
+        \hline
+        \multicolumn{1}{|l|}{} & \multicolumn{1}{c|}{\textbf{Size 128}} & \multicolumn{1}{c|}{\textbf{Size 256}} & \multicolumn{1}{c|}{\textbf{Size 512}} & \multicolumn{1}{c|}{\textbf{Size 1024}} & \multicolumn{1}{c|}{\textbf{Size 2048}} \\ \hline
+        \textbf{DFT}           & 5.16593                                & 17.2782                                & 70.5689                                & 293.104                                 & 1246.44                                 \\ \hline
+        \textbf{FFT  DIT}      & 0.169113                               & 0.37668                                & 0.86415                                & 1.8793                                  & 4.47742                                 \\ \hline
+        \textbf{FFT DIF}       & 0.159458                               & 0.378722                               & 0.881921                               & 1.90661                                 & 4.13369                                 \\ \hline
+        \textbf{Recursive FFT} & 0.210895                               & 0.485643                               & 1.4421                                 & 2.32922                                 & 5.1178                                  \\ \hline
+    \end{tabular}
+    \caption{FFT algorithms benchmark. Results are \underline{measured in milliseconds} for forward and inverse computation with varying input sizes}
+    \label{tab:benchmarking}
+\end{table}
+
+As we can see the Discrete Fourier Transform increases exponentially for higher sized sequences, as expected all FFT variants perform critically better than the original formulation.
+
+One variant that wasn't exposed much in the above chapters is the Recursive FFT algorithm, which corresponds to a Decimation-in-Time aproach with recursive reduction, therefore this algorithm aggregates the divide-and-conquer method but with the disadvantage of recursive function overhead. This recursive look at the DIT approach can be easier to implement since the bit reversal step isn't explicitly applied before starting the FFT.
+
+Finally, as expected the DIT and DIF algorithms overrule the other alternatives for every sized input.
+
+% (DIT FFT) (DIF FFT) DFT
+% (DIT FFT no bit reversal) (DIF FFT no bit reversal) DFT
+% (FFT Recursive) DFT
 
 \bookmarksetup{startatroot} % Ends last part.
 % \addtocontents{toc}{\bigskip} % Making the table of contents look good.
