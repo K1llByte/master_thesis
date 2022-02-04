@@ -20,7 +20,11 @@
 \usepackage[font=footnotesize]{subcaption}
 \usepackage{algorithmic}
 % ===========
-
+\usepackage[a4paper, total={6.5in, 10in}]{geometry}
+\usepackage[table]{xcolor}
+\usepackage{colortbl}
+\usepackage{tabularx}
+% \usepackage[most]{tcolorbox}
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage{pgfplots}
@@ -86,6 +90,7 @@
     tabsize=2
 }
 \lstset{style=mystyle}
+\captionsetup{font={footnotesize,sf,singlespacing}}
 
 \newcommand{\eqname}[1]{\tag*{#1}}% Tag equation with name
 
@@ -100,7 +105,7 @@
 
 % Title
 
-\titleA{Study on FFT on the GPU}
+\titleA{High Performance Fourier Transforms on GPUs}
 % \titleB{Second line in title (if any)}
 % \titleC{Third  line in title (if any)}
 
@@ -187,9 +192,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter*{Abstract}
-    Write abstract here (en) or import corresponding file
+The continuous progress of the evolution of GPUs has increased the popularity of parallelizable algorithm implementations on this type of hardware.
+One of these algorithms used as a case of study is Fast Fourier Transforms, which are very useful for the computation of Discrete Fourier Transforms, utilized in many practical use cases in serveral areas.
 
-\paragraph{Keywords} keywords, here, comma, separated.
+\paragraph{Keywords} FFT, GLSL, cuFFT, analysis, performance.
 
     \cleardoublepage
 
@@ -217,8 +223,8 @@
     \cleardoublepage
     \listoffigures
     
-    % \cleardoublepage
-    % \listoftables
+    \cleardoublepage
+    \listoftables
     
     % \cleardoublepage
     % \lstlistoflistings
@@ -249,6 +255,60 @@ Empty
 The main objective of this dissertation is to provide efficient FFT alternatives in GLSL compared with dedicated tools for high performance of FFT computations like NVIDIA cuFFT library or FFTW, while analysing the intrinsic of a good Fast Fourier Transform implementation on the GPU.
 To accomplish the main objective there are two stages taken in consideration, \textit{Analysis of CUDA and GLSL kernels} to be well settled in their differences and to have a reference for the second stage \textit{Analysis of application specific implementations} which will cluster the study's main objective and where we'll use as case of study applications with implementation of the FFT in the field of Computer Graphics that require realtime performance.
 % TODO: Finish this section
+
+% ====== New Planning Schedule
+
+With constant progression of the research needed for this project, some steps of the work plan were refactored to meet the needs. The two main stages of the objectives stay the same but there are some adjustments to the schedule dates and steps as shown in \autoref{tab:schedule}.
+
+\begin{itemize}
+    \item \textbf{Research Fast Fourier Transform}
+    \item \textbf{Study cuFFT}, understand internal optimizations and prepare specialized profiles.
+    \item \textbf{Analysis of CUDA and GLSL kernels} for FFT raw computations.
+    \item \textbf{Research of Application driven FFT}, specialized implementations on the context of the application.
+    % \item \textbf{Benchmarking} and comparison of work performed.
+    \item \textbf{Writing of pre-dissertation}
+    \item \textbf{Writing of dissertation}
+\end{itemize}
+
+
+\begin{table}[ht]
+    
+    % \label{tab:planning}
+    \centering
+    \scriptsize
+    \sffamily
+    \renewcommand{\arraystretch}{1.5}%
+    \begin{tabularx}{50em}{| c | Y | Y | Y | Y | Y | Y | Y | Y | Y | Y | Y |} 
+        \cline{1-12}
+        & \multicolumn{3}{c|}{2021} & \multicolumn{8}{c|}{2022} \\
+        \cline{2-12}
+        & Nov & Dez & Jan & Feb & Mar & Apr & May & Jun & Jul & Aug & Set\\
+         \cline{1-12}
+
+         Research Fast Fourier Transform & \multicolumn{3}{c|}{\cellcolor[gray]{0.8}} & & & & & & & & \\
+        \cline{1-12}
+        
+        Study cuFFT & & & & \multicolumn{1}{c|}{\cellcolor[gray]{0.5}} & & & & & & & \\
+        \cline{1-12}
+        
+        Analysis of CUDA and GLSL kernels & & & & \multicolumn{3}{c|}{\cellcolor[gray]{0.5}} & & & & & \\
+        \cline{1-12}
+        
+        Research of Application driven FFT & & & & & & & \multicolumn{3}{c|}{\cellcolor[gray]{0.5}} & & \\
+        \cline{1-12}
+        
+        % Benchmarking & & & & & & \multicolumn{1}{c|}{\cellcolor[gray]{0.5}} & & & \multicolumn{1}{c|}{\cellcolor[gray]{0.5}} & & \\
+        % \cline{1-12}
+        
+        Writing of pre-dissertation & \multicolumn{3}{c|}{\cellcolor[gray]{0.8}} & & & & & & & & \\
+        \cline{1-12}
+        
+        Writing of dissertation & & & \multicolumn{1}{c|}{\cellcolor[gray]{0.8}} &\multicolumn{8}{c|}{\cellcolor[gray]{0.5}} \\
+        \cline{1-12}
+    \end{tabularx}
+    \caption{Dissertation schedule}
+    \label{tab:schedule}
+\end{table}
 
 % **Objetivos de alto nivel:**
 
@@ -857,29 +917,22 @@ Altough we've already gonne through a lot of information ... its still unclear h
 % TODO:
 Empty
 
-\section{Conclusion and Work Plan}
 
-%TODO: 
-Empty
+% \section{Related Work}
 
-\section{Related Work}
+% %TODO: 
+% Empty
 
-%TODO: 
-Empty
+% \subsection{cuFFT}
 
-\subsection{cuFFT}
+% %TODO: 
+% Empty
 
-%TODO: 
-Empty
+% \subsection{Fast Computation of general Fourier Transforms on GPUS}
 
-\subsection{Fast Computation of general Fourier Transforms on GPUS}
-
-%TODO: 
-Empty
+% %TODO: 
+% Empty
 % Talk about that microsoft paper which implements efficiently in HLSL
-
-%TODO: 
-Empty
 
 \bookmarksetup{startatroot} % Ends last part.
 % \addtocontents{toc}{\bigskip} % Making the table of contents look good.
