@@ -33,9 +33,24 @@ Each Schedule entry can have:
 
 - [ ] Fix acronyms/glossary
 - [ ] Fix all sums that need explicit parentisis change from 'sum x+1' to sum(x+1)
-- [ ] Add Chapter experiments
-- [ ] Add section with new work plan of the work that will be produced next and reflection of what was done
-- [ ] Fix the Audio reference problem where i want "NTi Audio" to appear instead of just "Audio"
+- [x] Add Chapter experiments
+- [x] Add section with new work plan of the work that will be produced next and reflection of what was done
+- [x] Fix the Audio reference problem where i want "NTi Audio" to appear instead of just "Audio"
 
 - [ ] 2D and 3D transforms
-- [ ] Add that the Cooley-Tukey can be performed in-place if the input sequence is already bit-reversed. I wanted to add this 
+- [?] Add that the Cooley-Tukey can be performed in-place if the input sequence is already bit-reversed. I wanted to add this 
+
+## 28 Feb - Weekly Meeting
+
+### Questions
+- Misunderstanding about the nau fft inverse since it isnt dividing by N the result
+
+### Todo
+- [x] Study 2D fft transformation of the nau project
+- [ ] Create a repository and if supervisor wants access (Checks if commits are being made, and progress done)
+
+## 7 Mar - Weekly Meeting
+
+### Todo
+- [x] Inplace bit reversal
+- [ ] CPU Parallel DIT FFT
