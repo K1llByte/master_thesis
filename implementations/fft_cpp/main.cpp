@@ -149,13 +149,20 @@ constexpr std::array<vec2, N> sample_complex()
 //     benchmark_all();
 // }
 
+struct Foo
+{
+    int a;
+    int b;
+};
+
 int main()
 {
     auto input = sample<8>();
-    auto output1 = p_dit::fft(to_complex(input));
+    auto output1 = dit::parallel::fft(to_complex(input));
+    std::cout << "COMPUTED: ";
     print_complex_array(output1);
 
     auto output2 = dit::fft(input);
+    std::cout << "EXPECTED: ";
     print_complex_array(output2);
-
 }

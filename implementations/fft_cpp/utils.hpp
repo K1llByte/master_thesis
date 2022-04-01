@@ -118,22 +118,9 @@ void swap(T& a, T& b)
     b = tmp;
 }
 
-// Inplace Array Bit reversal
-template<std::size_t N>
-void inplace_bit_reversal(std::array<float,N>& arr)
-{
-    constexpr auto num_bits = static_cast<std::size_t>(std::log2(N));
-    constexpr auto HALF_N = N/2;
-    for(std::size_t i = 1; i < HALF_N; ++i)
-    {
-        const auto br_i = bit_reverse(i, num_bits);
-        swap(arr[br_i], arr[i]);
-    }
-}
-
-// Inplace Array Bit reversal for complex input array
-template<std::size_t N>
-void inplace_bit_reversal(std::array<vec2,N>& arr)
+// Inplace Array Bit reversal for any T array
+template<std::size_t N, typename T>
+void inplace_bit_reversal(std::array<T,N>& arr)
 {
     constexpr auto num_bits = static_cast<std::size_t>(std::log2(N));
     constexpr auto HALF_N = N/2;

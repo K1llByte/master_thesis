@@ -11,12 +11,71 @@
 
 #include "utils.hpp"
 
-namespace p_dit
+namespace dit::parallel
 {
     //////////////// Forward FFT Entry Point ////////////////
 
     template<std::size_t N>
     const std::array<vec2, N> fft(const std::array<vec2, N>& p)
+    {
+        // Since this isn't an inlined version of the algorithm
+        // we take O(N) space complexity with the Bit-reverse copy step
+        std::array<vec2, N> res = p;
+        std::array<vec2, N> pingpong;
+        inplace_bit_reversal(res);
+
+        constexpr auto log_n = static_cast<std::size_t>(std::log2(N));
+        constexpr auto num_processors = log_n;
+        std::barrier sync_point(num_processors);
+
+        std::vector<std::thread> processors(num_processors);
+        for(std::size_t i = 0; i < num_processors; ++i)
+        {
+            // Concurrent processors
+            processors[i] = std::thread([&](std::size_t id)
+            {
+                for(std::size_t stage = 0; stage < log_n; ++stage)
+                {
+                    std::array<vec2, N>* from = &res;
+                    std::array<vec2, N>* to = &pingpong;
+                    if(stage % 2 != 0)
+                    {
+                        from = &pingpong;
+                        to = &res;
+                    }
+
+                    const std::size_t group_size = 2 << stage;
+                    for(std::size_t val = 0; val < log_n; ++val)
+                    {
+                        const auto idx = id*log_n + val;
+                        // const auto w = euler(-2 * pi / group_size * (idx % group_size));
+                        const auto half_group_size = group_size >> 1;
+                        if((idx % group_size) >= half_group_size)
+                        {
+                            const auto w = euler(-2 * pi / group_size * ((idx % group_size) % half_group_size));
+                            (*to)[idx] = complex_sub((*from)[idx-half_group_size], complex_mul(w, (*from)[idx]));
+                        }
+                        else
+                        {
+                            const auto w = euler(-2 * pi / group_size * ((idx % group_size) % half_group_size));
+                            (*to)[idx] = complex_add((*from)[idx], complex_mul(w, (*from)[idx+half_group_size]));
+                        }
+                    }
+                    sync_point.arrive_and_wait();
+                }
+            }, i);
+        }
+
+        for(auto& processor : processors)
+            processor.join();
+        
+        return (log_n & 1) ? pingpong : res;
+    }
+
+    //////////////// Inverse FFT Entry Point ////////////////
+
+    template<std::size_t N>
+    const std::array<vec2, N> ifft(const std::array<vec2, N>& p)
     {
         // // Since this isn't an inlined version of the algorithm
         // // we take O(N) space complexity with the Bit-reverse copy step
@@ -36,6 +95,7 @@ namespace p_dit
         std::vector<std::thread> processors(num_processors);
         for(std::size_t i = 0; i < num_processors; ++i)
         {
+            // Concurrent processors
             processors[i] = std::thread([&](std::size_t id)
             {
                 for(std::size_t stage = 0; stage < log_n; ++stage)
@@ -50,13 +110,13 @@ namespace p_dit
                     // race conditions
                     // TODO: This array might not be needed if the
                     // barrier waits after write
-                    std::array<vec2, log_n> tmp;
+                    // std::array<vec2, log_n> tmp;
 
                     const auto group_size = 2 << stage;
                     for(std::size_t val = 0; val < log_n; ++val)
                     {
                         const auto idx = id*log_n + val;
-                        const auto w = euler(-2 * pi / group_size * (idx % group_size));
+                        const auto w = euler(2 * pi / group_size * (idx % group_size));
                         const auto half_group_size = group_size >> 1;
                         if((idx % group_size) >= half_group_size)
                         {

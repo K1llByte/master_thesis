@@ -42,6 +42,7 @@ namespace dit
                     w = complex_mul(w, wm);
                 }
             }
+            // print_complex_array(br);
         }
 
         return br;
