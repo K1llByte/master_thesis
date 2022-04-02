@@ -153,14 +153,26 @@ int main()
 {
     constexpr auto N = 1024;
     auto input = sample<N>();
-    auto output1 = dit::parallel::fft(to_complex(input));
-    // std::cout << "COMPUTED: ";
-    // print_complex_array(output1);
+    auto input_complex = to_complex(input);
+    auto time1 = benchmark([&]{
+        dit::parallel::fft(input_complex);
+    });
 
-    auto output2 = dit::fft(input);
-    // std::cout << "EXPECTED: ";
-    // print_complex_array(output2);
-    std::cout << "ARE EQUAL? " << equal_complex_arrays(output1, output2) << "\n";
+    auto time2 = benchmark([&]{
+        dit::fft(input);
+    });
+
+    std::cout << "Parallel time: " << time1 << "\n";
+    std::cout << "Sequential time: " << time2 << "\n";
+
+    // auto output1 = dit::parallel::fft(to_complex(input));
+    // // std::cout << "COMPUTED: ";
+    // // print_complex_array(output1);
+
+    // auto output2 = dit::fft(input);
+    // // std::cout << "EXPECTED: ";
+    // // print_complex_array(output2);
+    // std::cout << "ARE EQUAL? " << equal_complex_arrays(output1, output2) << "\n";
 
     // auto output1 = input;
     // auto output2 = input;

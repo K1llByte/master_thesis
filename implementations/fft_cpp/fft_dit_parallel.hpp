@@ -118,8 +118,12 @@ namespace dit::parallel
             }, i);
         }
 
+        auto begin = std::chrono::high_resolution_clock::now();
         for(auto& processor : processors)
             processor.join();
+        auto end = std::chrono::high_resolution_clock::now();
+        auto cpu_time = std::chrono::duration<double, std::milli>(end-begin).count();
+        std::cout << "Remove parallel time: " << cpu_time << "\n";
         
         return (log_n & 1) ? pingpong : res;
     }
