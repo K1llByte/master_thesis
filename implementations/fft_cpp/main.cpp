@@ -151,7 +151,7 @@ constexpr std::array<vec2, N> sample_complex()
 
 int main()
 {
-    constexpr auto N = 32;
+    constexpr auto N = 1024;
     auto input = sample<N>();
     auto output1 = dit::parallel::fft(to_complex(input));
     // std::cout << "COMPUTED: ";

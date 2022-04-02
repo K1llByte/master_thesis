@@ -32,7 +32,7 @@ namespace dit::parallel
         }
         // inplace_bit_reversal(res);
 
-        constexpr auto num_processors = 2;
+        constexpr auto num_processors = 4;
         constexpr auto vals_per_processors = N / num_processors;
         if(N % num_processors != 0)
             throw std::runtime_error("Invalid config of threads");
