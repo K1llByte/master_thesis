@@ -149,20 +149,30 @@ constexpr std::array<vec2, N> sample_complex()
 //     benchmark_all();
 // }
 
-struct Foo
-{
-    int a;
-    int b;
-};
-
 int main()
 {
-    auto input = sample<8>();
+    constexpr auto N = 32;
+    auto input = sample<N>();
     auto output1 = dit::parallel::fft(to_complex(input));
-    std::cout << "COMPUTED: ";
-    print_complex_array(output1);
+    // std::cout << "COMPUTED: ";
+    // print_complex_array(output1);
 
     auto output2 = dit::fft(input);
-    std::cout << "EXPECTED: ";
-    print_complex_array(output2);
+    // std::cout << "EXPECTED: ";
+    // print_complex_array(output2);
+    std::cout << "ARE EQUAL? " << equal_complex_arrays(output1, output2) << "\n";
+
+    // auto output1 = input;
+    // auto output2 = input;
+    // inplace_bit_reversal(output1);
+
+    // for(std::size_t i = 0 ; i < N ; ++i)
+    // {
+    //     output2[bit_reverse(i, static_cast<std::size_t>(std::log2(N)))] = input[i];
+    // }
+    // std::cout << "COMPUTED: ";
+    // print_array(output1);
+    // std::cout << "EXPECTED: ";
+    // print_array(output2);
+    // std::cout << "ARE EQUAL? " << equal_float_arrays(output1, output2) << "\n";
 }

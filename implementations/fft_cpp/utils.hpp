@@ -123,12 +123,54 @@ template<std::size_t N, typename T>
 void inplace_bit_reversal(std::array<T,N>& arr)
 {
     constexpr auto num_bits = static_cast<std::size_t>(std::log2(N));
-    constexpr auto HALF_N = N/2;
+    constexpr auto HALF_N = N >> 1;
     for(std::size_t i = 1; i < HALF_N; ++i)
     {
         const auto br_i = bit_reverse(i, num_bits);
         swap(arr[br_i], arr[i]);
     }
+}
+
+template<std::size_t N>
+bool equal_complex_arrays(const std::array<vec2, N>& a, const std::array<vec2, N>& b)
+{
+    constexpr float EPSILON = 0.0001; // 1e-4
+    for(std::size_t i = 0; i < N ; ++i)
+    {
+        // The -1+1 is here to avoid float imprecision
+        // There is 2 comparisons to EPSILON for the case of 
+        // the subtaction being negative.
+        if(((a[i][0] - b[i][0] >= EPSILON) && (b[i][0] - a[i][0] >= EPSILON)) || 
+           ((a[i][1] - b[i][1] >= EPSILON) && (b[i][1] - a[i][1] >= EPSILON)))
+            return false;
+    }
+    return true;
+}
+
+template<std::size_t N>
+bool equal_float_arrays(const std::array<float, N>& a, const std::array<float, N>& b)
+{
+    constexpr float EPSILON = 0.0001; // 1e-4
+    for(std::size_t i = 0; i < N ; ++i)
+    {
+        // The -1+1 is here to avoid float imprecision
+        // There is 2 comparisons to EPSILON for the case of 
+        // the subtaction being negative.
+        if((a[i] - b[i] >= EPSILON) && (b[i] - a[i] >= EPSILON))
+            return false;
+    }
+    return true;
+}
+
+template<std::size_t N>
+std::array<vec2, N>& fp_error_resolve(std::array<vec2, N>& arr)
+{
+    for(auto& elem : arr)
+    {
+        elem[0] =  elem[0]+1-1;
+        elem[1] =  elem[1]+1-1;
+    }
+    return arr;
 }
 
 #endif // UTILS_HPP

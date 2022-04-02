@@ -41,8 +41,11 @@ namespace dit
                     br[k + j + half_m] = complex_sub(u, t);
                     w = complex_mul(w, wm);
                 }
+                // std::cout << "w: " << "(" << w[0] << ", " << w[1] << ")" << "\n";
+
             }
-            // print_complex_array(br);
+            // std::cout << "SEQ " << s << ": ";
+            // print_complex_array(fp_error_resolve(br));
         }
 
         return br;
