@@ -34,6 +34,7 @@ namespace dit::parallel
 
         constexpr auto num_processors = 4;
         constexpr auto vals_per_processors = N / num_processors;
+
         if(N % num_processors != 0)
             throw std::runtime_error("Invalid config of threads");
         std::barrier sync_point(num_processors);
@@ -61,7 +62,10 @@ namespace dit::parallel
                     {
                         const auto idx = id*vals_per_processors + val;
                         const auto half_group_size = group_size >> 1;
-                        const auto w = euler(-2 * pi / group_size * ((idx % group_size) % half_group_size));
+                        const auto w = euler(-2 * (pi / group_size) * ((idx % group_size) % half_group_size));
+                        // debug_lock.lock();
+                        // std::cout << w[0] << ", " << w[1] << "\n";
+                        // debug_lock.unlock();
 
                         if((idx % group_size) >= half_group_size)
                         {
@@ -130,74 +134,88 @@ namespace dit::parallel
 
     //////////////// Inverse FFT Entry Point ////////////////
 
-    // template<std::size_t N>
-    // const std::array<vec2, N> ifft(const std::array<vec2, N>& p)
-    // {
-    //     // // Since this isn't an inlined version of the algorithm
-    //     // // we take O(N) space complexity with the Bit-reverse copy step
-    //     // std::array<vec2, N> br;
-    //     // for(std::size_t i = 0 ; i < N ; ++i)
-    //     // {
-    //     //     br[bit_reverse(i, log2_n)] = vec2{p[i], 0};
-    //     // }
-    //     std::array<vec2, N> res = p;
-    //     std::array<vec2, N> pingpong;
-    //     inplace_bit_reversal(res);
+    template<std::size_t N>
+    const std::array<vec2, N> ifft(const std::array<vec2, N>& p)
+    {
+        constexpr auto log_n = static_cast<std::size_t>(std::log2(N));
 
-    //     constexpr auto log_n = static_cast<std::size_t>(std::log2(N));
-    //     constexpr auto num_processors = log_n;
-    //     std::barrier sync_point(num_processors);
+        std::array<vec2, N> res;
+        std::array<vec2, N> pingpong;
 
-    //     std::vector<std::thread> processors(num_processors);
-    //     for(std::size_t i = 0; i < num_processors; ++i)
-    //     {
-    //         // Concurrent processors
-    //         processors[i] = std::thread([&](std::size_t id)
-    //         {
-    //             for(std::size_t stage = 0; stage < log_n; ++stage)
-    //             {
-    //                 // TODO: 2 conditions check not optimal, change this 
-    //                 auto& from = (stage % 2 == 0) ? res : pingpong;
-    //                 auto& to = (stage % 2 == 0) ? pingpong : res;
-    //                 // Since there are log2(N) processors each
-    //                 // one is gonna compute 2 fft dit butterflies
+        for(std::size_t i = 0 ; i < N ; ++i)
+        {
+            res[bit_reverse(i, log_n)] = p[i];
+        }
 
-    //                 // Temporary storage to avoid read access
-    //                 // race conditions
-    //                 // TODO: This array might not be needed if the
-    //                 // barrier waits after write
-    //                 // std::array<vec2, log_n> tmp;
+        constexpr auto num_processors = 4;
+        constexpr auto vals_per_processors = N / num_processors;
+        if(N % num_processors != 0)
+            throw std::runtime_error("Invalid config of threads");
+        std::barrier sync_point(num_processors);
+        std::mutex debug_lock;
+        constexpr float mult_factor = 1.0 / N;
 
-    //                 const auto group_size = 2 << stage;
-    //                 for(std::size_t val = 0; val < log_n; ++val)
-    //                 {
-    //                     const auto idx = id*log_n + val;
-    //                     const auto w = euler(2 * pi / group_size * (idx % group_size));
-    //                     const auto half_group_size = group_size >> 1;
-    //                     if((idx % group_size) >= half_group_size)
-    //                     {
-    //                         to[idx] = complex_add(from[idx], complex_mul(w, from[idx-half_group_size]));
-    //                     }
-    //                     else
-    //                     {
-    //                         to[idx] = complex_sub(res[idx+half_group_size], complex_mul(w, from[idx]));
-    //                     }
-    //                 }
+        std::vector<std::thread> processors(num_processors);
+        for(std::size_t i = 0; i < num_processors; ++i)
+        {
+            // Concurrent processors
+            processors[i] = std::thread([&](std::size_t id)
+            {
+                for(std::size_t stage = 0; stage < log_n; ++stage)
+                {
+                    std::array<vec2, N>* from = &res;
+                    std::array<vec2, N>* to = &pingpong;
+                    if(stage % 2 != 0)
+                    {
+                        from = &pingpong;
+                        to = &res;
+                    }
 
-    //                 // Sync all processors stage
-    //                 std::stringstream ss;
-    //                 ss << "ID: " << id << ", Stage: " << stage << " waiting ...\n";
-    //                 std::cout << ss.str();
-    //                 sync_point.arrive_and_wait();
-    //             }
-    //         }, i);
-    //     }
+                    // bool torf = false;
+                    const std::size_t group_size = 2 << stage;
+                    for(std::size_t val = 0; val < vals_per_processors; ++val)
+                    {
+                        const auto idx = id*vals_per_processors + val;
+                        const auto half_group_size = group_size >> 1;
+                        const auto w = euler(2 * (pi / group_size) * ((idx % group_size) % half_group_size));
 
-    //     for(auto& processor : processors)
-    //         processor.join();
+                        if((idx % group_size) >= half_group_size)
+                        {
+                            (*to)[idx] = complex_sub((*from)[idx-half_group_size], complex_mul(w, (*from)[idx]));
+                        }
+                        else
+                        {
+                            (*to)[idx] = complex_add((*from)[idx], complex_mul(w, (*from)[idx+half_group_size]));
+                        }
+                        if(stage == log_n-1)
+                            (*to)[idx] = vec2{(*to)[idx][0] * mult_factor, (*to)[idx][1] * mult_factor};
+
+                    }
+                    sync_point.arrive_and_wait();
+                }
+
+                // Divide each element with N
+                // auto& final_buffer = (log_n & 1) ? pingpong : res;
+                // for(std::size_t j = 0; j < vals_per_processors; ++j)
+                // {
+                //     const auto idx = id*vals_per_processors + j;
+                //     final_buffer[idx] = vec2{
+                //         final_buffer[idx][0] / N,
+                //         final_buffer[idx][1] / N
+                //     };
+                // }
+            }, i);
+        }
+
+        // auto begin = std::chrono::high_resolution_clock::now();
+        for(auto& processor : processors)
+            processor.join();
+        // auto end = std::chrono::high_resolution_clock::now();
+        // auto cpu_time = std::chrono::duration<double, std::milli>(end-begin).count();
+        // std::cout << "Remove parallel time: " << cpu_time << "\n";
         
-    //     return res;
-    // }
+        return (log_n & 1) ? pingpong : res;
+    }
 
     ////////////////////// Forward FFT //////////////////////
 

@@ -151,23 +151,38 @@ constexpr std::array<vec2, N> sample_complex()
 
 int main()
 {
-    constexpr auto N = 1024;
+    constexpr auto N = 128;
     auto input = sample<N>();
-    auto input_complex = to_complex(input);
-    auto time1 = benchmark([&]{
-        dit::parallel::fft(input_complex);
-    });
+    ////////////// Benchmark //////////////
 
-    auto time2 = benchmark([&]{
-        dit::fft(input);
-    });
+    // auto input_complex = to_complex(input);
+    // auto time1 = benchmark([&]{
+    //     dit::parallel::fft(input_complex);
+    // });
 
-    std::cout << "Parallel time: " << time1 << "\n";
-    std::cout << "Sequential time: " << time2 << "\n";
+    // auto time2 = benchmark([&]{
+    //     dit::fft(input);
+    // });
 
-    // auto output1 = dit::parallel::fft(to_complex(input));
-    // // std::cout << "COMPUTED: ";
-    // // print_complex_array(output1);
+
+    // std::cout << "Parallel time: " << time1 << "\n";
+    // std::cout << "Sequential time: " << time2 << "\n";
+
+    ////////////// Test //////////////
+
+    auto freq1 = dit::parallel::fft(to_complex(input));
+    std::cout << "FFT: ";
+    print_complex_array(freq1);
+    auto val1 = dit::parallel::ifft(freq1);
+    // std::cout << "IFFT: ";
+    // print_complex_array(val1);
+
+    // Used to compare results
+    auto real_freq1 = dit::fft(input);
+    std::cout << "EXPECTED: ";
+    print_complex_array(real_freq1);
+    std::cout << "ARE EQUAL? " << equal_complex_arrays(real_freq1, freq1) << "\n";
+    std::cout << "ARE EQUAL? " << equal_complex_arrays(to_complex(input), val1) << "\n";
 
     // auto output2 = dit::fft(input);
     // // std::cout << "EXPECTED: ";

@@ -62,7 +62,7 @@ constexpr std::array<vec2, N> to_complex(const std::array<float, N>& real)
 {
     std::array<vec2, N> complex;
     for(std::size_t i = 0 ; i < N ; ++i)
-        complex[i][0] = real[i];
+        complex[i] = vec2{ real[i], 0. };
     return complex;
 }
 
@@ -140,8 +140,14 @@ bool equal_complex_arrays(const std::array<vec2, N>& a, const std::array<vec2, N
         // The -1+1 is here to avoid float imprecision
         // There is 2 comparisons to EPSILON for the case of 
         // the subtaction being negative.
-        if(((a[i][0] - b[i][0] >= EPSILON) && (b[i][0] - a[i][0] >= EPSILON)) || 
-           ((a[i][1] - b[i][1] >= EPSILON) && (b[i][1] - a[i][1] >= EPSILON)))
+        auto diff_a_b_0 = a[i][0] - b[i][0];
+        auto diff_a_b_1 = a[i][1] - b[i][1];
+        if(diff_a_b_0 < 0)
+            diff_a_b_0 = -diff_a_b_0;
+        if(diff_a_b_1 < 0)
+            diff_a_b_1 = -diff_a_b_1;
+        
+        if(diff_a_b_0 >= EPSILON || diff_a_b_1 >= EPSILON)
             return false;
     }
     return true;
