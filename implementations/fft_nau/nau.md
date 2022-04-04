@@ -8,6 +8,7 @@
 - Bit reversal step (can be constexpr)
 - Number of dynamic parameters (uniform variables) can be reduced
 - The 2D algorithm is FFT DIT
+- IMPORTANT NOTE: Reimplement with Compute shaders but with vec4 (2 butterflies at a time) to improve SIMD performance
 
 ### Stages
 

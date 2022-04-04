@@ -53,7 +53,13 @@
     
     <pipelines>
         <pipeline name="fft" >
-
+        
+            <!-- converts to greyscale and copies the value to the initial fourier texture -->
+            <pass class="quad" name="imageToComplex" >
+                <renderTarget name="fftStartingPoint" fromLibrary="FFT" />
+                <material name="imageToComplex" fromLibrary="FFT" />
+            </pass>
+            
             <!-- FFT forward pass for lines-->
             <pass class="compute" name="fftHorizontal"> 
                 <!-- script to reset all variables to proper values before computing the stages -->

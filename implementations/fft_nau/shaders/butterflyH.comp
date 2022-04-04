@@ -14,6 +14,9 @@ uniform int log_width;
 uniform int stage;
 uniform int fft_dir;
 
+// Constants
+int iter = 1 << log_width;
+int shift = (1 << stage);
 
 vec2 complexMult(vec2 v0, vec2 v1) {
 	return vec2(v0.x * v1.x - v0.y * v1.y,
@@ -26,7 +29,7 @@ int bitReverse(int k) {
 	uint x = uint(k);
 	uint n = 0;
 	uint mask = 0x1;
-	for (int i = 0; i < log_width; i++) {
+	for (int i = 0; i < log_width; ++i) {
 		n <<= 1;
 		n |= (x & 1);
 		x >>= 1;
@@ -46,17 +49,14 @@ void main() {
 
 	uint line = gl_GlobalInvocationID.x;
 	uint column = gl_GlobalInvocationID.y;
-	
-	int iter = int(pow(2,log_width));
-	
-	int groups = iter / int(pow(2, stage));
+
+	int groups = iter / shift;
 	int groupSize = 2 * iter / groups;
-	int k = int(line) % (groupSize /2);
-	int group = int(line) / (groupSize /2);
-	int groupShift = int(pow(2, stage + 1));
+	int k = int(line) % (groupSize / 2);
+	int group = int(line) / (groupSize / 2);
+	int groupShift = 2 << stage;
 
 	int index = k + group * groupShift;
-	int shift = int(pow(2, stage));
 
 	vec2 elemk, elemks, ww;
 	

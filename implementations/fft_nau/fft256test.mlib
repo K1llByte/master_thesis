@@ -38,9 +38,9 @@
             <HEIGHT value="SIZE" />
             <INTERNAL_FORMAT value="RG32F" />
         </texture>
-
+        
         <!-- the original image  -->
-        <texture name="original" filename="preprocessed_doggy.jpg" mipmap="0" />
+        <texture name="original" filename="textures/dog.jpg" mipmap="0" />
 
         <!-- texture do display the image reconstructed -->
         <!-- result = ifft (fft(original)) -->
@@ -70,12 +70,12 @@
 
     <shaders>
         <!-- copy the luminance of the original texture to texture aux1 -->
-        <!-- <shader name="imageToComplex" 	vs="shaders/quad.vert"
-                                        ps="shaders/toComplex.frag"/>  -->
+        <shader name="imageToComplex" 	vs="shaders/quad.vert"
+                                        ps="shaders/toComplex.frag"/> 
 
         <!-- compute shader to perform a single butterfly -->
-        <shader name="butterflyH" 	cs="shaders/butterflyH.comp" /> 
-        <shader name="butterflyV" 	cs="shaders/butterflyV.comp" /> 
+        <shader name="butterflyH" 	cs="shaders/butterflyH2.comp" /> 
+        <shader name="butterflyV" 	cs="shaders/butterflyV2.comp" /> 
 
         <!-- gets the real component of (fftinv(fft(image)) 
             to display the reconstructed image -->
@@ -97,7 +97,7 @@
     
     <materials>
     
-        <!-- <material name ="imageToComplex">
+        <material name ="imageToComplex">
             <shader name="imageToComplex">
                 <values>
                     <valueof uniform="m_pvm" 
@@ -115,7 +115,7 @@
             <textures>
                 <texture name="original" UNIT=0 />
             </textures>
-        </material> -->
+        </material>
         
         <material name ="fftHorizontal">
             <shader name="butterflyH">
@@ -147,7 +147,7 @@
             </shader>
             <!-- TODO: Find a way to compute fft inplace instead of using 2 textures -->
             <imageTextures> <!-- ping pong textures -->
-                <imageTexture UNIT=0 texture="original" >
+                <imageTexture UNIT=0 texture="aux1" >
                     <ACCESS value="READ_WRITE" />
                     <LEVEL value=0 />
                 </imageTexture>
@@ -187,7 +187,7 @@
                 </values>
             </shader>
             <imageTextures> <!-- ping pong textures -->
-                <imageTexture UNIT=0 texture="original" >
+                <imageTexture UNIT=0 texture="aux1" >
                     <ACCESS value="READ_WRITE" />
                     <LEVEL value=0 />
                 </imageTexture>
@@ -211,7 +211,7 @@
                 </values>
             </shader>
             <textures>
-                <texture name="original" UNIT=0 />
+                <texture name="aux1" UNIT=0 />
             </textures>
         </material>
         <material name="copyTexture" >
@@ -231,7 +231,7 @@
                 </values>
             </shader>	
             <textures>
-                <texture UNIT=0 name="original" >
+                <texture UNIT=0 name="aux1" >
                     <MIN_FILTER value="NEAREST_MIPMAP_NEAREST" />
                     <MAG_FILTER value="NEAREST" />
                     <WRAP_S value="CLAMP_TO_BORDER" />
