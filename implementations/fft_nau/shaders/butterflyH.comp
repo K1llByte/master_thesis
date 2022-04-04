@@ -37,11 +37,8 @@ int bitReverse(int k) {
 	return int(n);
 }
 
-
-vec2 w(int k, int nn, int dir) {
-
-	float it = dir * 2 * k * M_PI / nn;
-	return vec2(cos(it), sin(it));
+vec2 euler(float angle) {
+	return vec2(cos(angle), sin(angle));
 }
 
 
@@ -72,7 +69,7 @@ void main() {
 			elemks = imageLoad(pingpong0, ivec2(index + shift, column)).rg;
 		}
 		// compute the twiddle factor
-		ww = w(k, groupShift, fft_dir);
+		ww = euler(fft_dir * 2 * k * M_PI / groupShift);
 			
 		// write the outputs
 		vec2 raux = elemk + complexMult(ww, elemks);
@@ -91,8 +88,8 @@ void main() {
 			elemk = imageLoad(pingpong1, ivec2(index, column)).rg;
 			elemks = imageLoad(pingpong1, ivec2(index + shift, column)).rg;
 		}
-		ww = w(k, groupShift, fft_dir);
-			
+		ww = euler(fft_dir * 2 * k * M_PI / groupShift);
+
 		vec2 raux = elemk + complexMult(ww, elemks);
 		imageStore(pingpong0, ivec2(index, column), vec4(raux,0,0));
 			

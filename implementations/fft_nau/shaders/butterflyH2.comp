@@ -2,8 +2,7 @@
 
 #define M_PI 3.1415926535897932384626433832795
 
-layout (local_size_x = 8, local_size_y = 4) in;
-
+layout (local_size_x = 8, local_size_y = 8) in;
 
 // ping pong textures
 layout (binding = 0, rg32f) uniform image2D pingpong0;
@@ -16,7 +15,7 @@ uniform int fft_dir;
 
 // Constants
 /* const  */
-int vals_per_processors = 256 / 8;
+int vals_per_processors = 256 / 32;
 int iter = 1 << log_width;
 int shift = (1 << stage);
 
@@ -45,16 +44,16 @@ vec2 euler(float angle) {
 
 
 void main() {
-    uint line = gl_GlobalInvocationID.x;
-    uint column = gl_GlobalInvocationID.y;
+    // Is 'x' iter_column? sholdn't it be iter_line? (column major)
+    uint iter_column = gl_GlobalInvocationID.x;
+    uint iter_line = gl_GlobalInvocationID.y;
 
     int group_size = 2 << stage;
     int half_group_size = group_size >> 1;
-    int k = int(line) % half_group_size;
-    int idx = int(line)*vals_per_processors + k;
+    int idx = int(iter_column); //*vals_per_processors + k; //gl_LocalInvocationID.x;
 
     // Compute the twiddle factor
-    vec2 w = euler(fft_dir * 2 * k * M_PI / group_size);
+    vec2 w = euler(fft_dir * 2 * (M_PI / group_size) * (int(iter_line) % half_group_size));
 
     vec2 elemk, elemks;
     // Alternate between textures
@@ -64,29 +63,29 @@ void main() {
         if((idx % group_size) >= half_group_size) {
             if(stage == 0) {
                 // when stage = 0 use bit reverse indices
-                elemk = imageLoad(pingpong0, ivec2(bit_reverse(idx), column)).rg;
-                elemks = imageLoad(pingpong0, ivec2(bit_reverse(idx-half_group_size), column)).rg;
+                elemk = imageLoad(pingpong0, ivec2(bit_reverse(idx), iter_line)).rg;
+                elemks = imageLoad(pingpong0, ivec2(bit_reverse(idx-half_group_size), iter_line)).rg;
             }
             else {
-                elemk = imageLoad(pingpong0, ivec2(idx, column)).rg;
-                elemks = imageLoad(pingpong0, ivec2(idx-half_group_size, column)).rg;
+                elemk = imageLoad(pingpong0, ivec2(idx, iter_line)).rg;
+                elemks = imageLoad(pingpong0, ivec2(idx-half_group_size, iter_line)).rg;
             }
             result = elemks - complex_mult(w, elemk);
-            imageStore(pingpong1, ivec2(idx, column), vec4(result,0,0));
+            imageStore(pingpong1, ivec2(idx, iter_line), vec4(result,0,0));
         }
         else {
             if(stage == 0) {
                 // when stage = 0 use bit reverse indices
-                elemk = imageLoad(pingpong0, ivec2(bit_reverse(idx), column)).rg;
-                elemks = imageLoad(pingpong0, ivec2(bit_reverse(idx+half_group_size), column)).rg;
+                elemk = imageLoad(pingpong0, ivec2(bit_reverse(idx), iter_line)).rg;
+                elemks = imageLoad(pingpong0, ivec2(bit_reverse(idx+half_group_size), iter_line)).rg;
             }
             else {
-                elemk = imageLoad(pingpong0, ivec2(idx, column)).rg;
-                elemks = imageLoad(pingpong0, ivec2(idx+half_group_size, column)).rg;
+                elemk = imageLoad(pingpong0, ivec2(idx, iter_line)).rg;
+                elemks = imageLoad(pingpong0, ivec2(idx+half_group_size, iter_line)).rg;
             }
             // Write result
             result = elemk + complex_mult(w, elemks);
-            imageStore(pingpong1, ivec2(idx, column), vec4(result,0,0));
+            imageStore(pingpong1, ivec2(idx, iter_line), vec4(result,0,0));
         }
     }
     else {
@@ -94,29 +93,29 @@ void main() {
         if((idx % group_size) >= half_group_size) {
             if(stage == 0) {
                 // when stage = 0 use bit reverse indices
-                elemk = imageLoad(pingpong1, ivec2(bit_reverse(idx), column)).rg;
-                elemks = imageLoad(pingpong1, ivec2(bit_reverse(idx-half_group_size), column)).rg;
+                elemk = imageLoad(pingpong1, ivec2(bit_reverse(idx), iter_line)).rg;
+                elemks = imageLoad(pingpong1, ivec2(bit_reverse(idx-half_group_size), iter_line)).rg;
             }
             else {
-                elemk = imageLoad(pingpong1, ivec2(idx, column)).rg;
-                elemks = imageLoad(pingpong1, ivec2(idx-half_group_size, column)).rg;
+                elemk = imageLoad(pingpong1, ivec2(idx, iter_line)).rg;
+                elemks = imageLoad(pingpong1, ivec2(idx-half_group_size, iter_line)).rg;
             }
             result = elemks - complex_mult(w, elemk);
-            imageStore(pingpong0, ivec2(idx, column), vec4(result,0,0));
+            imageStore(pingpong0, ivec2(idx, iter_line), vec4(result,0,0));
         }
         else {
             if(stage == 0) {
                 // when stage = 0 use bit reverse indices
-                elemk = imageLoad(pingpong1, ivec2(bit_reverse(idx), column)).rg;
-                elemks = imageLoad(pingpong1, ivec2(bit_reverse(idx+half_group_size), column)).rg;
+                elemk = imageLoad(pingpong1, ivec2(bit_reverse(idx), iter_line)).rg;
+                elemks = imageLoad(pingpong1, ivec2(bit_reverse(idx+half_group_size), iter_line)).rg;
             }
             else {
-                elemk = imageLoad(pingpong1, ivec2(idx, column)).rg;
-                elemks = imageLoad(pingpong1, ivec2(idx+half_group_size, column)).rg;
+                elemk = imageLoad(pingpong1, ivec2(idx, iter_line)).rg;
+                elemks = imageLoad(pingpong1, ivec2(idx+half_group_size, iter_line)).rg;
             }
             // Write result
             result = elemk + complex_mult(w, elemks);
-            imageStore(pingpong0, ivec2(idx, column), vec4(result,0,0));
+            imageStore(pingpong0, ivec2(idx, iter_line), vec4(result,0,0));
         }
     }
 }

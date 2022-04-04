@@ -74,8 +74,8 @@
                                         ps="shaders/toComplex.frag"/> 
 
         <!-- compute shader to perform a single butterfly -->
-        <shader name="butterflyH" 	cs="shaders/butterflyH2.comp" /> 
-        <shader name="butterflyV" 	cs="shaders/butterflyV2.comp" /> 
+        <shader name="butterflyH" 	cs="shaders/butterflyH.comp" /> 
+        <shader name="butterflyV" 	cs="shaders/butterflyV.comp" /> 
 
         <!-- gets the real component of (fftinv(fft(image)) 
             to display the reconstructed image -->
@@ -100,7 +100,7 @@
         <material name ="imageToComplex">
             <shader name="imageToComplex">
                 <values>
-                    <valueof uniform="m_pvm" 
+                    <valueof uniform="m_pvm"
                              type="RENDERER" context="CURRENT" 
                              component="PROJECTION_VIEW_MODEL" />
                              

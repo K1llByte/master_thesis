@@ -36,11 +36,8 @@ int bitReverse(int k) {
 	return int(n);
 }
 
-
-vec2 w(int k, int nn, int dir) {
-
-	float it = dir * 2 * k * M_PI / nn;
-	return vec2(cos(it), sin(it));
+vec2 euler(float angle) {
+	return vec2(cos(angle), sin(angle));
 }
 
 
@@ -62,7 +59,7 @@ void main() {
 	// last stage
 	float mult_factor = 1.0;
 	if ((stage == log_width - 1) && fft_dir == 1) {
-		mult_factor = 1.0/pow(4,log_width) ;
+		mult_factor = 1.0 / (256.0*256.0) ;
 	}
 	
 	// alternate between textures
@@ -78,7 +75,7 @@ void main() {
 		}
 		
 		// compute the twiddle factor
-		ww = w(k, groupShift, fft_dir);
+		ww = euler(fft_dir * 2 * k * M_PI / groupShift);
 			
 		// write the outputs
 		vec2 raux = (elemk + complexMult(ww, elemks)) * mult_factor;
@@ -97,7 +94,7 @@ void main() {
 			elemk = imageLoad(pingpong1, ivec2(line, index)).rg;
 			elemks = imageLoad(pingpong1, ivec2(line, index + shift)).rg;
 		}
-		ww = w(k, groupShift, fft_dir);
+		ww = euler(fft_dir * 2 * k * M_PI / groupShift);
 			
 		vec2 raux = (elemk + complexMult(ww, elemks)) * mult_factor;
 		imageStore(pingpong0, ivec2(line, index), vec4(raux,0,0));
