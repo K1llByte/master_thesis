@@ -53,7 +53,7 @@ void main() {
     int idx = int(iter_column); //*vals_per_processors + k; //gl_LocalInvocationID.x;
 
     // Compute the twiddle factor
-    vec2 w = euler(fft_dir * 2 * (M_PI / group_size) * (int(iter_line) % half_group_size));
+    vec2 w = euler(fft_dir * 2 * (M_PI / group_size) * (int(iter_column) % half_group_size));
 
     vec2 elemk, elemks;
     // Alternate between textures
