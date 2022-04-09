@@ -43,19 +43,18 @@ vec2 euler(float angle) {
 
 void main() {
 
-	uint line = gl_GlobalInvocationID.x;
-	uint column = gl_GlobalInvocationID.y;
-	
-	int groups = iter / shift;
-	int groupSize = 2 * iter / groups;
-	int k = int(column) % (groupSize /2);
-	int group = int(column) / (groupSize /2);
-	int groupShift = 2 << stage;
+	int line = int(gl_GlobalInvocationID.x);
+	int column = int(gl_GlobalInvocationID.y);
 
-	int index = k + group * groupShift;
+	int group_size = 2 << stage;
+	int shift = 1 << stage;
+	// Compute the idx of the place we're working on now
+    int idx = (column % shift) + group_size * (column / shift);
 
-	vec2 elemk, elemks, ww;
-	
+	vec2 elemk, elemks;
+	// Compute the twiddle factor
+	vec2 w = euler(fft_dir * 2 * (M_PI / group_size) * ((idx % group_size) % shift));
+
 	// last stage
 	float mult_factor = 1.0;
 	if ((stage == log_width - 1) && fft_dir == 1) {
@@ -66,41 +65,145 @@ void main() {
 	if (pingpong == 0) {
 		// when stage = 0 use bit reverse indices
 		if (stage == 0) {
-			elemk = imageLoad(pingpong0, ivec2(line, bitReverse(index))).rg;
-			elemks = imageLoad(pingpong0, ivec2(line, bitReverse(index + shift))).rg;
+			elemk = imageLoad(pingpong0, ivec2(line, bitReverse(idx))).rg;
+			elemks = imageLoad(pingpong0, ivec2(line, bitReverse(idx + shift))).rg;
 		}
 		else {
-			elemk = imageLoad(pingpong0, ivec2(line, index)).rg;
-			elemks = imageLoad(pingpong0, ivec2(line, index + shift)).rg;
+			elemk = imageLoad(pingpong0, ivec2(line, idx)).rg;
+			elemks = imageLoad(pingpong0, ivec2(line, idx + shift)).rg;
 		}
 		
-		// compute the twiddle factor
-		ww = euler(fft_dir * 2 * k * M_PI / groupShift);
 			
 		// write the outputs
-		vec2 raux = (elemk + complexMult(ww, elemks)) * mult_factor;
-		imageStore(pingpong1, ivec2(line, index), vec4(raux,0,0));
+		vec2 raux = (elemk + complexMult(w, elemks)) * mult_factor;
+		imageStore(pingpong1, ivec2(line, idx), vec4(raux,0,0));
 			
-		raux = (elemk - complexMult(ww, elemks)) * mult_factor;
-		imageStore(pingpong1, ivec2(line, index + shift), vec4(raux,0,0));
+		raux = (elemk - complexMult(w, elemks)) * mult_factor;
+		imageStore(pingpong1, ivec2(line, idx + shift), vec4(raux,0,0));
 
 	}
 	else {
 		if (stage == 0) {
-			elemk = imageLoad(pingpong1, ivec2(line, bitReverse(index))).rg;
-			elemks = imageLoad(pingpong1, ivec2(line, bitReverse(index + shift))).rg;
+			elemk = imageLoad(pingpong1, ivec2(line, bitReverse(idx))).rg;
+			elemks = imageLoad(pingpong1, ivec2(line, bitReverse(idx + shift))).rg;
 		}
 		else {	
-			elemk = imageLoad(pingpong1, ivec2(line, index)).rg;
-			elemks = imageLoad(pingpong1, ivec2(line, index + shift)).rg;
+			elemk = imageLoad(pingpong1, ivec2(line, idx)).rg;
+			elemks = imageLoad(pingpong1, ivec2(line, idx + shift)).rg;
 		}
-		ww = euler(fft_dir * 2 * k * M_PI / groupShift);
+
+		vec2 raux = (elemk + complexMult(w, elemks)) * mult_factor;
+		imageStore(pingpong0, ivec2(line, idx), vec4(raux,0,0));
 			
-		vec2 raux = (elemk + complexMult(ww, elemks)) * mult_factor;
-		imageStore(pingpong0, ivec2(line, index), vec4(raux,0,0));
-			
-		raux = (elemk - complexMult(ww, elemks)) * mult_factor;
-		imageStore(pingpong0, ivec2(line, index + shift), vec4(raux,0,0));
+		raux = (elemk - complexMult(w, elemks)) * mult_factor;
+		imageStore(pingpong0, ivec2(line, idx + shift), vec4(raux,0,0));
 	}
 }
 
+////////////////////// Working Code //////////////////////
+
+// #version 430
+
+// #define M_PI 3.1415926535897932384626433832795
+
+// layout (local_size_x = 8, local_size_y = 4) in;
+
+// // ping pong textures
+// layout (binding = 0, rg32f) uniform image2D pingpong0;
+// layout (binding = 1, rg32f) uniform image2D pingpong1;
+
+// uniform int pingpong;
+// uniform int log_width;
+// uniform int stage;
+// uniform int fft_dir;
+
+// // Constants
+// int iter = 1 << log_width;
+// int shift = (1 << stage);
+
+// vec2 complexMult(vec2 v0, vec2 v1) {
+// 	return vec2(v0.x * v1.x - v0.y * v1.y,
+// 				v0.x * v1.y + v0.y * v1.x);
+// }
+
+ 
+// int bitReverse(int k) {
+
+// 	uint x = uint(k);
+// 	uint n = 0;
+// 	uint mask = 0x1;
+// 	for (int i = 0; i < log_width; i++) {
+// 		n <<= 1;
+// 		n |= (x & 1);
+// 		x >>= 1;
+// 	}
+// 	return int(n);
+// }
+
+// vec2 euler(float angle) {
+// 	return vec2(cos(angle), sin(angle));
+// }
+
+
+// void main() {
+
+// 	uint line = gl_GlobalInvocationID.x;
+// 	uint column = gl_GlobalInvocationID.y;
+	
+// 	int groups = iter / shift;
+// 	int groupSize = 2 * iter / groups;
+// 	int k = int(column) % (groupSize /2);
+// 	int group = int(column) / (groupSize /2);
+// 	int groupShift = 2 << stage;
+
+// 	int idx = k + group * groupShift;
+
+// 	vec2 elemk, elemks, w;
+	
+// 	// last stage
+// 	float mult_factor = 1.0;
+// 	if ((stage == log_width - 1) && fft_dir == 1) {
+// 		mult_factor = 1.0 / (256.0*256.0) ;
+// 	}
+	
+// 	// alternate between textures
+// 	if (pingpong == 0) {
+// 		// when stage = 0 use bit reverse indices
+// 		if (stage == 0) {
+// 			elemk = imageLoad(pingpong0, ivec2(line, bitReverse(idx))).rg;
+// 			elemks = imageLoad(pingpong0, ivec2(line, bitReverse(idx + shift))).rg;
+// 		}
+// 		else {
+// 			elemk = imageLoad(pingpong0, ivec2(line, idx)).rg;
+// 			elemks = imageLoad(pingpong0, ivec2(line, idx + shift)).rg;
+// 		}
+		
+// 		// compute the twiddle factor
+// 		w = euler(fft_dir * 2 * k * M_PI / groupShift);
+			
+// 		// write the outputs
+// 		vec2 raux = (elemk + complexMult(w, elemks)) * mult_factor;
+// 		imageStore(pingpong1, ivec2(line, idx), vec4(raux,0,0));
+			
+// 		raux = (elemk - complexMult(w, elemks)) * mult_factor;
+// 		imageStore(pingpong1, ivec2(line, idx + shift), vec4(raux,0,0));
+
+// 	}
+// 	else {
+// 		if (stage == 0) {
+// 			elemk = imageLoad(pingpong1, ivec2(line, bitReverse(idx))).rg;
+// 			elemks = imageLoad(pingpong1, ivec2(line, bitReverse(idx + shift))).rg;
+// 		}
+// 		else {	
+// 			elemk = imageLoad(pingpong1, ivec2(line, idx)).rg;
+// 			elemks = imageLoad(pingpong1, ivec2(line, idx + shift)).rg;
+// 		}
+// 		w = euler(fft_dir * 2 * k * M_PI / groupShift);
+			
+// 		vec2 raux = (elemk + complexMult(w, elemks)) * mult_factor;
+// 		imageStore(pingpong0, ivec2(line, idx), vec4(raux,0,0));
+			
+// 		raux = (elemk - complexMult(w, elemks)) * mult_factor;
+// 		imageStore(pingpong0, ivec2(line, idx + shift), vec4(raux,0,0));
+// 	}
+// }

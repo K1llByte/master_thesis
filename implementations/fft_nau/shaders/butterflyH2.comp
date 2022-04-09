@@ -50,7 +50,7 @@ void main() {
 
     int group_size = 2 << stage;
     int half_group_size = group_size >> 1;
-    int idx = int(iter_column); //*vals_per_processors + k; //gl_LocalInvocationID.x;
+    int idx = (int(iter_column) % shift) + group_size * (int(iter_column) / shift);
 
     // Compute the twiddle factor
     vec2 w = euler(fft_dir * 2 * (M_PI / group_size) * (int(iter_column) % half_group_size));

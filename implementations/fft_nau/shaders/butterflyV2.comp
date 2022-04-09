@@ -47,7 +47,7 @@ void main() {
 
     int group_size = 2 << stage; //2 * iter / groups;
     int half_group_size = group_size >> 1;
-    int idx = int(iter_line);
+    int idx = (int(iter_line) % shift) + group_size * (int(iter_line) / shift);
 
     // Compute the twiddle factor
     vec2 w = euler(fft_dir * 2 * (M_PI / group_size) * (int(iter_line) % half_group_size));
