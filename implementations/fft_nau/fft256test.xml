@@ -7,6 +7,7 @@
             <alias name="SIZE" value="256" /> 
             <!-- compute shader dimXY = SIZE/8 -->
             <alias name="DSIZE" value="32" /> 
+            <alias name="YSIZE" value="16" /> 
             
             <alias name="LOGWIDTH_PLUS_ONE" value = "9" />
         </aliases>
@@ -69,14 +70,14 @@
                 <testScript file="scripts/fft.lua" script="fft" TEST_MODE="RUN_WHILE" />
                 
                 <!-- compute shader to perform a single butterfly -->
-                <material name="fftHorizontal" fromLibrary="FFT" dimX="DSIZE" dimY="DSIZE" dimZ=1 />
+                <material name="fftHorizontal" fromLibrary="FFT" dimX="DSIZE" dimY="YSIZE" dimZ=1 />
             </pass>
             
             <!-- FFT forward pass for columns -->
             <pass class="compute" name="fftVertical"> 
                 <preScript file="scripts/fft.lua" script="resetForwardVertical" />				
                 <testScript file="scripts/fft.lua" script="fft" TEST_MODE="RUN_WHILE" />
-                <material name="fftVertical" fromLibrary="FFT" dimX="DSIZE" dimY="DSIZE" dimZ=1 />
+                <material name="fftVertical" fromLibrary="FFT" dimX="YSIZE" dimY="DSIZE" dimZ=1 />
             </pass>
             
             <!-- copy forward pass to texture toneMap -->
@@ -89,14 +90,14 @@
             <pass class="compute" name="ifftHorizontal"> 
                 <preScript file="scripts/fft.lua" script="resetInverse" />
                 <testScript file="scripts/fft.lua" script="fft" TEST_MODE="RUN_WHILE" />
-                <material name="fftHorizontal" fromLibrary="FFT" dimX="DSIZE" dimY="DSIZE" dimZ=1 />
+                <material name="fftHorizontal" fromLibrary="FFT" dimX="DSIZE" dimY="YSIZE" dimZ=1 />
             </pass>
             
             <!-- inverse FFT vertical pass -->
             <pass class="compute" name="ifftVertical"> 
                 <preScript file="scripts/fft.lua" script="resetInverseVertical" />
                 <testScript file="scripts/fft.lua" script="fft" TEST_MODE="RUN_WHILE" />
-                <material name="fftVertical" fromLibrary="FFT" dimX="DSIZE" dimY="DSIZE" dimZ=1 />
+                <material name="fftVertical" fromLibrary="FFT" dimX="YSIZE" dimY="DSIZE" dimZ=1 />
             </pass>
             
             <!-- copy the real component to texture reconstrut -->
