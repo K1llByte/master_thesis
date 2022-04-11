@@ -3,7 +3,7 @@
 #define M_PI 3.1415926535897932384626433832795
 #define NUM_BUTTERFLIES 2
 
-layout (local_size_x = 16, local_size_y = 4/NUM_BUTTERFLIES) in;
+layout (local_size_x = 8, local_size_y = 4/NUM_BUTTERFLIES) in;
 
 // ping pong textures
 layout (binding = 0, rg32f) uniform image2D pingpong0;

@@ -9,6 +9,37 @@
 #define NX 256
 #define BATCH 1
 
+// #define CU_ERR_CHECK_MSG(err, msg) {               \
+//             if(err != cudaSuccess) {               \
+//                 fprintf(stderr, msg);              \
+//                 exit(1);                           \
+//             }                                      \
+//         }
+
+// #define CU_CHECK_MSG(res, msg) {                   \
+//             if(res != CUFFT_SUCCESS) {             \
+//                 fprintf(stderr, msg);              \
+//                 exit(1);                           \
+//             }                                      \
+//         }
+
+#define CU_ERR_CHECK_MSG(err, msg, ...) {          \
+            if(err != cudaSuccess) {               \
+                fprintf(stderr, msg __VA_OPT__(,)  \
+                    __VA_ARGS__);                  \
+                exit(1);                           \
+            }                                      \
+        }
+
+#define CU_CHECK_MSG(res, msg, ...) {              \
+            if(res != CUFFT_SUCCESS) {             \
+                fprintf(stderr, msg __VA_OPT__(,)  \
+                    __VA_ARGS__);                  \
+                exit(1);                           \
+            }                                      \
+        }
+
+
 void print_sequence(const cufftComplex* arr)
 {
     printf("[");
@@ -28,12 +59,11 @@ int main()
     cufftComplex* data = (cufftComplex*) malloc(data_size);
     cufftComplex* gpu_data;
     cudaError_t err;
+    
     // Allocate GPU buffer
-    if((err = cudaMalloc((void**) &gpu_data, data_size)) != cudaSuccess)
-    {
-        fprintf(stderr, "Cuda error: Failed to allocate '%d'\n", err);
-        return 1;
-    }
+    err = cudaMalloc(&gpu_data, data_size);
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to allocate '%d'\n", err);
+    // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to allocate\n");
 
     // Initializing input sequence
     for(size_t i = 0; i < NX; ++i)
@@ -44,66 +74,48 @@ int main()
 
     print_sequence(data);
 
-    printf("%p %p %zu %d\n", gpu_data, data, sizeof(cufftComplex), cudaMemcpyHostToDevice);
-
-    // Allocate GPU buffer
-    if((err = cudaMemcpy(gpu_data, data, data_size, cudaMemcpyHostToDevice)) != cudaSuccess)
-    {
-        fprintf(stderr, "Cuda error: Failed to copy buffer to GPU '%d'\n", err);
-        return 1;
-    }
+    // Copy data to GPU buffer
+    err = cudaMemcpy(gpu_data, data, data_size, cudaMemcpyHostToDevice);
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU '%d'\n", err);
+    // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU\n");
 
     cufftHandle plan;
     cufftResult_t res;
-    if((res = cufftPlan1d(&plan, NX, CUFFT_C2C, BATCH)) != CUFFT_SUCCESS)
-    {
-        fprintf(stderr, "CUFFT error: Plan creation failed '%d'\n", res);
-        return 1;
-    }
+    res = cufftPlan1d(&plan, NX, CUFFT_C2C, BATCH);
+    CU_CHECK_MSG(res, "CUFFT error: Plan creation failed '%d'\n", res);
+    // CU_CHECK_MSG(res, "CUFFT error: Plan creation failed\n");
     
     /* Note:
     * Identical pointers to input and output arrays implies in-place
     transformation
     */
-    if((res = cufftExecC2C(plan, gpu_data, gpu_data, CUFFT_FORWARD)) != CUFFT_SUCCESS)
-    {
-        fprintf(stderr, "CUFFT error: ExecC2C Forward failed '%d'\n", err);
-        return 1;
-    }
 
-    if ((err = cudaDeviceSynchronize()) != cudaSuccess)
-    {
-        fprintf(stderr, "Cuda error: Failed to synchronize\n");
-        return;	
-    }
+    // Execute Forward 1D FFT
+    res = cufftExecC2C(plan, gpu_data, gpu_data, CUFFT_FORWARD);
+    CU_CHECK_MSG(res, "CUFFT error: ExecC2C Forward failed '%d'\n", res);
+    // CU_CHECK_MSG(res, "CUFFT error: ExecC2C Forward failed\n");
 
-    // // Print Computed FFT
-    // printf("FFT:\n");
-    // for(size_t i = 0; i < NX; ++i)
-    // {
-    //     printf("%f\n", data[i].x);
-    // }
-    
-    if((res = cufftExecC2C(plan, gpu_data, gpu_data, CUFFT_INVERSE)) != CUFFT_SUCCESS)
-    {
-        fprintf(stderr, "CUFFT error: ExecC2C Inverse failed '%d'\n", err);
-        return 1;
-    }
+    // Await end of execution
+    err = cudaDeviceSynchronize();
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
+
+    // Execute Inverse 1D FFT
+    res = cufftExecC2C(plan, gpu_data, gpu_data, CUFFT_INVERSE);
+    CU_CHECK_MSG(res, "CUFFT error: ExecC2C Inverse failed '%d'\n", res);
+    // CU_CHECK_MSG(res, "CUFFT error: ExecC2C Inverse failed\n");
+
+    // Await end of execution
+    err = cudaDeviceSynchronize();
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
 
     // Retrieve computed FFT buffer
-    if((err = cudaMemcpy(data, gpu_data, data_size, cudaMemcpyHostToDevice)) != cudaSuccess)
-    {
-        fprintf(stderr, "Cuda error: Failed to copy buffer to GPU '%d'\n", err);
-        return 1;
-    }
-
-    // // Print Computed IFFT
-    // printf("FFT:\n");
-    // for(size_t i = 0; i < NX; ++i)
-    // {
-    //     printf("%f\n", data[i].x);
-    // }
+    err = cudaMemcpy(data, gpu_data, data_size, cudaMemcpyDeviceToHost);
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU '%d'\n", err);
+    // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU\n");
 
     cufftDestroy(plan);
-    cudaFree(data);
+    cudaFree(gpu_data);
+
+    // Print Computed IFFT
+    print_sequence(data);
 }
