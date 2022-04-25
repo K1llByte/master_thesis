@@ -77,12 +77,12 @@ void main() {
 
                 // Write the outputs
                 vec2 raux = elemk + complex_mult(w, elemks);
-                // imageStore(pingpong1, ivec2(idx, column), vec4(raux, 0, 0));
+                imageStore(pingpong1, ivec2(idx, column), vec4(raux, 0, 0));
                 // NOTE: Debug
                 // imageStore(pingpong1, ivec2(idx, column), vec4(line_color, 0, 0));
                     
                 raux = elemk - complex_mult(w, elemks);
-                // imageStore(pingpong1, ivec2(idx + shift, column), vec4(raux, 0, 0));
+                imageStore(pingpong1, ivec2(idx + shift, column), vec4(raux, 0, 0));
                 // NOTE: Debug
                 // imageStore(pingpong1, ivec2(idx + shift, column), vec4(line_color, 0, 0));
             }
@@ -97,12 +97,12 @@ void main() {
                 }
 
                 vec2 raux = elemk + complex_mult(w, elemks);
-                // imageStore(pingpong0, ivec2(idx, column), vec4(raux,0,0));
+                imageStore(pingpong0, ivec2(idx, column), vec4(raux,0,0));
                 // NOTE: Debug
                 // imageStore(pingpong0, ivec2(idx, column), vec4(line_color,0,0));
 
                 raux = elemk - complex_mult(w, elemks);
-                // imageStore(pingpong0, ivec2(idx + shift, column), vec4(raux,0,0));
+                imageStore(pingpong0, ivec2(idx + shift, column), vec4(raux,0,0));
                 // NOTE: Debug
                 // imageStore(pingpong0, ivec2(idx + shift, column), vec4(line_color,0,0));
             }
@@ -114,7 +114,7 @@ void main() {
         // 3. Sync by Memory Barrier
         // memoryBarrierImage();
         // memoryBarrier();
-        // barrier();
+        barrier();
         // groupMemoryBarrier();
         // memoryBarrierShared();
     }

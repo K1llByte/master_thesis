@@ -5,7 +5,7 @@
 #define FFT_SIZE 256
 #define LOG_SIZE 8 // log2(FFT_SIZE)
 
-layout (local_size_x = 1, local_size_y = (FFT_SIZE/2)/NUM_BUTTERFLIES) in;
+layout (local_size_x = (FFT_SIZE/2)/NUM_BUTTERFLIES, local_size_y = 1) in;
 
 // ping pong textures
 layout (binding = 0, rg32f) uniform image2D pingpong0;
@@ -24,7 +24,7 @@ int bit_reverse(int k) {
 	uint x = uint(k);
 	uint n = 0;
 	uint mask = 0x1;
-	for (int i = 0; i < log_width; i++) {
+	for (int i = 0; i < LOG_SIZE; i++) {
 		n <<= 1;
 		n |= (x & 1);
 		x >>= 1;
@@ -40,8 +40,8 @@ vec2 euler(float angle) {
 
 void main() {
 	int line = int(gl_WorkGroupID.y);
-	int column = int(gl_GlobalInvocationID.y);
-    int pingpong = 1;
+	int column = int(gl_GlobalInvocationID.x);
+    int pingpong = 0;
 
     for(int stage = 0; stage < LOG_SIZE; ++stage) {
         // Each iteration on this loop corresponds
@@ -65,7 +65,7 @@ void main() {
             // If its last stage the mult_factor will divide
             // every value by N, the size of the texture (256).
             float mult_factor = 1.0;
-            if ((stage == log_width - 1) && fft_dir == 1) {
+            if ((stage == LOG_SIZE - 1) && fft_dir == 1) {
                 mult_factor = 1.0 / (256.0*256.0) ;
             }
 
@@ -85,9 +85,13 @@ void main() {
                 // write the outputs
                 vec2 raux = (elemk + complex_mult(w, elemks)) * mult_factor;
                 imageStore(pingpong1, ivec2(line, idx), vec4(raux,0,0));
+                // NOTE: Debug
+                // imageStore(pingpong1, ivec2(line, idx), vec4(0,0,0,0));
                     
                 raux = (elemk - complex_mult(w, elemks)) * mult_factor;
                 imageStore(pingpong1, ivec2(line, idx + shift), vec4(raux,0,0));
+                // NOTE: Debug
+                // imageStore(pingpong1, ivec2(line, idx + shift), vec4(0,0,0,0));
 
             }
             else {
@@ -102,9 +106,13 @@ void main() {
 
                 vec2 raux = (elemk + complex_mult(w, elemks)) * mult_factor;
                 imageStore(pingpong0, ivec2(line, idx), vec4(raux,0,0));
+                // NOTE: Debug
+                // imageStore(pingpong0, ivec2(line, idx), vec4(0,0,0,0));
                     
                 raux = (elemk - complex_mult(w, elemks)) * mult_factor;
                 imageStore(pingpong0, ivec2(line, idx + shift), vec4(raux,0,0));
+                // NOTE: Debug
+                // imageStore(pingpong0, ivec2(line, idx + shift), vec4(0,0,0,0));
             }
         }
         

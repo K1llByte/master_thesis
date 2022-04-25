@@ -77,7 +77,7 @@
             <!-- FFT forward pass for columns -->
             <pass class="compute" name="fftVertical"> 
                 <preScript file="scripts/fft.lua" script="resetForwardVertical" />				
-                <testScript file="scripts/fft.lua" script="fft" TEST_MODE="RUN_WHILE" />
+                <!-- <testScript file="scripts/fft.lua" script="fft" TEST_MODE="RUN_WHILE" /> -->
                 <material name="fftVertical" fromLibrary="FFT" dimX="GPU_SIZE_X" dimY="GPU_SIZE_Y" dimZ=1 />
             </pass>
             
@@ -98,7 +98,7 @@
             <!-- inverse FFT vertical pass -->
             <pass class="compute" name="ifftVertical"> 
                 <preScript file="scripts/fft.lua" script="resetInverseVertical" />
-                <testScript file="scripts/fft.lua" script="fft" TEST_MODE="RUN_WHILE" />
+                <!-- <testScript file="scripts/fft.lua" script="fft" TEST_MODE="RUN_WHILE" /> -->
                 <material name="fftVertical" fromLibrary="FFT" dimX="GPU_SIZE_X" dimY="GPU_SIZE_Y" dimZ=1 />
             </pass>
             
