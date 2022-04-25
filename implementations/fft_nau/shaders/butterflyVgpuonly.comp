@@ -41,7 +41,7 @@ vec2 euler(float angle) {
 void main() {
 	int line = int(gl_WorkGroupID.y);
 	int column = int(gl_GlobalInvocationID.x);
-    int pingpong = 0;
+    int pingpong = 1;
 
     for(int stage = 0; stage < LOG_SIZE; ++stage) {
         // Each iteration on this loop corresponds
