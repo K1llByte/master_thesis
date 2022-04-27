@@ -3,11 +3,15 @@
 #include <string.h>
 #include <math.h>
 
+#include <iostream>
+
 #include <cufft.h>
 #include <cuda.h>
 
-#define NX 256
+#define NX 8
 #define BATCH 1
+
+class Foo;
 
 // #define CU_ERR_CHECK_MSG(err, msg) {               \
 //             if(err != cudaSuccess) {               \
@@ -53,7 +57,6 @@ void print_sequence(const cufftComplex* arr)
 
 int main()
 {
-    printf("Hello World!\n");
     
     size_t data_size = sizeof(cufftComplex)*NX*BATCH;
     cufftComplex* data = (cufftComplex*) malloc(data_size);
@@ -63,7 +66,6 @@ int main()
     // Allocate GPU buffer
     err = cudaMalloc(&gpu_data, data_size);
     CU_ERR_CHECK_MSG(err, "Cuda error: Failed to allocate '%d'\n", err);
-    // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to allocate\n");
 
     // Initializing input sequence
     for(size_t i = 0; i < NX; ++i)
@@ -111,7 +113,12 @@ int main()
     // Retrieve computed FFT buffer
     err = cudaMemcpy(data, gpu_data, data_size, cudaMemcpyDeviceToHost);
     CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU '%d'\n", err);
-    // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU\n");
+
+    // Divide result by N
+    for(size_t i = 0; i < NX; ++i) {
+        data[i].x /= NX;
+    }
+
 
     cufftDestroy(plan);
     cudaFree(gpu_data);

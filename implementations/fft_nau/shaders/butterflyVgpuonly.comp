@@ -39,6 +39,7 @@ vec2 euler(float angle) {
 
 
 void main() {
+    // FIXME: This variables are working but not correct, to be able to change
 	int line = int(gl_WorkGroupID.y);
 	int column = int(gl_GlobalInvocationID.x);
     int pingpong = 0;
