@@ -69,11 +69,9 @@ void compute_fft()
     cudaError_t err;
 
     // Initializing input sequence
-    for(size_t i = 0; i < FFT_SIZE; ++i) {
-        for(size_t j = 0; j < FFT_SIZE; ++j) {
-            data[i*FFT_SIZE + j].x = i*FFT_SIZE + j;
-            data[i*FFT_SIZE + j].y = 0.;
-        }
+    for(size_t i = 0; i < FFT_SIZE*FFT_SIZE; ++i) {
+        data[i].x = i;
+        data[i].y = 0.00;
     }
 
     // Print input
@@ -102,13 +100,18 @@ void compute_fft()
     err = cudaDeviceSynchronize();
     CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
 
+    // Execute Inverse 1D FFT
+    res = cufftExecC2C(plan, gpu_data, gpu_data, CUFFT_INVERSE);
+    CU_CHECK_MSG(res, "CUFFT error: ExecC2C Inverse failed '%d'\n", res);
+
     // Retrieve computed FFT buffer
     err = cudaMemcpy(data, gpu_data, data_size, cudaMemcpyDeviceToHost);
     CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU '%d'\n", err);
 
     // Divide result by N
-    for(size_t i = 0; i < FFT_SIZE; ++i) {
-        data[i].x /= FFT_SIZE;
+    for(size_t i = 0; i < FFT_SIZE*FFT_SIZE; ++i) {
+        data[i].x /= (FFT_SIZE*FFT_SIZE);
+        data[i].y = 0;
     }
 
     // Print computed output
@@ -122,5 +125,5 @@ void compute_fft()
 
 int main()
 {
-    benchmark(compute_fft);
+    compute_fft()
 }
