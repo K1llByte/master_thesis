@@ -7,7 +7,7 @@
 #include <cufft.h>
 #include <cuda.h>
 
-#define FFT_SIZE 8
+#define FFT_SIZE 256
 #define BATCH 1
 
 #define CU_ERR_CHECK_MSG(err, msg, ...) {          \
@@ -75,8 +75,8 @@ void compute_fft()
     }
 
     // Print input
-    printf("INPUT: ");
-    print_matrix(data);
+    // printf("INPUT: ");
+    // print_matrix(data);
 
     // Allocate GPU buffer
     err = cudaMalloc(&gpu_data, data_size);
@@ -92,18 +92,29 @@ void compute_fft()
     res = cufftPlan2d(&plan, FFT_SIZE, FFT_SIZE, CUFFT_C2C);
     CU_CHECK_MSG(res, "cuFFT error: Plan creation failed '%d'\n", res);
 
-    // Execute Forward 1D FFT
-    res = cufftExecC2C(plan, gpu_data, gpu_data, CUFFT_FORWARD);
-    CU_CHECK_MSG(res, "cuFFT error: ExecC2C Forward failed '%d'\n", res);
+    std::cout << "Forward\n";
+    benchmark([&]{
+        // Execute Forward 1D FFT
+        res = cufftExecC2C(plan, gpu_data, gpu_data, CUFFT_FORWARD);
+        CU_CHECK_MSG(res, "cuFFT error: ExecC2C Forward failed '%d'\n", res);
 
-    // Await end of execution
-    err = cudaDeviceSynchronize();
-    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
+        // Await end of execution
+        err = cudaDeviceSynchronize();
+        CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
+    });
 
-    // Execute Inverse 1D FFT
-    res = cufftExecC2C(plan, gpu_data, gpu_data, CUFFT_INVERSE);
-    CU_CHECK_MSG(res, "CUFFT error: ExecC2C Inverse failed '%d'\n", res);
+    std::cout << "Inverse\n";
+    benchmark([&]{
+        // Execute Inverse 1D FFT
+        res = cufftExecC2C(plan, gpu_data, gpu_data, CUFFT_INVERSE);
+        CU_CHECK_MSG(res, "CUFFT error: ExecC2C Inverse failed '%d'\n", res);
 
+        // TODO: Check if this is necessary
+        // Await end of execution
+        err = cudaDeviceSynchronize();
+        CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
+
+    });
     // Retrieve computed FFT buffer
     err = cudaMemcpy(data, gpu_data, data_size, cudaMemcpyDeviceToHost);
     CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU '%d'\n", err);
@@ -115,8 +126,8 @@ void compute_fft()
     }
 
     // Print computed output
-    printf("OUTPUT: ");
-    print_matrix(data);
+    // printf("OUTPUT: ");
+    // print_matrix(data);
 
     // Destroy Cuda and cuFFT context
     cufftDestroy(plan);
@@ -125,5 +136,5 @@ void compute_fft()
 
 int main()
 {
-    compute_fft()
+    compute_fft();
 }
