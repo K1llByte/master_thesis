@@ -24,7 +24,7 @@ int bit_reverse(int k) {
 	uint x = uint(k);
 	uint n = 0;
 	uint mask = 0x1;
-	for (int i = 0; i < LOG_SIZE; i++) {
+	for (int i = 0; i < LOG_SIZE; ++i) {
 		n <<= 1;
 		n |= (x & 1);
 		x >>= 1;
@@ -67,7 +67,7 @@ void main() {
             // every value by N, the size of the texture (256).
             float mult_factor = 1.0;
             if ((stage == LOG_SIZE - 1) && fft_dir == 1) {
-                mult_factor = 1.0 / (256.0*256.0) ;
+                mult_factor = 1.0 / (float(FFT_SIZE)*FFT_SIZE) ;
             }
 
             // alternate between textures

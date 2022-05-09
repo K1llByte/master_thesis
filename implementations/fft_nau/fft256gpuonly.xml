@@ -4,10 +4,8 @@
         
         <aliases>
             <!--texture size-->
-            <alias name="SIZE" value="256" /> 
+            <alias name="SIZE" value="256" />
             <alias name="GPU_SIZE_X" value="1" /> 
-            <alias name="GPU_SIZE_Y" value="256" /> 
-            <alias name="DSIZE" value="16" /> 
             <!-- compute shader dimXY = SIZE/8 -->
             
             <alias name="LOGWIDTH_PLUS_ONE" value = "9" />
@@ -71,14 +69,14 @@
                 <!-- <testScript file="scripts/fft.lua" script="fft_gpuonly" TEST_MODE="RUN_IF" /> -->
                 
                 <!-- compute shader to perform a single butterfly -->
-                <material name="fftHorizontal" fromLibrary="FFT" dimX="GPU_SIZE_X" dimY="GPU_SIZE_Y" dimZ=1 />
+                <material name="fftHorizontal" fromLibrary="FFT" dimX="GPU_SIZE_X" dimY="SIZE" dimZ=1 />
             </pass>
             
             <!-- FFT forward pass for columns -->
             <pass class="compute" name="fftVertical"> 
                 <preScript file="scripts/fft.lua" script="resetForwardVertical" />				
                 <!-- <testScript file="scripts/fft.lua" script="fft" TEST_MODE="RUN_WHILE" /> -->
-                <material name="fftVertical" fromLibrary="FFT" dimX="GPU_SIZE_X" dimY="GPU_SIZE_Y" dimZ=1 />
+                <material name="fftVertical" fromLibrary="FFT" dimX="GPU_SIZE_X" dimY="SIZE" dimZ=1 />
             </pass>
             
             <!-- copy forward pass to texture toneMap -->
@@ -90,12 +88,12 @@
             <!-- inverse FFT horizontal pass -->
             <pass class="compute" name="ifftHorizontal"> 
                 <preScript file="scripts/fft.lua" script="resetInverse" />
-                <material name="fftHorizontal" fromLibrary="FFT" dimX="GPU_SIZE_X" dimY="GPU_SIZE_Y" dimZ=1 />
+                <material name="fftHorizontal" fromLibrary="FFT" dimX="GPU_SIZE_X" dimY="SIZE" dimZ=1 />
             </pass>
             
             <!-- inverse FFT vertical pass -->
             <pass class="compute" name="ifftVertical"> 
-                <material name="fftVertical" fromLibrary="FFT" dimX="GPU_SIZE_X" dimY="GPU_SIZE_Y" dimZ=1 />
+                <material name="fftVertical" fromLibrary="FFT" dimX="GPU_SIZE_X" dimY="SIZE" dimZ=1 />
             </pass>
             
             <!-- copy the real component to texture reconstrut -->

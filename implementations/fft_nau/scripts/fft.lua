@@ -103,34 +103,6 @@ function fft()
 	end
 end
 
-function fft_gpuonly()
-	local stage = {}
-	getAttr("RENDERER", "CURRENT", "current_stage", 0, stage)
-	stage[1] = stage[1] + 1
-	setAttr("RENDERER", "CURRENT", "current_stage", 0, stage)
-	return true
-	-- local pingpong = {}
-	-- local stage = {}
-	-- local log_2 = {}
-
-	
-	-- -- control the stage loop and pingpong variable
-	-- getAttr("RENDERER", "CURRENT", "log_width", 0, log_2)
-	-- getAttr("RENDERER", "CURRENT", "current_stage", 0, stage)
-	-- stage[1] = stage[1] + 1
-	
-	-- if (stage[1] < log_2[1]) then
-	-- 	-- flip the ping pong variable
-	-- 	getAttr("RENDERER", "CURRENT", "pingpong", 0, pingpong)
-	-- 	pingpong[1] = (pingpong[1] + 1) % 2
-	-- 	setAttr("RENDERER", "CURRENT", "pingpong", 0, pingpong)
-	-- 	setAttr("RENDERER", "CURRENT", "current_stage", 0, stage)
-	-- 	return true
-	-- else
-	-- 	return false
-	-- end
-end
-
 -- controls the mipmap loop cycle
 testMipmap = function() 
 
