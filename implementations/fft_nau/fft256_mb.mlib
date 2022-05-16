@@ -74,8 +74,8 @@
                                         ps="shaders/toComplex.frag"/> 
 
         <!-- compute shader to perform a single butterfly -->
-        <shader name="butterflyH" 	cs="shaders/butterflyH3.comp" /> 
-        <shader name="butterflyV" 	cs="shaders/butterflyV3.comp" /> 
+        <shader name="butterflyH" 	cs="shaders/butterflyH_mb.comp" /> 
+        <shader name="butterflyV" 	cs="shaders/butterflyV_mb.comp" /> 
 
         <!-- gets the real component of (fftinv(fft(image)) 
             to display the reconstructed image -->

@@ -46,7 +46,7 @@
         </viewports>	
         
         <materialLibs>
-            <materialLib filename="fft256gpuonly.mlib"/>
+            <materialLib filename="fft256_mb_gpuonly.mlib"/>
         </materialLibs>
         
     </assets>

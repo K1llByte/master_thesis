@@ -4,10 +4,10 @@
         
         <aliases>
             <!--texture size-->
-            <alias name="SIZE" value="128" /> 
+            <alias name="SIZE" value="256" /> 
             <!-- compute shader dimXY = SIZE/8 -->
-            <alias name="DSIZE" value="16" /> 
-            <alias name="YSIZE" value="16" /> 
+            <alias name="DSIZE" value="32" /> 
+            <alias name="YSIZE" value="32" /> 
             
             <alias name="LOGWIDTH_PLUS_ONE" value = "9" />
         </aliases>
@@ -47,7 +47,7 @@
         </viewports>	
         
         <materialLibs>
-            <materialLib filename="fft256test.mlib"/>
+            <materialLib filename="fft256_mb.mlib"/>
         </materialLibs>
         
     </assets>
