@@ -19,17 +19,25 @@ vec2 complex_mult(vec2 v0, vec2 v1) {
 				v0.x * v1.y + v0.y * v1.x);
 }
 
- 
+
 int bit_reverse(int k) {
-	uint x = uint(k);
-	uint n = 0;
-	uint mask = 0x1;
-	for (int i = 0; i < LOG_SIZE; ++i) {
-		n <<= 1;
-		n |= (x & 1);
-		x >>= 1;
-	}
-	return int(n);
+    // // No bit reversal
+    // return 1;
+
+    // Integrated bit reversal
+    uint br = bitfieldReverse(k);
+    return int(bitfieldExtract(br, 32 - LOG_SIZE, LOG_SIZE));
+
+    // // Homemade bit reversal algorithm
+    // uint x = uint(k);
+    // uint n = 0;
+    // uint mask = 0x1;
+    // for (int i = 0; i < LOG_SIZE; ++i) {
+    //     n <<= 1;
+    //     n |= (x & 1);
+    //     x >>= 1;
+    // }
+    // return int(n);
 }
 
 
