@@ -46,7 +46,7 @@
         </viewports>	
         
         <materialLibs>
-            <materialLib filename="fft256_inlined.mlib"/>
+            <materialLib filename="fft256_stockham.mlib"/>
         </materialLibs>
         
     </assets>
