@@ -1,7 +1,7 @@
 #version 440
 
 #define M_PI 3.1415926535897932384626433832795
-#define NUM_BUTTERFLIES 2
+#define NUM_BUTTERFLIES 1
 #define FFT_SIZE 256
 #define LOG_SIZE 8 // log2(FFT_SIZE)
 
@@ -21,23 +21,9 @@ vec2 complex_mult(vec2 v0, vec2 v1) {
 
 
 int bit_reverse(int k) {
-    // // No bit reversal
-    // return 1;
-
     // Integrated bit reversal
     uint br = bitfieldReverse(k);
     return int(bitfieldExtract(br, 32 - LOG_SIZE, LOG_SIZE));
-    
-    // // Homemade bit reversal algorithm
-    // uint x = uint(k);
-    // uint n = 0;
-    // uint mask = 0x1;
-    // for (int i = 0; i < LOG_SIZE; ++i) {
-    //     n <<= 1;
-    //     n |= (x & 1);
-    //     x >>= 1;
-    // }
-    // return int(n);
 }
 
 
@@ -46,16 +32,10 @@ vec2 euler(float angle) {
 }
 
 
-void fft() {
-
-}
-
 void main() {
     int line = int(gl_GlobalInvocationID.x);
     int column = int(gl_WorkGroupID.y);
     int pingpong = 0;
-    
-    
 
     for(int stage = 0; stage < LOG_SIZE; ++stage) {
         // Each iteration on this loop corresponds
@@ -66,59 +46,37 @@ void main() {
         int group_size = 2 << stage;
         int shift = 1 << stage;
 
-        // vec2 line_color = vec2(1, 1);
-        vec2 elemk, elemks;
+        int n = 1 << (LOG_SIZE - stage);
+        int m = n >> 1;
+        int s = 1 << stage;
         for(int i = 0; i < NUM_BUTTERFLIES; ++i) {
-            // Compute the virtual index of the number of the
-            // butterfly we're about to compute.
-            int id = (line*NUM_BUTTERFLIES + i);
-            // Compute the idx of the place we're working on now
-            int idx = (id % shift) + group_size * (id / shift);
+            int idx = (line*NUM_BUTTERFLIES + i);
+            // Compute p and q
+            int p = idx / s;
+            int q = idx % s;
             // Compute the twiddle factor
-            vec2 w = euler(fft_dir * 2 * (M_PI / group_size) * ((idx % group_size) % shift));
+            vec2 wp = euler(fft_dir * 2 * (M_PI / n) * p);
+            if(pingpong == 0) {
+                // Compute natural order butterflies
+                vec2 a = imageLoad(pingpong0, ivec2(q + s*(p + 0), column)).rg;
+                vec2 b = imageLoad(pingpong0, ivec2(q + s*(p + m), column)).rg;
 
-            // alternate between textures
-            if (pingpong == 0) {
-                if (stage == 0) {
-                    // when stage = 0 use bit reverse indices
-                    elemk = imageLoad(pingpong0, ivec2(bit_reverse(idx), column)).rg;
-                    elemks = imageLoad(pingpong0, ivec2(bit_reverse(idx + shift), column)).rg;
-                }
-                else {
-                    elemk = imageLoad(pingpong0, ivec2(idx, column)).rg;
-                    elemks = imageLoad(pingpong0, ivec2(idx + shift, column)).rg;
-                }
+                vec2 res = (a + b);
+                imageStore(pingpong1, ivec2(q + s*(2*p + 0), column), vec4(res,0,0));
 
-                // Write the outputs
-                vec2 raux = elemk + complex_mult(w, elemks);
-                imageStore(pingpong1, ivec2(idx, column), vec4(raux, 0, 0));
-                // NOTE: Debug
-                // imageStore(pingpong1, ivec2(idx, column), vec4(line_color, 0, 0));
-                    
-                raux = elemk - complex_mult(w, elemks);
-                imageStore(pingpong1, ivec2(idx + shift, column), vec4(raux, 0, 0));
-                // NOTE: Debug
-                // imageStore(pingpong1, ivec2(idx + shift, column), vec4(line_color, 0, 0));
+                res = complex_mult(wp,(a - b));
+                imageStore(pingpong1, ivec2(q + s*(2*p + 1), column), vec4(res,0,0));
             }
             else {
-                if (stage == 0) {
-                    elemk = imageLoad(pingpong1, ivec2(bit_reverse(idx), column)).rg;
-                    elemks = imageLoad(pingpong1, ivec2(bit_reverse(idx + shift), column)).rg;
-                }
-                else {
-                    elemk = imageLoad(pingpong1, ivec2(idx, column)).rg;
-                    elemks = imageLoad(pingpong1, ivec2(idx + shift, column)).rg;
-                }
+                // Compute natural order butterflies
+                vec2 a = imageLoad(pingpong1, ivec2(q + s*(p + 0), column)).rg;
+                vec2 b = imageLoad(pingpong1, ivec2(q + s*(p + m), column)).rg;
 
-                vec2 raux = elemk + complex_mult(w, elemks);
-                imageStore(pingpong0, ivec2(idx, column), vec4(raux,0,0));
-                // NOTE: Debug
-                // imageStore(pingpong0, ivec2(idx, column), vec4(line_color,0,0));
+                vec2 res = (a + complex_mult(wp, b));
+                imageStore(pingpong0, ivec2(q + s*(2*p + 0), column), vec4(res,0,0));
 
-                raux = elemk - complex_mult(w, elemks);
-                imageStore(pingpong0, ivec2(idx + shift, column), vec4(raux,0,0));
-                // NOTE: Debug
-                // imageStore(pingpong0, ivec2(idx + shift, column), vec4(line_color,0,0));
+                res = (a - complex_mult(wp, b));
+                imageStore(pingpong0, ivec2(q + s*(2*p + 1), column), vec4(res,0,0));
             }
         }
 
@@ -126,11 +84,6 @@ void main() {
         pingpong = ((pingpong + 1) % 2);
 
         // 3. Sync by Memory Barrier
-        // memoryBarrierImage();
-        // memoryBarrier();
         barrier();
-        // groupMemoryBarrier();
-        // memoryBarrierShared();
     }
-    
 }
