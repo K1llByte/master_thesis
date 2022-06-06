@@ -20,13 +20,6 @@ vec2 complex_mult(vec2 v0, vec2 v1) {
 }
 
 
-int bit_reverse(int k) {
-    // Integrated bit reversal
-    uint br = bitfieldReverse(k);
-    return int(bitfieldExtract(br, 32 - LOG_SIZE, LOG_SIZE));
-}
-
-
 vec2 euler(float angle) {
 	return vec2(cos(angle), sin(angle));
 }
@@ -51,6 +44,12 @@ void main() {
         int m = n >> 1;
         int s = 1 << stage;
 
+        // last stage
+	    float mult_factor = 1.0;
+	    if ((stage == log_width - 1) && fft_dir == 1) {
+	    	mult_factor = 1.0 / (256.0*256.0) ;
+	    }
+
         for(int i = 0; i < NUM_BUTTERFLIES; ++i) {
             int idx = (column*NUM_BUTTERFLIES + i);
             // Compute p and q
@@ -63,10 +62,10 @@ void main() {
                 vec2 a = imageLoad(pingpong0, ivec2(line, q + s*(p + 0))).rg;
                 vec2 b = imageLoad(pingpong0, ivec2(line, q + s*(p + m))).rg;
 
-                vec2 res = (a + complex_mult(wp, b));
+                vec2 res = (a + b) * mult_factor;
                 imageStore(pingpong1, ivec2(line, q + s*(2*p + 0)), vec4(res,0,0));
 
-                res = (a - complex_mult(wp, b));
+                res = complex_mult(wp,(a - b)) * mult_factor;
                 imageStore(pingpong1, ivec2(line, q + s*(2*p + 1)), vec4(res,0,0));
             }
             else {
@@ -74,10 +73,10 @@ void main() {
                 vec2 a = imageLoad(pingpong1, ivec2(line, q + s*(p + 0))).rg;
                 vec2 b = imageLoad(pingpong1, ivec2(line, q + s*(p + m))).rg;
 
-                vec2 res = (a + complex_mult(wp, b));
+                vec2 res = (a + b) * mult_factor;
                 imageStore(pingpong0, ivec2(line, q + s*(2*p + 0)), vec4(res,0,0));
 
-                res = (a - complex_mult(wp, b));
+                res = complex_mult(wp,(a - b)) * mult_factor;
                 imageStore(pingpong0, ivec2(line, q + s*(2*p + 1)), vec4(res,0,0));
             }
         }

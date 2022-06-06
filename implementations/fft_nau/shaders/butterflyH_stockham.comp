@@ -20,13 +20,6 @@ vec2 complex_mult(vec2 v0, vec2 v1) {
 }
 
 
-int bit_reverse(int k) {
-    // Integrated bit reversal
-    uint br = bitfieldReverse(k);
-    return int(bitfieldExtract(br, 32 - LOG_SIZE, LOG_SIZE));
-}
-
-
 vec2 euler(float angle) {
     return vec2(cos(angle), sin(angle));
 }
@@ -72,10 +65,10 @@ void main() {
                 vec2 a = imageLoad(pingpong1, ivec2(q + s*(p + 0), column)).rg;
                 vec2 b = imageLoad(pingpong1, ivec2(q + s*(p + m), column)).rg;
 
-                vec2 res = (a + complex_mult(wp, b));
+                vec2 res = (a + b);
                 imageStore(pingpong0, ivec2(q + s*(2*p + 0), column), vec4(res,0,0));
 
-                res = (a - complex_mult(wp, b));
+                res = complex_mult(wp,(a - b));
                 imageStore(pingpong0, ivec2(q + s*(2*p + 1), column), vec4(res,0,0));
             }
         }
