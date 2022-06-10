@@ -10,10 +10,27 @@ function resetCommon()
 	
 end
 
+-- Switch ping pong texture according to log_width if it is odd or even
+function switch_pingpong()
+	local pingpong = {}
+	getAttr("RENDERER", "CURRENT", "pingpong", 0, pingpong)
+	pingpong[1] = (pingpong[1] + 1) % 2
+	setAttr("RENDERER", "CURRENT", "pingpong", 0, pingpong)
+
+	-- -------------------------------- -- 
+
+	-- local log_2 = {}
+	-- getAttr("RENDERER", "CURRENT", "log_width", 0, log_2)
+	-- if (log_2[1] % 2 == 1) then
+	-- 	local pingpong = {1}
+	-- 	setAttr("RENDERER", "CURRENT", "pingpong", 0, pingpong)
+	-- end
+end
+
 -- sets the variables prior to starting the forward FFT
 function resetForward()
 
-	local pingpong = {1}
+	local pingpong = {0}
 	local dir = {1}
 	local log_2 = {}
 	local width = {}
@@ -27,9 +44,7 @@ function resetForward()
 	-- set pingpong to 1 because test script flips it every time
 	setAttr("RENDERER", "CURRENT", "pingpong", 0, pingpong)
 	setAttr("RENDERER", "CURRENT", "fft_dir", 0, dir)	
-	
-	local dir = {1}
-	setAttr("RENDERER", "CURRENT", "fft_dir", 0, dir)	
+
 	resetCommon()
 end
 
@@ -72,7 +87,7 @@ function resetInverseVertical()
 	-- getAttr("RENDERER", "CURRENT", "pingpong", 0, pingpong)
 	-- pingpong[1] = (pingpong[1] + 1) %2
 	-- setAttr("RENDERER", "CURRENT", "pingpong", 0, pingpong)
-	-- 	
+
 	resetCommon()
 end
 

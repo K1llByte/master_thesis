@@ -47,7 +47,7 @@ void main() {
         // last stage
 	    float mult_factor = 1.0;
 	    if ((stage == log_width - 1) && fft_dir == 1) {
-	    	mult_factor = 1.0 / (256.0*256.0) ;
+	    	mult_factor = 1.0 / (FFT_SIZE*FFT_SIZE) ;
 	    }
 
         for(int i = 0; i < NUM_BUTTERFLIES; ++i) {
