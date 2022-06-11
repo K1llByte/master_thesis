@@ -29,7 +29,7 @@ void main() {
     // FIXME: This variables are working but not correct, to be able to change
 	int line = int(gl_WorkGroupID.y);
 	int column = int(gl_GlobalInvocationID.x);
-    int pingpong = 0;
+    int pingpong = LOG_SIZE % 2;
 
     for(int stage = 0; stage < LOG_SIZE; ++stage) {
         // Each iteration on this loop corresponds

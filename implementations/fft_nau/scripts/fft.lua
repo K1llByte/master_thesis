@@ -30,7 +30,7 @@ end
 -- sets the variables prior to starting the forward FFT
 function resetForward()
 
-	local pingpong = {0}
+	local pingpong = {1}
 	local dir = {1}
 	local log_2 = {}
 	local width = {}

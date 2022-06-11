@@ -11,7 +11,6 @@ layout (local_size_x = (FFT_SIZE/2)/NUM_BUTTERFLIES, local_size_y = 1) in;
 layout (binding = 0, rg32f) uniform image2D pingpong0;
 layout (binding = 1, rg32f) uniform image2D pingpong1;
 
-uniform int log_width;
 uniform int fft_dir;
 
 vec2 complex_mult(vec2 v0, vec2 v1) {
