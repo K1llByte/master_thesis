@@ -56,8 +56,9 @@ void main() {
 
 	// last stage
 	float mult_factor = 1.0;
+	int width = 1 << log_width;
 	if ((stage == log_width - 1) && fft_dir == 1) {
-		mult_factor = 1.0 / (256.0*256.0) ;
+		mult_factor = 1.0 / (width*width) ;
 	}
 	
 	// alternate between textures

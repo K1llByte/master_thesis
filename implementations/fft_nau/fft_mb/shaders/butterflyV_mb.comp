@@ -63,7 +63,7 @@ void main() {
         // every value by N, the size of the texture (256).
         float mult_factor = 1.0;
         if ((stage == log_width - 1) && fft_dir == 1) {
-            mult_factor = 1.0 / (256.0*256.0) ;
+            mult_factor = 1.0 / (iter*iter) ;
         }
 
         // alternate between textures

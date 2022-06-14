@@ -2,8 +2,8 @@
 
 #define M_PI 3.1415926535897932384626433832795
 #define NUM_BUTTERFLIES 2
-#define FFT_SIZE 256
-#define LOG_SIZE 8 // log2(FFT_SIZE)
+#define FFT_SIZE 512
+#define LOG_SIZE 9 // log2(FFT_SIZE)
 
 layout (local_size_x = (FFT_SIZE/2)/NUM_BUTTERFLIES, local_size_y = 1) in;
 
@@ -50,7 +50,7 @@ void main() {
     // FIXME: This variables are working but not correct, to be able to change
 	int line = int(gl_WorkGroupID.y);
 	int column = int(gl_GlobalInvocationID.x);
-    int pingpong = 0;
+    int pingpong = 1;
 
     for(int stage = 0; stage < LOG_SIZE; ++stage) {
         // Each iteration on this loop corresponds
@@ -75,7 +75,7 @@ void main() {
             // every value by N, the size of the texture (256).
             float mult_factor = 1.0;
             if ((stage == LOG_SIZE - 1) && fft_dir == 1) {
-                mult_factor = 1.0 / (float(FFT_SIZE)*FFT_SIZE) ;
+                mult_factor = 1.0 / (FFT_SIZE*FFT_SIZE) ;
             }
 
             // alternate between textures

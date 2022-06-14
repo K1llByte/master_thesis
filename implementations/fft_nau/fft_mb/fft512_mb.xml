@@ -4,11 +4,12 @@
         
         <aliases>
             <!--texture size-->
-            <alias name="SIZE" value="512" />
-            <alias name="GPU_SIZE_X" value="1" /> 
+            <alias name="SIZE" value="512" /> 
             <!-- compute shader dimXY = SIZE/8 -->
+            <alias name="DSIZE" value="64" /> 
+            <alias name="YSIZE" value="64" /> 
             
-            <alias name="LOGWIDTH_PLUS_ONE" value = "10" />
+            <alias name="LOGWIDTH_PLUS_ONE" value = "9" />
         </aliases>
 
         <stringAliases>
@@ -18,15 +19,15 @@
         
         <attributes>
             <!-- texture width -->
-            <attribute type="RENDERER" name="width" data="INT" value="SIZE" />
+            <attribute type="RENDERER" name="width" data="INT" value="SIZE" /> 
             <!-- log of width -->	
-            <attribute type="RENDERER" name="log_width" data="INT" value="0" />
+            <attribute type="RENDERER" name="log_width" data="INT" value="0" /> 
             <!-- butterfly stage -->
-            <attribute type="RENDERER" name="current_stage" data="INT" value="0" />
+            <attribute type="RENDERER" name="current_stage" data="INT" value="0" /> 
             <!-- pingpong status - set by lua script -->
-            <attribute type="RENDERER" name="pingpong" data ="INT" value="0" />
+            <attribute type="RENDERER" name="pingpong" data ="INT" value="0" /> 
             <!-- fft dir: fft=1; invfft=-1 - set by lua script -->
-            <attribute type="RENDERER" name="fft_dir" data="INT" value = "1" />
+            <attribute type="RENDERER" name="fft_dir" data="INT" value = "1" /> 
             <!-- attribute for mipampping: current level - set by lua script -->
             <attribute type="RENDERER" name="currentLevel" data="INT" value="0" />
         </attributes>
@@ -46,7 +47,7 @@
         </viewports>	
         
         <materialLibs>
-            <materialLib filename="fft512_stockham.mlib"/>
+            <materialLib filename="fft256_mb.mlib"/>
         </materialLibs>
         
     </assets>
@@ -66,19 +67,17 @@
                 <preScript file="scripts/fft.lua" script="resetForward" />
                 
                 <!-- script to control the stage loop and pingpong -->
-                <!-- <testScript file="scripts/fft.lua" script="fft_gpuonly" TEST_MODE="RUN_IF" /> -->
-                <!-- script to switch pingpong texture if needed -->
-                <postScript file="scripts/fft.lua" script="switch_pingpong" />
+                <testScript file="scripts/fft.lua" script="fft" TEST_MODE="RUN_WHILE" />
+                
                 <!-- compute shader to perform a single butterfly -->
-                <material name="fftHorizontal" fromLibrary="FFT" dimX="GPU_SIZE_X" dimY="SIZE" dimZ=1 />
+                <material name="fftHorizontal" fromLibrary="FFT" dimX="DSIZE" dimY="YSIZE" dimZ=1 />
             </pass>
-
+            
             <!-- FFT forward pass for columns -->
-            <pass class="compute" name="fftVertical">
+            <pass class="compute" name="fftVertical"> 
                 <preScript file="scripts/fft.lua" script="resetForwardVertical" />				
-                <!-- <testScript file="scripts/fft.lua" script="fft" TEST_MODE="RUN_WHILE" /> -->
-                <postScript file="scripts/fft.lua" script="switch_pingpong" />
-                <material name="fftVertical" fromLibrary="FFT" dimX="GPU_SIZE_X" dimY="SIZE" dimZ=1 />
+                <testScript file="scripts/fft.lua" script="fft" TEST_MODE="RUN_WHILE" />
+                <material name="fftVertical" fromLibrary="FFT" dimX="YSIZE" dimY="DSIZE" dimZ=1 />
             </pass>
             
             <!-- copy forward pass to texture toneMap -->
@@ -90,14 +89,15 @@
             <!-- inverse FFT horizontal pass -->
             <pass class="compute" name="ifftHorizontal"> 
                 <preScript file="scripts/fft.lua" script="resetInverse" />
-                <postScript file="scripts/fft.lua" script="switch_pingpong" />
-                <material name="fftHorizontal" fromLibrary="FFT" dimX="GPU_SIZE_X" dimY="SIZE" dimZ=1 />
+                <testScript file="scripts/fft.lua" script="fft" TEST_MODE="RUN_WHILE" />
+                <material name="fftHorizontal" fromLibrary="FFT" dimX="DSIZE" dimY="YSIZE" dimZ=1 />
             </pass>
             
             <!-- inverse FFT vertical pass -->
             <pass class="compute" name="ifftVertical"> 
-                <postScript file="scripts/fft.lua" script="switch_pingpong" />
-                <material name="fftVertical" fromLibrary="FFT" dimX="GPU_SIZE_X" dimY="SIZE" dimZ=1 />
+                <preScript file="scripts/fft.lua" script="resetInverseVertical" />
+                <testScript file="scripts/fft.lua" script="fft" TEST_MODE="RUN_WHILE" />
+                <material name="fftVertical" fromLibrary="FFT" dimX="YSIZE" dimY="DSIZE" dimZ=1 />
             </pass>
             
             <!-- copy the real component to texture reconstrut -->
