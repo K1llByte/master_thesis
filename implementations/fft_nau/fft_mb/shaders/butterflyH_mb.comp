@@ -1,7 +1,7 @@
 #version 440
 
 #define M_PI 3.1415926535897932384626433832795
-#define NUM_BUTTERFLIES 2
+#define NUM_BUTTERFLIES 1
 
 layout (local_size_x = 4/NUM_BUTTERFLIES, local_size_y = 8) in;
 
