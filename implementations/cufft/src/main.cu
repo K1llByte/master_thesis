@@ -7,21 +7,35 @@
 #include <cufft.h>
 #include <cuda.h>
 
-#define FFT_SIZE 256
+#define FFT_SIZE 1024
 #define BATCH 1
 
-#define CU_ERR_CHECK_MSG(err, msg, ...) {          \
+// #define CU_ERR_CHECK_MSG(err, msg, ...) {          \
+//             if(err != cudaSuccess) {               \
+//                 fprintf(stderr, msg __VA_OPT__(,)  \
+//                     __VA_ARGS__);                  \
+//                 exit(1);                           \
+//             }                                      \
+//         }
+// 
+// #define CU_CHECK_MSG(res, msg, ...) {              \
+//             if(res != CUFFT_SUCCESS) {             \
+//                 fprintf(stderr, msg __VA_OPT__(,)  \
+//                     __VA_ARGS__);                  \
+//                 exit(1);                           \
+//             }                                      \
+//         }
+
+#define CU_ERR_CHECK_MSG(err, msg) {               \
             if(err != cudaSuccess) {               \
-                fprintf(stderr, msg __VA_OPT__(,)  \
-                    __VA_ARGS__);                  \
+                fprintf(stderr, msg);              \
                 exit(1);                           \
             }                                      \
         }
 
-#define CU_CHECK_MSG(res, msg, ...) {              \
+#define CU_CHECK_MSG(res, msg) {                   \
             if(res != CUFFT_SUCCESS) {             \
-                fprintf(stderr, msg __VA_OPT__(,)  \
-                    __VA_ARGS__);                  \
+                fprintf(stderr, msg);              \
                 exit(1);                           \
             }                                      \
         }
@@ -38,7 +52,7 @@ inline double benchmark(std::function<void()> func)
     return cpu_time;
 }
 
-void print_sequence(const cufftComplex* arr)
+void print_sequence(cufftComplex const *const  arr)
 {
     printf("[");
     for(size_t i = 0; i < FFT_SIZE; ++i)
@@ -49,7 +63,7 @@ void print_sequence(const cufftComplex* arr)
     }
 }
 
-void print_matrix(const cufftComplex* arr)
+void print_matrix(cufftComplex const *const  arr)
 {
     for(size_t i = 0; i < FFT_SIZE; ++i) {
         printf("[");
@@ -61,7 +75,92 @@ void print_matrix(const cufftComplex* arr)
     }
 }
 
-void compute_fft()
+void compute_2d_fft()
+{
+    const size_t data_size = sizeof(cufftComplex)*FFT_SIZE*FFT_SIZE;
+    cufftComplex* data = reinterpret_cast<cufftComplex*>(malloc(data_size));
+    cufftComplex* gpu_data_in;
+    cufftComplex* gpu_data_out;
+    cudaError_t err;
+
+    // Initializing input sequence
+    for(size_t i = 0; i < FFT_SIZE*FFT_SIZE; ++i) {
+        data[i].x = i;
+        data[i].y = 0.00;
+    }
+
+    // Print input
+    // printf("INPUT: ");
+    // print_matrix(data);
+
+    // Allocate Input GPU buffer
+    err = cudaMalloc(&gpu_data_in, data_size);
+    // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to allocate '%d'\n", err);
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to allocate\n");
+
+    // Allocate Output GPU buffer
+    err = cudaMalloc(&gpu_data_out, data_size);
+    // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to allocate '%d'\n", err);
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to allocate\n");
+
+    // Copy data to GPU buffer
+    err = cudaMemcpy(gpu_data_in, data, data_size, cudaMemcpyHostToDevice);
+    // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU '%d'\n", err);
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU\n");
+
+    // Setup cufft plan
+    cufftHandle plan;
+    cufftResult_t res;
+    res = cufftPlan2d(&plan, FFT_SIZE, FFT_SIZE, CUFFT_C2C);
+    // CU_CHECK_MSG(res, "cuFFT error: Plan creation failed '%d'\n", res);
+    CU_CHECK_MSG(res, "cuFFT error: Plan creation failed\n");
+
+    std::cout << "Forward\n";
+    benchmark([&]{
+        // Execute Forward 1D FFT
+        res = cufftExecC2C(plan, gpu_data_in, gpu_data_out, CUFFT_FORWARD);
+        // CU_CHECK_MSG(res, "cuFFT error: ExecC2C Forward failed '%d'\n", res);
+        CU_CHECK_MSG(res, "cuFFT error: ExecC2C Forward failed\n");
+
+        // Await end of execution
+        err = cudaDeviceSynchronize();
+        CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
+    });
+
+    std::cout << "Inverse\n";
+    benchmark([&]{
+        // Execute Inverse 1D FFT
+        res = cufftExecC2C(plan, gpu_data_out, gpu_data_in, CUFFT_INVERSE);
+        // CU_CHECK_MSG(res, "CUFFT error: ExecC2C Inverse failed '%d'\n", res);
+        CU_CHECK_MSG(res, "CUFFT error: ExecC2C Inverse failed\n");
+
+        // TODO: Check if this is necessary
+        // Await end of execution
+        err = cudaDeviceSynchronize();
+        CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
+
+    });
+    // Retrieve computed FFT buffer
+    err = cudaMemcpy(data, gpu_data_in, data_size, cudaMemcpyDeviceToHost);
+    // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU '%d'\n", err);
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU\n");
+
+    // Divide result by N
+    for(size_t i = 0; i < FFT_SIZE*FFT_SIZE; ++i) {
+        data[i].x /= (FFT_SIZE*FFT_SIZE);
+        data[i].y = 0;
+    }
+
+    // Print computed Inverse FFT output
+    //printf("Inverse FFT: \n");
+    //print_matrix(data);
+
+    // Destroy Cuda and cuFFT context
+    cufftDestroy(plan);
+    cudaFree(gpu_data_in);
+}
+
+void compute_2d_fft_in_place()
 {
     const size_t data_size = sizeof(cufftComplex)*FFT_SIZE*FFT_SIZE;
     cufftComplex* data = reinterpret_cast<cufftComplex*>(malloc(data_size));
@@ -80,23 +179,27 @@ void compute_fft()
 
     // Allocate GPU buffer
     err = cudaMalloc(&gpu_data, data_size);
-    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to allocate '%d'\n", err);
+    // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to allocate '%d'\n", err);
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to allocate\n");
 
     // Copy data to GPU buffer
     err = cudaMemcpy(gpu_data, data, data_size, cudaMemcpyHostToDevice);
-    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU '%d'\n", err);
+    // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU '%d'\n", err);
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU\n");
 
     // Setup cufft plan
     cufftHandle plan;
     cufftResult_t res;
     res = cufftPlan2d(&plan, FFT_SIZE, FFT_SIZE, CUFFT_C2C);
-    CU_CHECK_MSG(res, "cuFFT error: Plan creation failed '%d'\n", res);
+    // CU_CHECK_MSG(res, "cuFFT error: Plan creation failed '%d'\n", res);
+    CU_CHECK_MSG(res, "cuFFT error: Plan creation failed\n");
 
     std::cout << "Forward\n";
     benchmark([&]{
         // Execute Forward 1D FFT
         res = cufftExecC2C(plan, gpu_data, gpu_data, CUFFT_FORWARD);
-        CU_CHECK_MSG(res, "cuFFT error: ExecC2C Forward failed '%d'\n", res);
+        // CU_CHECK_MSG(res, "cuFFT error: ExecC2C Forward failed '%d'\n", res);
+        CU_CHECK_MSG(res, "cuFFT error: ExecC2C Forward failed\n");
 
         // Await end of execution
         err = cudaDeviceSynchronize();
@@ -107,7 +210,8 @@ void compute_fft()
     benchmark([&]{
         // Execute Inverse 1D FFT
         res = cufftExecC2C(plan, gpu_data, gpu_data, CUFFT_INVERSE);
-        CU_CHECK_MSG(res, "CUFFT error: ExecC2C Inverse failed '%d'\n", res);
+        // CU_CHECK_MSG(res, "CUFFT error: ExecC2C Inverse failed '%d'\n", res);
+        CU_CHECK_MSG(res, "CUFFT error: ExecC2C Inverse failed\n");
 
         // TODO: Check if this is necessary
         // Await end of execution
@@ -117,7 +221,8 @@ void compute_fft()
     });
     // Retrieve computed FFT buffer
     err = cudaMemcpy(data, gpu_data, data_size, cudaMemcpyDeviceToHost);
-    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU '%d'\n", err);
+    // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU '%d'\n", err);
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU\n");
 
     // Divide result by N
     for(size_t i = 0; i < FFT_SIZE*FFT_SIZE; ++i) {
@@ -125,16 +230,181 @@ void compute_fft()
         data[i].y = 0;
     }
 
-    // Print computed output
-    // printf("OUTPUT: ");
-    // print_matrix(data);
+    // Print computed Inverse FFT output
+    //printf("Inverse FFT: \n");
+    //print_matrix(data);
 
     // Destroy Cuda and cuFFT context
     cufftDestroy(plan);
     cudaFree(gpu_data);
 }
 
+void compute_1d_fft()
+{
+    const size_t data_size = sizeof(cufftComplex)*FFT_SIZE;
+    cufftComplex* data = reinterpret_cast<cufftComplex*>(malloc(data_size));
+    cufftComplex* gpu_data;
+    cudaError_t err;
+
+    // Initializing input sequence
+    for(size_t i = 0; i < FFT_SIZE; ++i) {
+        data[i].x = i;
+        data[i].y = 0.00;
+    }
+
+    // Print input
+    // printf("INPUT: ");
+    // print_matrix(data);
+
+    // Allocate GPU buffer
+    err = cudaMalloc(&gpu_data, data_size);
+    // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to allocate '%d'\n", err);
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to allocate\n");
+
+    // Copy data to GPU buffer
+    err = cudaMemcpy(gpu_data, data, data_size, cudaMemcpyHostToDevice);
+    // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU '%d'\n", err);
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU\n");
+
+    // Setup cufft plan
+    cufftHandle plan;
+    cufftResult_t res;
+    res = cufftPlan1d(&plan, FFT_SIZE, CUFFT_C2C, 1);
+    // CU_CHECK_MSG(res, "cuFFT error: Plan creation failed '%d'\n", res);
+    CU_CHECK_MSG(res, "cuFFT error: Plan creation failed\n");
+
+    std::cout << "Forward\n";
+    benchmark([&]{
+        // Execute Forward 1D FFT
+        res = cufftExecC2C(plan, gpu_data, gpu_data, CUFFT_FORWARD);
+        // CU_CHECK_MSG(res, "cuFFT error: ExecC2C Forward failed '%d'\n", res);
+        CU_CHECK_MSG(res, "cuFFT error: ExecC2C Forward failed\n");
+
+        // Await end of execution
+        err = cudaDeviceSynchronize();
+        CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
+    });
+
+    std::cout << "Inverse\n";
+    benchmark([&]{
+        // Execute Inverse 1D FFT
+        res = cufftExecC2C(plan, gpu_data, gpu_data, CUFFT_INVERSE);
+        // CU_CHECK_MSG(res, "CUFFT error: ExecC2C Inverse failed '%d'\n", res);
+        CU_CHECK_MSG(res, "CUFFT error: ExecC2C Inverse failed\n");
+
+        // TODO: Check if this is necessary
+        // Await end of execution
+        err = cudaDeviceSynchronize();
+        CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
+    });
+
+    // Retrieve computed Inverse FFT buffer
+    err = cudaMemcpy(data, gpu_data, data_size, cudaMemcpyDeviceToHost);
+    // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU '%d'\n", err);
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU\n");
+
+    // Divide result by N
+    for(size_t i = 0; i < FFT_SIZE; ++i) {
+        data[i].x /= FFT_SIZE;
+        data[i].y = 0;
+    }
+
+    // Print computed output
+    //printf("Inverse FFT: ");
+    //print_sequence(data);
+
+    // Destroy Cuda and cuFFT context
+    cufftDestroy(plan);
+    cudaFree(gpu_data);
+}
+
+void compute_1d_fft_in_place()
+{
+    const size_t data_size = sizeof(cufftComplex)*FFT_SIZE;
+    cufftComplex* data = reinterpret_cast<cufftComplex*>(malloc(data_size));
+    cufftComplex* gpu_data_in;
+    cufftComplex* gpu_data_out;
+    cudaError_t err;
+
+    // Initializing input sequence
+    for(size_t i = 0; i < FFT_SIZE; ++i) {
+        data[i].x = i;
+        data[i].y = 0.00;
+    }
+
+    // Print input
+    // printf("INPUT: ");
+    // print_matrix(data);
+
+    // Allocate Input GPU buffer
+    err = cudaMalloc(&gpu_data_in, data_size);
+    // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to allocate '%d'\n", err);
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to allocate\n");
+
+    // Allocate Output GPU buffer
+    err = cudaMalloc(&gpu_data_out, data_size);
+    // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to allocate '%d'\n", err);
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to allocate\n");
+
+    // Copy data to GPU buffer
+    err = cudaMemcpy(gpu_data_in, data, data_size, cudaMemcpyHostToDevice);
+    // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU '%d'\n", err);
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU\n");
+
+    // Setup cufft plan
+    cufftHandle plan;
+    cufftResult_t res;
+    res = cufftPlan1d(&plan, FFT_SIZE, CUFFT_C2C, 1);
+    // CU_CHECK_MSG(res, "cuFFT error: Plan creation failed '%d'\n", res);
+    CU_CHECK_MSG(res, "cuFFT error: Plan creation failed\n");
+
+    std::cout << "Forward\n";
+    benchmark([&]{
+        // Execute Forward 1D FFT
+        res = cufftExecC2C(plan, gpu_data_in, gpu_data_out, CUFFT_FORWARD);
+        // CU_CHECK_MSG(res, "cuFFT error: ExecC2C Forward failed '%d'\n", res);
+        CU_CHECK_MSG(res, "cuFFT error: ExecC2C Forward failed\n");
+
+        // Await end of execution
+        err = cudaDeviceSynchronize();
+        CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
+    });
+
+    std::cout << "Inverse\n";
+    benchmark([&]{
+        // Execute Inverse 1D FFT
+        res = cufftExecC2C(plan, gpu_data_out, gpu_data_in, CUFFT_INVERSE);
+        // CU_CHECK_MSG(res, "CUFFT error: ExecC2C Inverse failed '%d'\n", res);
+        CU_CHECK_MSG(res, "CUFFT error: ExecC2C Inverse failed\n");
+
+        // TODO: Check if this is necessary
+        // Await end of execution
+        err = cudaDeviceSynchronize();
+        CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
+    });
+
+    // Retrieve computed Inverse FFT buffer
+    err = cudaMemcpy(data, gpu_data_in, data_size, cudaMemcpyDeviceToHost);
+    // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU '%d'\n", err);
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU\n");
+
+    // Divide result by N
+    for(size_t i = 0; i < FFT_SIZE; ++i) {
+        data[i].x /= FFT_SIZE;
+        data[i].y = 0;
+    }
+
+    // Print computed output
+    //printf("Inverse FFT: ");
+    //print_sequence(data);
+
+    // Destroy Cuda and cuFFT context
+    cufftDestroy(plan);
+    cudaFree(gpu_data_in);
+}
+
 int main()
 {
-    compute_fft();
+    compute_1d_fft();
+    compute_1d_fft_in_place();
 }
