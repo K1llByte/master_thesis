@@ -7,9 +7,9 @@
 #include <cufft.h>
 #include <cuda.h>
 
-#define FFT_SIZE 2048
+#define FFT_SIZE 256
 #define BATCH 1
-#define BENCHMARK_RUNS 1
+#define BENCHMARK_RUNS 2
 
 // #define CU_ERR_CHECK_MSG(err, msg, ...) {          \
 //             if(err != cudaSuccess) {               \
@@ -133,6 +133,7 @@ void compute_2d_fft()
         });
     }
     std::cout << "Forward: " << forward_time / BENCHMARK_RUNS << "ms\n";
+    // std::cout << "Forward: " << forward_time << "ms\n";
 
     // Benchmark Inverse FFT
     double inverse_time = 0.;

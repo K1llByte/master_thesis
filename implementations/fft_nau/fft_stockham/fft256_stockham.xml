@@ -76,8 +76,7 @@
             </pass>
             
             <!-- FFT forward pass for columns -->
-            <pass class="compute" name="fftVertical"> 
-                <preScript file="scripts/fft.lua" script="resetForwardVertical" />				
+            <pass class="compute" name="fftVertical"> 				
                 <!-- <testScript file="scripts/fft.lua" script="fft" TEST_MODE="RUN_WHILE" /> -->
                 <material name="fftVertical" fromLibrary="FFT" dimX="GPU_SIZE_X" dimY="SIZE" dimZ=1 />
             </pass>
