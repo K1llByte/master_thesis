@@ -42,7 +42,7 @@ function resetForward()
 	setAttr("RENDERER", "CURRENT", "log_width", 0, log_2)
 	
 	-- set pingpong to 1 because test script flips it every time
-	setAttr("RENDERER", "CURRENT", "pingpong", 0, pingpong)
+	--setAttr("RENDERER", "CURRENT", "pingpong", 0, pingpong)
 	setAttr("RENDERER", "CURRENT", "fft_dir", 0, dir)	
 
 	resetCommon()

@@ -7,8 +7,9 @@
 #include <cufft.h>
 #include <cuda.h>
 
-#define FFT_SIZE 1024
+#define FFT_SIZE 2048
 #define BATCH 1
+#define BENCHMARK_RUNS 1
 
 // #define CU_ERR_CHECK_MSG(err, msg, ...) {          \
 //             if(err != cudaSuccess) {               \
@@ -48,7 +49,7 @@ inline double benchmark(std::function<void()> func)
     func();
     auto end = std::chrono::high_resolution_clock::now();
     auto cpu_time = std::chrono::duration<double, std::milli>(end-begin).count();
-    std::cout << "Time: " << cpu_time << " ms\n";
+    //std::cout << "Time: " << cpu_time << " ms\n";
     return cpu_time;
 }
 
@@ -74,6 +75,8 @@ void print_matrix(cufftComplex const *const  arr)
         }
     }
 }
+
+////////////////////////////////////////////////////
 
 void compute_2d_fft()
 {
@@ -115,31 +118,38 @@ void compute_2d_fft()
     // CU_CHECK_MSG(res, "cuFFT error: Plan creation failed '%d'\n", res);
     CU_CHECK_MSG(res, "cuFFT error: Plan creation failed\n");
 
-    std::cout << "Forward\n";
-    benchmark([&]{
-        // Execute Forward 1D FFT
-        res = cufftExecC2C(plan, gpu_data_in, gpu_data_out, CUFFT_FORWARD);
-        // CU_CHECK_MSG(res, "cuFFT error: ExecC2C Forward failed '%d'\n", res);
-        CU_CHECK_MSG(res, "cuFFT error: ExecC2C Forward failed\n");
+    // Benchmark Forward FFT
+    double forward_time = 0.;
+    for(int i = 0; i < BENCHMARK_RUNS ; ++i) {
+        forward_time += benchmark([&]{
+            // Execute Forward 1D FFT
+            res = cufftExecC2C(plan, gpu_data_in, gpu_data_out, CUFFT_FORWARD);
+            // CU_CHECK_MSG(res, "cuFFT error: ExecC2C Forward failed '%d'\n", res);
+            CU_CHECK_MSG(res, "cuFFT error: ExecC2C Forward failed\n");
+    
+            // Await end of execution
+            err = cudaDeviceSynchronize();
+            CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
+        });
+    }
+    std::cout << "Forward: " << forward_time / BENCHMARK_RUNS << "ms\n";
 
-        // Await end of execution
-        err = cudaDeviceSynchronize();
-        CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
-    });
+    // Benchmark Inverse FFT
+    double inverse_time = 0.;
+    for(int i = 0; i < BENCHMARK_RUNS ; ++i) {
+        inverse_time += benchmark([&]{
+            // Execute Forward 1D FFT
+            res = cufftExecC2C(plan, gpu_data_in, gpu_data_out, CUFFT_FORWARD);
+            // CU_CHECK_MSG(res, "cuFFT error: ExecC2C Forward failed '%d'\n", res);
+            CU_CHECK_MSG(res, "cuFFT error: ExecC2C Forward failed\n");
+    
+            // Await end of execution
+            err = cudaDeviceSynchronize();
+            CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
+        });
+    }
+    std::cout << "Inverse: " << inverse_time / BENCHMARK_RUNS << "ms\n";
 
-    std::cout << "Inverse\n";
-    benchmark([&]{
-        // Execute Inverse 1D FFT
-        res = cufftExecC2C(plan, gpu_data_out, gpu_data_in, CUFFT_INVERSE);
-        // CU_CHECK_MSG(res, "CUFFT error: ExecC2C Inverse failed '%d'\n", res);
-        CU_CHECK_MSG(res, "CUFFT error: ExecC2C Inverse failed\n");
-
-        // TODO: Check if this is necessary
-        // Await end of execution
-        err = cudaDeviceSynchronize();
-        CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
-
-    });
     // Retrieve computed FFT buffer
     err = cudaMemcpy(data, gpu_data_in, data_size, cudaMemcpyDeviceToHost);
     // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU '%d'\n", err);
@@ -405,6 +415,6 @@ void compute_1d_fft_in_place()
 
 int main()
 {
-    compute_1d_fft();
-    compute_1d_fft_in_place();
+    compute_2d_fft();
+    // compute_2d_fft_in_place();
 }
