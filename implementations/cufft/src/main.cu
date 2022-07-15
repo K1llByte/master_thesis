@@ -11,35 +11,35 @@
 #define BATCH 1
 #define BENCHMARK_RUNS 2
 
-// #define CU_ERR_CHECK_MSG(err, msg, ...) {          \
+#define CU_ERR_CHECK_MSG(err, msg, ...) {          \
+            if(err != cudaSuccess) {               \
+                fprintf(stderr, msg __VA_OPT__(,)  \
+                    __VA_ARGS__);                  \
+                exit(1);                           \
+            }                                      \
+        }
+
+#define CU_CHECK_MSG(res, msg, ...) {              \
+            if(res != CUFFT_SUCCESS) {             \
+                fprintf(stderr, msg __VA_OPT__(,)  \
+                    __VA_ARGS__);                  \
+                exit(1);                           \
+            }                                      \
+        }
+
+// #define CU_ERR_CHECK_MSG(err, msg) {               \
 //             if(err != cudaSuccess) {               \
-//                 fprintf(stderr, msg __VA_OPT__(,)  \
-//                     __VA_ARGS__);                  \
+//                 fprintf(stderr, msg);              \
 //                 exit(1);                           \
 //             }                                      \
 //         }
 // 
-// #define CU_CHECK_MSG(res, msg, ...) {              \
+// #define CU_CHECK_MSG(res, msg) {                   \
 //             if(res != CUFFT_SUCCESS) {             \
-//                 fprintf(stderr, msg __VA_OPT__(,)  \
-//                     __VA_ARGS__);                  \
+//                 fprintf(stderr, msg);              \
 //                 exit(1);                           \
 //             }                                      \
 //         }
-
-#define CU_ERR_CHECK_MSG(err, msg) {               \
-            if(err != cudaSuccess) {               \
-                fprintf(stderr, msg);              \
-                exit(1);                           \
-            }                                      \
-        }
-
-#define CU_CHECK_MSG(res, msg) {                   \
-            if(res != CUFFT_SUCCESS) {             \
-                fprintf(stderr, msg);              \
-                exit(1);                           \
-            }                                      \
-        }
 
 
 // Auxiliar function wrapper to benchmark time execution

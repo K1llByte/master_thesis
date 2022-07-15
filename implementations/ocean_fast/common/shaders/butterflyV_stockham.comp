@@ -1,0 +1,90 @@
+#define M_PI 3.1415926535897932384626433832795
+#define NUM_BUTTERFLIES 1
+#define FFT_SIZE 512
+#define LOG_SIZE 9 // log2(FFT_SIZE)
+
+layout (local_size_x = (FFT_SIZE/2)/NUM_BUTTERFLIES, local_size_y = 1) in;
+
+// ping pong textures
+layout (binding = 0, rgba32f) uniform image2DArray pingpong0;
+layout (binding = 1, rgba32f) uniform image2DArray pingpong1;
+
+vec4 complex_mult_twice(vec2 v0, vec4 v1) {
+	return vec4(v0.x * v1.x - v0.y * v1.y,
+				v0.x * v1.y + v0.y * v1.x,
+				v0.x * v1.z - v0.y * v1.w,
+				v0.x * v1.w + v0.y * v1.z);
+}
+
+vec2 euler(float angle) {
+    return vec2(cos(angle), sin(angle));
+}
+
+
+void main() {
+	int line = int(gl_WorkGroupID.y);
+	int column = int(gl_GlobalInvocationID.x);
+    int pingpong = LOG_SIZE % 2;
+
+    for(int stage = 0; stage < LOG_SIZE; ++stage) {
+		// 1. Compute Butterflies
+        int group_size = 2 << stage;
+        int shift = 1 << stage;
+
+		// TODO: add notes to this variables
+        int n = 1 << (LOG_SIZE - stage);
+        int m = n >> 1;
+        int s = 1 << stage;
+		
+		for(int i = 0; i < NUM_BUTTERFLIES; ++i) {
+            int idx = (column*NUM_BUTTERFLIES + i);
+            // Compute p and q
+			// TODO: add notes to this variables
+            int p = idx / s;
+            int q = idx % s;
+            // Compute the twiddle factor
+            vec2 wp = euler(2 * (M_PI / n) * p);
+			
+			if(pingpong == 0) {
+                // Compute natural order butterflies
+				vec4 elemk =   imageLoad(pingpong0, ivec3(line, q + s*(p + 0), LAYER_Y_JXY_JXX_JYY));
+				vec4 elemks =  imageLoad(pingpong0, ivec3(line, q + s*(p + m), LAYER_Y_JXY_JXX_JYY));
+				vec4 elemxz =  imageLoad(pingpong0, ivec3(line, q + s*(p + 0), LAYER_DX_DZ_SX_SZ));
+				vec4 elemxzs = imageLoad(pingpong0, ivec3(line, q + s*(p + m), LAYER_DX_DZ_SX_SZ));
+
+                vec4 res = (elemk + elemks);
+                imageStore(pingpong1, ivec3(line, q + s*(2*p + 0), LAYER_Y_JXY_JXX_JYY), res);
+                vec4 resz = (elemxz + elemxzs);
+				imageStore(pingpong1, ivec3(line, q + s*(2*p + 0), LAYER_DX_DZ_SX_SZ), resz);
+
+                res = complex_mult_twice(wp,(elemk - elemks));
+				imageStore(pingpong1, ivec3(line, q + s*(2*p + 1), LAYER_Y_JXY_JXX_JYY), res);
+                resz = complex_mult_twice(wp,(elemxz - elemxzs));
+				imageStore(pingpong1, ivec3(line, q + s*(2*p + 1), LAYER_DX_DZ_SX_SZ), resz);
+            }
+            else {
+                // Compute natural order butterflies
+				vec4 elemk =   imageLoad(pingpong1, ivec3(line, q + s*(p + 0), LAYER_Y_JXY_JXX_JYY));
+				vec4 elemks =  imageLoad(pingpong1, ivec3(line, q + s*(p + m), LAYER_Y_JXY_JXX_JYY));
+				vec4 elemxz =  imageLoad(pingpong1, ivec3(line, q + s*(p + 0), LAYER_DX_DZ_SX_SZ));
+				vec4 elemxzs = imageLoad(pingpong1, ivec3(line, q + s*(p + m), LAYER_DX_DZ_SX_SZ));
+
+				vec4 res = (elemk + elemks);
+                imageStore(pingpong0, ivec3(line, q + s*(2*p + 0), LAYER_Y_JXY_JXX_JYY), res);
+                vec4 resz = (elemxz + elemxzs);
+				imageStore(pingpong0, ivec3(line, q + s*(2*p + 0), LAYER_DX_DZ_SX_SZ), resz);
+
+                res = complex_mult_twice(wp,(elemk - elemks));
+				imageStore(pingpong0, ivec3(line, q + s*(2*p + 1), LAYER_Y_JXY_JXX_JYY), res);
+                resz = complex_mult_twice(wp,(elemxz - elemxzs));
+				imageStore(pingpong0, ivec3(line, q + s*(2*p + 1), LAYER_DX_DZ_SX_SZ), resz);
+            }
+		}
+
+		// 2. Update Variables
+        pingpong = ((pingpong + 1) % 2);
+
+        // 3. Sync by Memory Barrier
+        barrier();
+	}
+}
