@@ -112,9 +112,9 @@
 
 % Supervisor(es)
 
-\supervisor{Supervisor}
+\supervisor{António Ramires}
 
-\cosupervisor{Co-supervisor (if any)}
+% \cosupervisor{Co-supervisor (if any)}
 
 % Date
 
@@ -251,7 +251,7 @@ Nesta dissertação, fornecemos, comparamos e analisamos implementações de FFT
 \section{Contextualization} \label{sec:contextualization}
 
 % % 1.1 O que sao transofrmadas de fourier e em que contexto se enquadram
-The Fast Fourier Transforms have been present in our sorroundings for a long time, they're used extensively in digital signal processing and many other areas and they often need to be used in a realtime context, where the computations must be performed fast enough. Fast Fourier Transforms essentially are just optimized algorithms to compute the Discrete Fourier Transform of some data, data that might be sampled from a signal, an oscilating object or  even an image, which is transformed into the frequency domain allowing any kind of processing for a relativelly low computational cost.
+The Fast Fourier Transforms have been present in our sorroundings for a long time, they're used extensively in digital signal processing including many other areas and they often need to be used in a realtime context, where the computations must be performed fast enough. Fast Fourier Transforms essentially are optimized algorithms to compute the Discrete Fourier Transform of some data, data that might be sampled from a signal, an oscilating object or even an image, which is transformed into the frequency domain allowing any kind of processing for a relativelly low computational cost. Despite already existing pretty fast computations of the FFT, many applications require the processing of serveral transforms so its necessary to manage the implementations properties and achieve the best speed.
 
 % 2. De que forma este algoritmo pode beneficiar ao ser usado no GPU eao ser usado para aplicações  
 
@@ -259,13 +259,14 @@ The Fast Fourier Transforms have been present in our sorroundings for a long tim
 
 The continuous progress of the evolution of GPUs has increased the popularity of parallelizable algorithm implementations on this type of hardware.
 % % UNUSED: \cite{zhang2013design}
-Notably the FFT algorithms family is constantly present in Computer Graphics, it's usual to find inlined implementations in shader code which offer reliable Fast Fourier Transforms \cite{flugge2017realtime}, but lack tuning of settings for a more optimized versions of these computations. On the other hand there's already out there libraries that provide efficient implementations of FFT on the GPU and CPU like cuFFT \cite{nvidiacufft}, a library provided by NVIDIA exclusively for their GPU's implemented for CUDA, and FFTW \cite{frigo2012fftw}, a library dedicated to computations of FFT on the CPU.
+Notably the FFT algorithms family is constantly present in Computer Graphics, it's usual to find inlined implementations in shader code which offer reliable Fast Fourier Transforms \cite{flugge2017realtime}, but lack tuning of settings for a more optimized versions of these computations. On the other hand there's already out there libraries that provide efficient implementations of FFT on the GPU and CPU like cuFFT \cite{nvidiacufft}, a library provided by NVIDIA exclusively for their GPU's implemented for CUDA, and FFTW \cite{frigo2012fftw}, a library dedicated to computations of FFT on the CPU with SIMD instructions support.
 
+% FIXME: THIS PARAGRAPH IS NOT OK THE PROBLEM ISNT SYNCRONIZATION IN THE GRAPHICS PIPELINE
 Although this libraries can provide efficient transforms with specialized cases over a proper plan, in some applications its performance might be compromised for cases where, for example, the graphics pipeline needs to be sincronized with the computation of the Fourier Transform.
 
 \section{Objectives} \label{sec:objectives}
 
-The main objective of this dissertation is to provide efficient FFT alternatives in GLSL compared with dedicated tools for high performance of FFT computations like NVIDIA cuFFT library or FFTW, while analysing the intrinsic of a good Fast Fourier Transform implementation on the GPU.
+The main objective of this dissertation is to provide efficient FFT alternatives in GLSL compared with dedicated tools for high performance of FFT computations like NVIDIA cuFFT library or FFTW, while analysing the intrinsic of a good Fast Fourier Transform implementation on the GPU and even make a one to one comparison of implementations on different frameworks. % ie: if the same implementation has different costs in different frameworks (cuda, opencl, compute shaders in glsl)
 To accomplish the main objective there are two stages taken in consideration, \textit{Analysis of CUDA and GLSL kernels} to be well settled in their differences and to have a reference for the second stage \textit{Analysis of application specific implementations} which will cluster the study's main objective and where we'll use as case of study applications with implementation of the FFT in the field of Computer Graphics that require realtime performance.
 
 % ====== New Planning Schedule
@@ -324,7 +325,7 @@ With constant progression of the research needed for this project, some steps of
 \section{Document Organization} \label{sec:document-organization}
 
 % chap 1
-This dissertation is organized in 3 chapters. Firstly, the \autoref{chap:introduction} exposes the main introduction to the subject of this dissertation with the respective background information and defines objectives including contextualization and this document organization section.
+This dissertation is organized in 3 chapters. Firstly, the \autoref{chap:introduction} exposes an introduction to the subject of this dissertation with the respective background information and defines objectives including contextualization and this document organization section.
 
 % chap 2
 To give a state of the art overview of the theory and practice associated with Fourier Transforms, \autoref{chap:state-of-the-art} covers most of basic understandings and algorithms needed for later chapters, this will only take simple approachs to each concept to give intuitive insight and empirical explanations without proving it formally.
@@ -368,6 +369,7 @@ Although there are many forms, the Fourier Transform key definition can be descr
 \end{equation}
 
 % REVIEW
+% FIXME: I think f isn't REAL, its COMPLEX
 \begin{itemize}
     \item \( x(t), \forall t \in \mathbb{R} \rightarrow \) function in \textit{time} domain representation with real \( t \).
     \item \( X(f), \forall f \in \mathbb{R} \rightarrow \) function in \textit{frequency} domain representation with real \( f \), also called the Fourier Transform of \( x(t) \)
@@ -421,7 +423,7 @@ One of the most well known cases of application is \textbf{Signal Analysis}, the
 \end{figure}
 
 % REVIEW
-Since the sines and consines waves are in simple waveforms they can then be manipulated with relative ease. This process is constantly present in communications since the transmission of data over wires and radio circuits through signals and most devices nowadays perform ir frequently
+Since the sine and consine waves are in simple waveforms they can then be manipulated with relative ease. This process is constantly present in communications since the transmission of data over wires and radio circuits through signals and most devices nowadays perform it frequently
 
 
 % TODO:
@@ -492,7 +494,7 @@ We can have a more simplified expansion of this formula with:
 \end{equation*}
 
 % FIXME: Maybe the word i want isn't simplified because the equation is getting longer
-Having this sum simplified we then only need to resolve the complex exponential, and we can do that by replacing the \(e^{\frac{i 2 \pi}{N}kn}\) by the euler formula as mentioned before to reduce the maths to a simple summation of real and imaginary numbers.
+Having this sum simplified we then only need to resolve the complex exponential, and we can do that by replacing the \(e^{\frac{i 2 \pi}{N}kn}\) by the euler formula as mentioned before to reduce the maths to a simple sum of real and imaginary numbers.
 
 % REVIEW (math)
 \begin{equation} \label{dft_reduction}
@@ -660,7 +662,9 @@ By using this matrix multiplication form we can have a more efficient way to com
 \end{equation*}
 
 Moreover we might also want to normalize the matrix by \( \sqrt{N} \) for both Matrix DFT and IDFT instead of just normalizing the IDFT by \(N\), that will make \(W\) a unitary matrix \cite{horn2012matrix}.
-The advantage of using a unitary matrix is that we only need to reasign the constant substution variable \(\omega_{N}\) to be able to invert the dft, the matrix multiplication stays the same for both DFT and IDFT. Nevertheless later we will verify that the use of sqrt function isn't desirable for the implementation of any dft.
+The advantage of using a unitary matrix is that we only need to reasign the constant substution variable \(\omega_{N}\) to be able to invert the dft, the matrix multiplication stays the same for both DFT and IDFT. 
+% FIXME: This phrase isn't good in this context, is contradicting the aforesaid.
+Nevertheless later we will verify that the use of sqrt function isn't desirable for the implementation of any dft.
 
 % NOTE: 2.1.
 \paragraph{Example} \label{example1.2} Continuing the example \ref{example1}, we can adapt the aplication of the DFT to the matrix multiplication form.
