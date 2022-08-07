@@ -21,7 +21,7 @@ src/dissertation.toc
 *.aux
 *.fdb_latexmk
 
-todo.md
+*todo.md
 help.md
 schedule.md
 presentation.md
