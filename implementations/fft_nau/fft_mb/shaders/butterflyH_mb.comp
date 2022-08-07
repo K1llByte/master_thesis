@@ -1,0 +1,97 @@
+#version 440
+
+#define M_PI 3.1415926535897932384626433832795
+#define NUM_BUTTERFLIES 1
+
+layout (local_size_x = 4/NUM_BUTTERFLIES, local_size_y = 8) in;
+
+
+// ping pong textures
+layout (binding = 0, rg32f) uniform image2D pingpong0;
+layout (binding = 1, rg32f) uniform image2D pingpong1;
+
+uniform int pingpong;
+uniform int log_width;
+uniform int stage;
+uniform int fft_dir;
+
+
+vec2 complex_mult(vec2 v0, vec2 v1) {
+	return vec2(v0.x * v1.x - v0.y * v1.y,
+				v0.x * v1.y + v0.y * v1.x);
+}
+
+
+int bit_reverse(int k) {
+
+	uint x = uint(k);
+	uint n = 0;
+	uint mask = 0x1;
+	for (int i = 0; i < log_width; ++i) {
+		n <<= 1;
+		n |= (x & 1);
+		x >>= 1;
+	}
+	return int(n);
+}
+
+vec2 euler(float angle) {
+	return vec2(cos(angle), sin(angle));
+}
+
+
+void main() {
+	int line = int(gl_GlobalInvocationID.x);
+	int column = int(gl_GlobalInvocationID.y);
+
+	int group_size = 2 << stage;
+	int shift = 1 << stage;
+
+	vec2 elemk, elemks;
+    for(int i = 0; i < NUM_BUTTERFLIES ; ++i) {
+        // Compute the virtual index of the number of the
+        // butterfly we're about to compute.
+        int id = (line*NUM_BUTTERFLIES + i);
+        // Compute the idx of the place we're working on now
+        int idx = (id % shift) + group_size * (id / shift);
+        // Compute the twiddle factor
+        vec2 w = euler(fft_dir * 2 * (M_PI / group_size) * ((idx % group_size) % shift));
+
+        // alternate between textures
+        if (pingpong == 0) {
+            if (stage == 0) {
+            // when stage = 0 use bit reverse indices
+                elemk = imageLoad(pingpong0, ivec2(bit_reverse(idx), column)).rg;
+                elemks = imageLoad(pingpong0, ivec2(bit_reverse(idx + shift), column)).rg;
+            }
+            else {
+                elemk = imageLoad(pingpong0, ivec2(idx, column)).rg;
+                elemks = imageLoad(pingpong0, ivec2(idx + shift, column)).rg;
+            }
+
+            // Write the outputs
+            vec2 raux = elemk + complex_mult(w, elemks);
+            imageStore(pingpong1, ivec2(idx, column), vec4(raux, 0, 0));
+                
+            raux = elemk - complex_mult(w, elemks);
+            imageStore(pingpong1, ivec2(idx + shift, column), vec4(raux, 0, 0));
+        }
+        else {
+            if (stage == 0) {
+                elemk = imageLoad(pingpong1, ivec2(bit_reverse(idx), column)).rg;
+                elemks = imageLoad(pingpong1, ivec2(bit_reverse(idx + shift), column)).rg;
+            }
+            else {	
+                elemk = imageLoad(pingpong1, ivec2(idx, column)).rg;
+                elemks = imageLoad(pingpong1, ivec2(idx + shift, column)).rg;
+            }
+
+            vec2 raux = elemk + complex_mult(w, elemks);
+            imageStore(pingpong0, ivec2(idx, column), vec4(raux,0,0));
+                
+            raux = elemk - complex_mult(w, elemks);
+            imageStore(pingpong0, ivec2(idx + shift, column), vec4(raux,0,0));
+        }
+    }
+	
+}

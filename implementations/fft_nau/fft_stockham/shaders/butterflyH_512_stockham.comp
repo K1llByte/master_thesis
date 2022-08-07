@@ -1,0 +1,78 @@
+#version 440
+
+#define M_PI 3.1415926535897932384626433832795
+#define NUM_BUTTERFLIES 1
+#define FFT_SIZE 512
+#define LOG_SIZE 9 // log2(FFT_SIZE)
+
+layout (local_size_x = (FFT_SIZE/2)/NUM_BUTTERFLIES, local_size_y = 1) in;
+
+// ping pong textures
+layout (binding = 0, rg32f) uniform image2D pingpong0;
+layout (binding = 1, rg32f) uniform image2D pingpong1;
+
+uniform int fft_dir;
+
+vec2 complex_mult(vec2 v0, vec2 v1) {
+    return vec2(v0.x * v1.x - v0.y * v1.y,
+                v0.x * v1.y + v0.y * v1.x);
+}
+
+
+vec2 euler(float angle) {
+    return vec2(cos(angle), sin(angle));
+}
+
+
+void main() {
+    int line = int(gl_GlobalInvocationID.x);
+    int column = int(gl_WorkGroupID.y);
+    int pingpong = 0;
+
+    for(int stage = 0; stage < LOG_SIZE; ++stage) {
+        // 1. Compute Butterflies
+        int group_size = 2 << stage;
+        int shift = 1 << stage;
+
+        int n = 1 << (LOG_SIZE - stage);
+        int m = n >> 1;
+        int s = 1 << stage;
+
+        for(int i = 0; i < NUM_BUTTERFLIES; ++i) {
+            int idx = (line*NUM_BUTTERFLIES + i);
+            // Compute p and q
+            int p = idx / s;
+            int q = idx % s;
+            // Compute the twiddle factor
+            vec2 wp = euler(fft_dir * 2 * (M_PI / n) * p);
+            if(pingpong == 0) {
+                // Compute natural order butterflies
+                vec2 a = imageLoad(pingpong0, ivec2(q + s*(p + 0), column)).rg;
+                vec2 b = imageLoad(pingpong0, ivec2(q + s*(p + m), column)).rg;
+
+                vec2 res = (a + b);
+                imageStore(pingpong1, ivec2(q + s*(2*p + 0), column), vec4(res,0,0));
+
+                res = complex_mult(wp,(a - b));
+                imageStore(pingpong1, ivec2(q + s*(2*p + 1), column), vec4(res,0,0));
+            }
+            else {
+                // Compute natural order butterflies
+                vec2 a = imageLoad(pingpong1, ivec2(q + s*(p + 0), column)).rg;
+                vec2 b = imageLoad(pingpong1, ivec2(q + s*(p + m), column)).rg;
+
+                vec2 res = (a + b);
+                imageStore(pingpong0, ivec2(q + s*(2*p + 0), column), vec4(res,0,0));
+
+                res = complex_mult(wp,(a - b));
+                imageStore(pingpong0, ivec2(q + s*(2*p + 1), column), vec4(res,0,0));
+            }
+        }
+
+        // 2. Update Variables
+        pingpong = ((pingpong + 1) % 2);
+
+        // 3. Sync by Memory Barrier
+        barrier();
+    }
+}
