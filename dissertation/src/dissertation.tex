@@ -244,8 +244,10 @@ Nesta dissertação, fornecemos, comparamos e analisamos implementações de FFT
     \pagenumbering{arabic}
     \setcounter{page}{5}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                         Introduction                         %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Introduction} \label{chap:introduction}
 
 \section{Contextualization} \label{sec:contextualization}
@@ -340,8 +342,9 @@ To give a state of the art overview of the theory and practice associated with F
 
 % A reaader with a good understanding of how the FFT works can skip to chapter <chaper_name>
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                       State of the Art                       %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{State of the Art} \label{chap:state-of-the-art}
 
 \section{Fourier Transform} \label{sec:fourier-transform}
@@ -726,7 +729,7 @@ There are many algorithms and aproaches on the FFT family such as the well known
 % FIXME: 'that recursively expresses a DFT of length N in terms of one smaller DFT of length N/2 and two smaller DFTs of length N/4.' this is cited directly from https://en.wikipedia.org/wiki/Split-radix_FFT_algorithm try to rewrite later from a good source
 
 % 1.2
-We'll focus for now on the Cooley–Tukey algorithm, most specifically the radix-2 decimation-in-time (DIT) FFT and radix-2 decimation-in-frequency (DIF) FFT, which assume that the input sequence is a power of two sized.
+The next two sections focus on the Cooley–Tukey algorithm, most specifically the radix-2 decimation-in-time (DIT) FFT and radix-2 decimation-in-frequency (DIF) FFT, which requires the input sequence to have a power of two size.
 
 % Describe here everything that the DIT and DIF have in common
 
@@ -935,6 +938,9 @@ In practice, \autoref{alg:dif} demonstrates the aforesaid with an iterative repr
 % Empty
 % Talk about that microsoft paper which implements efficiently in HLSL
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                     Algorithms analysis                      %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Algorithms analysis}
 
 
@@ -966,6 +972,47 @@ Finally, as expected the DIT and DIF algorithms overrule the other alternatives 
 % (DIT FFT) (DIF FFT) DFT
 % (DIT FFT no bit reversal) (DIF FFT no bit reversal) DFT
 % (FFT Recursive) DFT
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%             Computation of the Fourier Transform             %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Computation of the Fourier Transform}
+
+
+\section{Improving the Cooley-Tukey algorithm}
+Nowadays there is a lot more to the computation of FFT's than just the basic Cooley-Tukey algorithm described in \ref{subsec:radix-2-decimation-in-time-fft} there are more algorithms, variations and improvements that enhace the computation in many aspects. Even the target hardware can change the restrictions on the computation of this primitive.
+
+One could optimize the fft by providing precomputed twiddle factors, or spare space for the output sequence by adopting an inplace FFT algorithm  and all those factors influence the performance, evidently a balance must be stablished depending on the constraints for the FFT.
+
+\subsection{Natural order Cooley-Tukey}
+
+
+\subsection{Stockham algorithm}
+\subsection{Radix-4 instead of Radix-2}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                  Implementation on the GPU                   %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Implementation on the GPU}
+\section{Fourier Transform on the GPU}
+\section{Implementation in GLSL}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                   Analysis and Comparison                    %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Analysis and Comparison}
+\section{Popular implementations}
+\subsection{cuFFT}
+\subsection{FFTW}
+\section{Comparison with GLSL implementation}
+\subsection{Analysis}
+Popular implementations
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                     END OF MAIN CHAPTERS                     %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \bookmarksetup{startatroot} % Ends last part.
 % \addtocontents{toc}{\bigskip} % Making the table of contents look good.
