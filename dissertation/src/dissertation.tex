@@ -987,9 +987,41 @@ One could optimize the fft by providing precomputed twiddle factors, or spare sp
 
 \subsection{Natural order Cooley-Tukey}
 
+TODO: Paste here the lost paragraph
+
 The natural order Cooley-Tukey FFT is a modification of the Cooley-Tukey algorithm that allows the removal of the bit reversal step by computing the butterfly and reordering the elements per stage.
 
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.5\textwidth]{imgs/dif_elements_composition.png}
+    \caption{Chain of even and odd compositions over each stage for a natural order DIF}
+    \label{fig:dif-elements-composition}
+\end{figure}
+% Caption: Chain of compositions over each stage for a natural order DIF
+
+At the end of each stage the even and odd elements are composed in such a way that the elements will be in natural order at the end. This composition follows the indexing scheme described in \autoref{eq:nat_order_even_indexing}.
+
+% FIXME: Nao sei como ter isto tudo junto na mesma equacao
+\begin{equation} \label{eq:nat_order_even_indexing}
+    x[q + 2*p] = y[q + p] \\
+\end{equation}
+\begin{equation} \label{eq:nat_order_odd_indexing}
+    x[q + 2*p + 1] = y[q + p + m] \\
+\end{equation}
+
+Where x and y are alternated sequences for read write over each stage, q corresponds to the sub fft offset in this stage, p is the index of the sub fft element shift for the current butterfly being computed, and finally the m corresponds to the size of the sub fft divided by 2.
+
+Although this composition got rid of the bit reversal step in the Cooley-Tukey's algorithm, the performance is deprecated with more work for each stage. Work which may seem unecessary after we find out about the stockham algorithm that supersedes this algorithm.
+
+% TODO: Rewrite better (maybe not very informative)
+We can also note that the composition of even and odd elements wont be necessary on the last stage of the DIF FFT since it will be a passthrough of the elements, so this is an unnecessary step, however this algorithm is an intermediate step to make the stockham algorithm more rational so there's no need to worry about this detail.
+
+
+
 \subsection{Stockham algorithm}
+
+As mentioned on the former section, the stockham algorithm comes to save us from the bit reversal step, it miraculously does this for us by taking advantage of a reordering of the elements such as \autoref{fig:dif-elements-composition}.
+
 \subsection{Radix-4 instead of Radix-2}
 
 
