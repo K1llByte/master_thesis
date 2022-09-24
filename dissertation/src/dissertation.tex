@@ -780,6 +780,12 @@ Effectivelly, this smaller DFT's are recursively reduced by this algorithm until
 
 The complexity work within the algorithm is distributed with the DIT approach which decomposes each DFT by 2 having \(\log{N}\) stages \cite{smith2007mathematics} while there are approximately \(N\) complex multiplications needed for each stage of the DIT decomposition, therefore the multiplication complexity for a \(N\) sized DFT is reduced from \(O(N^{2})\) to \(O(N \log{N})\) without any programming specific optimizations.
 
+Additionally, this algorithm and the one in \autoref{subsec:radix-2-dif} both contain a bit reversal step but used in diferent ways. For the DIT FFT  the input sequence of the algorithm must be in bit reversal order since the algorithm returns a natural order sequence but requires the input to be bit reversed. This way we need to apply the bit reversal at the beggining before applying the algorithm.
+
+However it seems shadowed in \autoref{alg:dit} the implementation of the bit reversal is quite simple and any decent version can be used in regards of this algorithm. The key idea is that each element must be placed in its bit reversed index, so for each element of the sequence the $bit\_reverse$ version of the index is calculated and the element is swapped with the on in the original index.
+
+% TODO: EXPLAIN HOW TO BIT REVERSE AN INDEX
+
 In practice, \autoref{alg:dit} demonstrates the aforesaid with an iterative representation of a possible implementation. Although this algorithm is congruent with a code implementation, its worth noting that the input sequence can either have real or complex numbers, since the arithmetic is the same for both domains the only thing that needs to be specialized is the operator overloading in the inner most loop.
 
 % 3. Algorithmic overview
@@ -813,7 +819,9 @@ In practice, \autoref{alg:dit} demonstrates the aforesaid with an iterative repr
     \textbf{return} $out$\;
 \end{algorithm}
 
-\subsection{Radix-2 Decimation-in-Frequency FFT} \label{subsec:radix-2-decimation-in-frequency-fft}
+
+
+\subsection{Radix-2 Decimation-in-Frequency FFT} \label{subsec:radix-2-dif} \label{subsec:radix-2-decimation-in-frequency-fft}
 
 % 1. Explain the objective and what the DIF term means in the applied algorithm
 The Radix-2 Decimation-in-Frequency FFT algorithm is very similar to the DIT approach, its based on the same principle of divide-and-conquer but it rearranges the original Discrete Fourier Transform (DFT) into the computation of two transforms, one with the even indexed elements and other with the odd indexed elements; as in this simplified formulation \autoref{eq:dif}.
@@ -857,6 +865,7 @@ Similarly to the DIT version, the DFT can be recursively reduced by the DIF algo
 Since this algorithm has similarities with the DIT, its complexity also lives to this similarity, maintaining the same \(O(N \log{N})\) for number of multiplications, despite that, \autoref{fig:dif-butterfly} and \autoref{fig:dit-butterfly} might look different in number of arithmetic operations since the first has 1 addition, 1 subtraction, and 2 multiplications, and the second has 1 addition, 1 subtraction, and 1 multiplication, but effectively the \(W_{N} \cdot b\) can be reused and only computed once as seen in \autoref{alg:dit}.
 % FIXME: The complexity work within the algorithm is distributed with the DIT approach which decomposes each DFT by 2 having \(\log{N}\) stages \cite{smith2007mathematics} while there are approximately \(N\) complex multiplications needed for each stage of the DIT decomposition, therefore the multiplication complexity for a \(N\) sized DFT is reduced from \(O(N^{2})\) to \(O(N \log{N})\) without any programming specific optimizations.
 
+As mentioned in \autoref{subsec:radix-2-decimation-in-time-fft} the bit reversal in DIF works a bit differently, this algorithm does the exact opposite of the DIT since it requires a natural order sequence and returns a bit reversed output, justifying why this step is applied after the algorithm.
 
 % FIXME: im repeating exactly whats in the DIT but its exactly what i want to say, what to do? keep this or change?
 In practice, \autoref{alg:dif} demonstrates the aforesaid with an iterative representation of a possible implementation. Although this algorithm is congruent with a code implementation, its worth noting that the input sequence can either have real or complex numbers, since the arithmetic is the same for both domains the only thing that needs to be specialized is the operator overloading in the inner most loop.
@@ -985,7 +994,7 @@ Nowadays there is a lot more to the computation of FFT's than just the basic Coo
 
 One could optimize the fft by providing precomputed twiddle factors, or spare space for the output sequence by adopting an inplace FFT algorithm  and all those factors influence the performance, evidently a balance must be stablished depending on the constraints for the FFT.
 
-\subsection{Natural order Cooley-Tukey}
+\subsection{Natural order Cooley-Tukey} \label{subsec:natural-order-ct}
 
 TODO: Paste here the lost paragraph
 
@@ -1018,9 +1027,64 @@ We can also note that the composition of even and odd elements wont be necessary
 
 
 
-\subsection{Stockham algorithm}
+\subsection{Stockham algorithm} \label{subsec:stockham-algorithm}
 
-As mentioned on the former section, the stockham algorithm comes to save us from the bit reversal step, it miraculously does this for us by taking advantage of a reordering of the elements such as \autoref{fig:dif-elements-composition}.
+As mentioned on the former section, the Stockham algorithm comes to save us from the bit reversal step, it miraculously does this for us by taking advantage of a reordering of the elements illustrated in \autoref{fig:dif-elements-composition}. The natural order elements get composed stage by stage and the butterfly computations stay the same, so this approach takes advantage of the Cooley-Tukey algorithm and turns it into a more suitable form for highly parallelizeable hardware such as GPUs, making it a best fit for our implementation in any GPU programmable language. \newline
+
+Similarly to \autoref{subsec:natural-order-ct} the algorithm requires the usage alternated sequences for read write over each stage, this prevents the read of an element which has been altered before read in a given stage therefore the return sequence will depend on the \log{N} number parity.
+
+The stockham algorithm is described in \autoref{alg:stockham-dit} and this version may seem strictly diferent from the cooley tukey, specially the inner most loop, however most of the logic stays the same, the indexing is a bit different and simpler for this version and the if statements are a consequence of using alternated pingpong sequences since there has to be branches for read and write of both arrays.
+%it only affects the indexing of the elements
+
+%TODO: Devo incluir a versão inversa? é que como so é preciso mudar um sinal nao acho que valha a pena e so fica mais verboso
+
+% FIXME: O if statement tem um end antes do else nao sei como retirar
+
+% 3. Algorithmic overview
+\SetKwComment{Comment}{/* }{ */}
+\RestyleAlgo{ruled}
+\begin{algorithm}[H]
+    \caption{Stockham Radix-2 Decimation-in-Time Forward FFT} \label{alg:stockham-dit}
+    \KwData{Sequence pingpong0 with size $N$ power of 2}
+    \KwResult{Sequence $out$ with size $N$ with the DFT of the input}
+
+    \Comment{FFT}
+    \ForEach{$s = 0$ \textbf{to} $\log{N}-1 $}{
+        $gs \gets N \gg s$\;
+        $stride \gets 1 \ll s$\;
+        %$w_{gs} \gets \exp(2\pi i / gs)$\;
+        \ForEach{$i = 0$ \textbf{to} $N-1$}{
+            $p \gets i $ div $ stride $\;
+            $q \gets i $ mod $ stride $\;
+            $w_{p} = \exp(-2 \pi i / gs * p)$\;
+            % HERE
+            \If{$stage $ mod $ 2 == 0$}{
+                $a \gets pingpong0[q + s*(p + 0)] $\;
+                $b \gets pingpong0[q + s*(p + half_gs)] $\;
+                \Comment{Perform butterfly}
+                $pingpong1[q + s*(2*p + 0)] = a + b$\;
+                $pingpong1[q + s*(2*p + 1)] = (a-b) * w_{p}$\;
+            }
+            \Else{
+                $a \gets pingpong1[q + s*(p + 0)] $\;
+                $b \gets pingpong1[q + s*(p + gs/2)] $\;
+                \Comment{Perform butterfly}
+                $pingpong0[q + s*(2*p + 0)] = a + b$\;
+                $pingpong0[q + s*(2*p + 1)] = (a-b) * w_{p}$\;
+            }
+            %\EndIf
+        }
+    }
+    \If{$\log{N} $ mod $ 2 == 0$}{
+        \textbf{return} pingpong1\;
+    }
+    \Else{
+        \textbf{return} pingpong0\;
+    }
+\end{algorithm}
+\newline
+
+Despite this algorithm description being an algorithmic for more close to a CPU implementation than GPU it will give us a solid structure to use as reference for our comparison subjects since it is feasible to make a similar implementation for GPGPU programmable languages due to the way of indexing and the usage of alternating sequences.
 
 \subsection{Radix-4 instead of Radix-2}
 
