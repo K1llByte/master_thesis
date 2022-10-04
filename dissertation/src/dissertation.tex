@@ -1042,18 +1042,83 @@ We can also note that the composition of even and odd elements wont be necessary
 
 \subsection{Stockham algorithm} \label{subsec:stockham-algorithm}
 
-As mentioned on the former section, the Stockham algorithm comes to save us from the bit reversal step, it miraculously does this for us by taking advantage of a reordering of the elements \cite{govindaraju2008high} illustrated in \autoref{fig:dif-elements-composition}. The natural order elements get composed stage by stage and the butterfly computations stay the same, so this approach takes advantage of the Cooley-Tukey algorithm and turns it into a more suitable form for highly parallelizeable hardware such as GPUs, making it a best fit for our implementation in any GPU programmable language. \newline
+As mentioned on the former section, the Stockham algorithm comes to save us from the bit reversal step, it does this by taking advantage of a reordering of the elements \cite{govindaraju2008high} illustrated in \autoref{fig:dif-elements-composition}. The natural order elements are composed stage by stage and the butterfly computations stay the same, so this approach takes advantage of the Cooley-Tukey algorithm and turns it into a more suitable form for highly parallelizeable hardware such as GPUs, making it a best fit for our implementation in any GPU programmable language. \newline
 
-Similarly to \autoref{subsec:natural-order-ct} the algorithm requires the usage alternated sequences for read write over each stage, this prevents the read of an element which has been altered before read in a given stage therefore the return sequence will depend on the \log{N} number parity.
+Similarly to \autoref{subsec:natural-order-ct} the algorithm requires the usage alternated sequences for read write over each stage, this prevents the read of an element which has been altered before read in a given stage therefore the return sequence will depend on the $\log{N}$ number parity.
 
-The stockham algorithm is described in \autoref{alg:stockham-dit} and this version may seem strictly diferent from the cooley tukey, specially the inner most loop, however most of the logic stays the same, the indexing is a bit different and simpler for this version and the if statements are a consequence of using alternated ping pong sequences since there has to be branches for read and write of both arrays for this out-of-place algorithm.
+The stockham algorithm is described in \autoref{alg:stockham-dit} and this version may seem strictly different from the Cooley Tukey, specially the inner most loop, however most of the logic stays the same, the indexing is a bit different and simpler for this version and the if statements are a consequence of using alternated ping pong sequences since there has to be branches for read and write of both arrays for this out-of-place algorithm.
 %it only affects the indexing of the elements
 
-%TODO: Devo incluir a versão inversa? é que como so é preciso mudar um sinal nao acho que valha a pena e so fica mais verboso
+% TODO: Devo incluir a versão inversa? é que como so é preciso mudar um sinal nao acho que valha a pena e so fica mais verboso
 
 % FIXME: O if statement tem um end antes do else nao sei como retirar
 
 % 3. Algorithmic overview
+\SetKwComment{Comment}{/* }{ */}
+\RestyleAlgo{ruled}
+\begin{algorithm}[H]
+    \caption{Stockham Radix-2 Decimation-in-Time Forward FFT} \label{alg:stockham-dit}
+    \KwData{Sequence pingpong0 with size $N$ power of 2}
+    \KwResult{Sequence $out$ with size $N$ with the DFT of the input}
+
+    \Comment{FFT}
+    \ForEach{$s = 0$ \textbf{to} $\log{N}-1 $}{
+        $gs \gets N \gg s$\;
+        $stride \gets 1 \ll s$\;
+        %$w_{gs} \gets \exp(2\pi i / gs)$\;
+        \ForEach{$i = 0$ \textbf{to} $N-1$}{
+            $p \gets i $ div $ stride $\;
+            $q \gets i $ mod $ stride $\;
+            $w_{p} = \exp(-2 \pi i / gs * p)$\;
+            % HERE
+            \If{$stage $ mod $ 2 == 0$}{
+                $a \gets pingpong0[q + s*(p + 0)] $\;
+                $b \gets pingpong0[q + s*(p + gs/2)] $\;
+                \Comment{Perform butterfly}
+                $pingpong1[q + s*(2*p + 0)] = a + b$\;
+                $pingpong1[q + s*(2*p + 1)] = (a-b) * w_{p}$\;
+            }
+            \Else{
+                $a \gets pingpong1[q + s*(p + 0)] $\;
+                $b \gets pingpong1[q + s*(p + gs/2)] $\;
+                \Comment{Perform butterfly}
+                $pingpong0[q + s*(2*p + 0)] = a + b$\;
+                $pingpong0[q + s*(2*p + 1)] = (a-b) * w_{p}$\;
+            }
+            %\EndIf
+        }
+    }
+    \If{$\log{N} $ mod $ 2 == 0$}{
+        \textbf{return} pingpong1\;
+    }
+    \Else{
+        \textbf{return} pingpong0\;
+    }
+\end{algorithm}
+
+\paragraph{}
+Despite this algorithm description being an algorithmic or more close to a CPU implementation than GPU it will give us a solid structure to use as reference for our comparison subjects since it is feasible to make a similar implementation for GPGPU programmable languages due to the way of indexing and the usage of alternating sequences.
+
+\subsection{Radix-4 instead of Radix-2}
+
+Stepping forward on the need to optimize this algorithm we reach the topic of higher radix alternatives other than just radix-2, FFT algorithms can use higher radix for better performance and even mixed radix \cite{singleton1969algorithm} for more irregular sized input sequences.
+
+The Radix-4 is a good improvement over Radix-2 since getting to higher radixes than 4 might result in reduced performance, so improving the Stockham algorithm with Radix-4 upgrades the computation of the butterflies while reducing the number of stages which will be crucial in later sections.
+
+Theoretically Radix-4 formulation can be twice as fast as a Radix-2 \cite{hussain2010evaluation} since it only takes half the stages with a bit more complexity in the butterflies which are usually called dragonflies, and additionally can use less multiplications with better factorizations \cite{marti2009radix}.
+
+
+% 1. 
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.6\textwidth]{tese/imgs/dragonfly.png}
+    \caption{Radix-4 FFT butterfly structure \source{marti2009radix}}
+    \label{fig:signal-decomposition}
+\end{figure}
+
+
+TODO: WIP
+
 \SetKwComment{Comment}{/* }{ */}
 \RestyleAlgo{ruled}
 \begin{algorithm}[H]
@@ -1096,27 +1161,36 @@ The stockham algorithm is described in \autoref{alg:stockham-dit} and this versi
     }
 \end{algorithm}
 
-\paragraph{}
-Despite this algorithm description being an algorithmic or more close to a CPU implementation than GPU it will give us a solid structure to use as reference for our comparison subjects since it is feasible to make a similar implementation for GPGPU programmable languages due to the way of indexing and the usage of alternating sequences.
-
-\subsection{Radix-4 instead of Radix-2}
-
-Stepping forward on the need to optimize this algorithm we reach the topic of higher radix alternatives other than just radix-2, FFT algorithms can use higher radix for better performance and even mixed radix \cite{singleton1969algorithm} for more irregular sized input sequences.
-
-The Radix-4 is a good improvement over Radix-2 since getting to higher radixes will probably result in reduced performance, so improving the Stockham algorithm with Radix-4 upgrades the computation of the butterflies while reducing the number of stages which will be crucial in later sections.
-
-to use as a Radix-4 stockham algorithm
-\cite{marti2009radix}
-
-
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                  Implementation on the GPU                   %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Implementation on the GPU}
+
+To be able to analyse the implementation of FFT on the GPU, we need to provide some background on what kind of hardware were dealing with, whats constraints are relevant and what we can or can't do, after, we proceed with with description of how the Fourier Transform suits the GPU programming model and finally we'll move forward to a detailed analysis of the implementation of FFT algorithms in a compute shader in GLSL.
+
+\section{GPU Programming model}
+
+% Introducing GPU and why it is better
+% GPU architecture and programming model
+% What we can do and how to take advantage of the GPU
+% Compute pipeline
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TODO: Rewrite 
+The Graphics Processing Unit (GPU) provides much higher instruction throughput and memory bandwidth than the CPU within a similar price and power envelope having a much faster performance growth curve. Many applications leverage these higher capabilities to run faster on the GPU than on the CPU. While the hardware may change some components and architecture on different models, fundamentally most modern GPUs use single instruction multiple data (SIMD) stream architecture.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+A SIMD stream architecture forwards an instruction to multiple cores with dedicated memory for each instance, allowing data-level parallelism to compute more quickly and effectively.
+A CPU usually uses a von Neumann architecture, so it executes instructions sequentially one at a time and updates the memory progressively, however a stream architecture processor works in a slightly different way, it executes a kernel with a finite set of input fragments to produce another set of output fragments in parallel \cite{fernando2004gpu}.
+
+The GPU programming model is bla bla bla \cite{CUDAcppguide}.
+
+in a more extreme scenario there is the possibility of configuring multiple GPUs with distributed workflows for more intensive problems \cite{heldens2022lightning}.
+
+
+
+
 \section{Fourier Transform on the GPU}
-\section{Implementation in GLSL}
+\section{Implementation Analysis in GLSL}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   Analysis and Comparison                    %
