@@ -1180,7 +1180,15 @@ To be able to analyse the implementation of FFT on the GPU, we need to provide s
 The Graphics Processing Unit (GPU) provides much higher instruction throughput and memory bandwidth than the CPU within a similar price and power envelope having a much faster performance growth curve. Many applications leverage these higher capabilities to run faster on the GPU than on the CPU. While the hardware may change some components and architecture on different models, fundamentally most modern GPUs use single instruction multiple data (SIMD) stream architecture.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 A SIMD stream architecture forwards an instruction to multiple cores with dedicated memory for each instance, allowing data-level parallelism to compute more quickly and effectively.
-A CPU usually uses a von Neumann architecture, so it executes instructions sequentially one at a time and updates the memory progressively, however a stream architecture processor works in a slightly different way, it executes a kernel with a finite set of input fragments to produce another set of output fragments in parallel \cite{fernando2004gpu}.
+A CPU usually uses a von Neumann architecture, so it executes instructions sequentially one at a time and updates the memory progressively, however a stream architecture processor works in a slightly different way, they contain multiple streams of simpler processors with shared memory just like the ilustration in \autoref{fig:cpu-gpu} These processors execute programs called kernels that receive a finite set of input fragments to produce another set of output fragments in parallel \cite{fernando2004gpu}. This paradigm revolutionised the industry and with its evolution came the General Purpose Graphics Processing Unit (GPGPU) which allows this type of hardware to compute highly parallel procedures similarly to a CPU but with all the advantages of a GPU. 
+
+\begin{figure}[h]  \label{fig:cpu-gpu}
+    \centering
+    \includegraphics[width=0.7\textwidth]{imgs/cpu_gpu.png}
+    \caption{CPU architecture compared with a GPU architecture}
+    \label{fig:signal-decomposition}
+\end{figure}
+
 
 The GPU programming model is bla bla bla \cite{CUDAcppguide}.
 
