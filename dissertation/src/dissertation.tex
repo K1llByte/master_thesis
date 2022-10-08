@@ -1182,11 +1182,11 @@ The Graphics Processing Unit (GPU) provides much higher instruction throughput a
 A SIMD stream architecture forwards an instruction to multiple cores with dedicated memory for each instance, allowing data-level parallelism to compute more quickly and effectively.
 A CPU usually uses a von Neumann architecture, so it executes instructions sequentially one at a time and updates the memory progressively, however a stream architecture processor works in a slightly different way, they contain multiple streams of simpler processors with shared memory just like the ilustration in \autoref{fig:cpu-gpu} These processors execute programs called kernels that receive a finite set of input fragments to produce another set of output fragments in parallel \cite{fernando2004gpu}. This paradigm revolutionised the industry and with its evolution came the General Purpose Graphics Processing Unit (GPGPU) which allows this type of hardware to compute highly parallel procedures similarly to a CPU but with all the advantages of a GPU. 
 
-\begin{figure}[h]  \label{fig:cpu-gpu}
+\begin{figure}[h]
     \centering
     \includegraphics[width=0.7\textwidth]{imgs/cpu_gpu.png}
     \caption{CPU architecture compared with a GPU architecture}
-    \label{fig:signal-decomposition}
+    \label{fig:cpu-gpu}
 \end{figure}
 
 
@@ -1198,6 +1198,9 @@ in a more extreme scenario there is the possibility of configuring multiple GPUs
 
 
 \section{Fourier Transform on the GPU}
+% - 2D FFT's (if not exists already)
+% - Two pass approach for Horizontal and Vetical passes
+% - Matrix transposition
 \section{Implementation Analysis in GLSL}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
