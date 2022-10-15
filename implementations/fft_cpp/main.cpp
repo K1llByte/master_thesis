@@ -4,10 +4,10 @@
 #include "fft.hpp"
 #include "fft_dit_iter.hpp"
 #include "fft_dif_iter.hpp"
-#include "fft_dit_parallel.hpp"
+// #include "fft_dit_parallel.hpp"
 
-#include "fft_dif_nat_order.hpp"
-#include "fft_stockham.hpp"
+// #include "fft_dif_nat_order.hpp"
+// #include "fft_stockham.hpp"
 
 // #include <ctime>
 #include <chrono>
@@ -154,7 +154,7 @@ constexpr std::array<vec2, N> sample_complex()
 
 int main()
 {
-    constexpr auto N = 8;
+    constexpr auto N = 4;
     auto input = sample<N>();
     ////////////// Benchmark //////////////
 
@@ -181,12 +181,16 @@ int main()
     // print_complex_array(val1);
 
     // Used to compare results
-    auto real_freq1 = stockham::fft(to_complex(input));
-    auto val1 = stockham::ifft(real_freq1);
-    std::cout << "EXPECTED: ";
-    print_array(input);
+    
+    std::array<float,4> in{0,4,8,12};
+    auto real_freq1 = dit::fft(in);
+    print_array(in);
     print_complex_array(real_freq1);
-    print_complex_array(val1);
+    // auto val1 = stockham::ifft(real_freq1);
+    // std::cout << "EXPECTED: ";
+    // print_array(input);
+    // print_complex_array(real_freq1);
+    // print_complex_array(val1);
     // std::cout << "ARE EQUAL? " << equal_complex_arrays(real_freq1, freq1) << "\n";
     // std::cout << "ARE EQUAL? " << equal_complex_arrays(to_complex(input), val1) << "\n";
 

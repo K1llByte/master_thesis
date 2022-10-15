@@ -1,18 +1,15 @@
 #include <iostream>
+#include <functional>
+#include <chrono>
 
+#include <cufft.h>
 #include "cuda_helper.hpp"
 
+#define M_PI 3.1415926535897932384626433832795
 #define FFT_SIZE 256
-#define BATCH 1
-#define BENCHMARK_RUNS 2
-
-// #define CU_ERR_CHECK_MSG(err, msg, ...) {  \
-//     if(err != cudaSuccess) {               \
-//         fprintf(stderr, msg __VA_OPT__(,)  \
-//             __VA_ARGS__);                  \
-//         exit(1);                           \
-//     }                                      \
-// }
+#define LOG_SIZE 8
+#define NUM_BUTTERFLIES 1
+// #define BENCHMARK_RUNS 2
 
 // Actual kernel functions
 
@@ -22,6 +19,22 @@
         exit(1);                      \
     }                                 \
 }
+#define CU_CHECK_MSG(res, msg) {  \
+    if(res != CUFFT_SUCCESS) {    \
+        fprintf(stderr, msg);     \
+        exit(1);                  \
+    }                             \
+}
+
+inline double benchmark(std::function<void()> func)
+{
+    auto begin = std::chrono::high_resolution_clock::now();
+    func();
+    auto end = std::chrono::high_resolution_clock::now();
+    auto cpu_time = std::chrono::duration<double, std::milli>(end-begin).count();
+    return cpu_time;
+}
+
 
 __device__ __forceinline__
 float2 complex_mult(float2 v0, float2 v1) {
@@ -32,6 +45,16 @@ float2 complex_mult(float2 v0, float2 v1) {
 }
 
 __device__ __forceinline__
+float2 complex_add(float2 v0, float2 v1) {
+    return float2{v0.x + v1.x, v0.y + v1.y };
+}
+
+__device__ __forceinline__
+float2 complex_sub(float2 v0, float2 v1) {
+    return float2{v0.x - v1.x, v0.y - v1.y };
+}
+
+__device__ __forceinline__
 float2 euler(float angle) {
     return float2{cos(angle), sin(angle)};
 }
@@ -39,131 +62,212 @@ float2 euler(float angle) {
 
 // GPU Kernel
 __global__
-void stockham_fft(int n, float a, float2* pingpong0, float2* pingpong1) {
-    int line = blockIdx.x * blockDim.x + threadIdx.x;
-    int column = blockIdx.y
+void stockham_fft_horizontal(float2* pingpong0, float2* pingpong1, float fft_dir) {
+    int line = threadIdx.x;
+    int column = blockIdx.x;
     int pingpong = 0;
 
-    // Continue ...
-    
-    if(i < n) {
-        pingpong0[i] = a*pingpong0[i] + pingpong1[i];
+    for(int stage = 0; stage < LOG_SIZE; ++stage) {
+        // 1. Compute Butterflies
+        int n = 1 << (LOG_SIZE - stage);
+        int m = n >> 1;
+        int s = 1 << stage;
+        for(int i = 0; i < NUM_BUTTERFLIES; ++i) {
+            int idx = (line*NUM_BUTTERFLIES + i);
+            // Compute p and q
+            int p = idx / s;
+            int q = idx % s;
+            // Compute the twiddle factor
+            float2 wp = euler(fft_dir * 2 * (M_PI / n) * p);
+            if(pingpong == 0) {
+                // Compute natural order butterflies
+                float2 a = pingpong0[q + s*(p + 0) + FFT_SIZE*column];
+                float2 b = pingpong0[q + s*(p + m) + FFT_SIZE*column];
+
+                pingpong1[q + s*(2*p + 0) + FFT_SIZE*column] = complex_add(a, b);
+                pingpong1[q + s*(2*p + 1) + FFT_SIZE*column] = complex_mult(wp,complex_sub(a, b));
+            }
+            else {
+                // Compute natural order butterflies
+                float2 a = pingpong1[q + s*(p + 0) + FFT_SIZE*column];
+                float2 b = pingpong1[q + s*(p + m) + FFT_SIZE*column];
+
+                pingpong0[q + s*(2*p + 0) + FFT_SIZE*column] = complex_add(a, b);
+                pingpong0[q + s*(2*p + 1) + FFT_SIZE*column] = complex_mult(wp,complex_sub(a, b));
+            }
+        }
+
+        // 2. Update Variables
+        pingpong = ((pingpong + 1) % 2);
+
+        // 3. Sync by Memory Barrier
+        __syncthreads();
     }
 }
 
-// // Host code
-// int main() {
-//     int N = 1 << 20;
 
-//     // Allocate host memory
-//     float *x, *y, *d_x, *d_y;
-//     x = reinterpret_cast<float*>(malloc(FFT_SIZE*FFT_SIZE*sizeof(float)));
-//     y = reinterpret_cast<float*>(malloc(FFT_SIZE*sizeof(float)));
+__global__
+void stockham_fft_vertical(float2* pingpong0, float2* pingpong1, float fft_dir) {
+    int line = blockIdx.x;
+    int column = threadIdx.x;
+    int pingpong = LOG_SIZE % 2;
 
-//     // Allocate device memory
-//     cudaError_t err = cudaMalloc(&d_x, N*sizeof(float)); 
-//     CU_ERR_CHECK_MSG(err, "Cuda error: Failed to allocate\n");
-//     err = cudaMalloc(&d_y, N*sizeof(float));
-//     CU_ERR_CHECK_MSG(err, "Cuda error: Failed to allocate\n");
-  
-//     for (int i = 0; i < N; i++) {
-//         x[i] = 1.0f;
-//         y[i] = 2.0f;    
-//     }
+    for(int stage = 0; stage < LOG_SIZE; ++stage) {
+        // 1. Compute Butterflies
+        int n = 1 << (LOG_SIZE - stage);
+        int m = n >> 1;
+        int s = 1 << stage;
+        for(int i = 0; i < NUM_BUTTERFLIES; ++i) {
+            int idx = (column*NUM_BUTTERFLIES + i);
+            // Compute p and q
+            int p = idx / s;
+            int q = idx % s;
+            // Compute the twiddle factor
+            float2 wp = euler(fft_dir * 2 * (M_PI / n) * p);
+            if(pingpong == 0) {
+                // Compute natural order butterflies
+                float2 a = pingpong0[line + FFT_SIZE*(q + s*(p + 0))];
+                float2 b = pingpong0[line + FFT_SIZE*(q + s*(p + m))];
 
-//     // Upload host data to device
-//     err = cudaMemcpy(d_x, x, N*sizeof(float), cudaMemcpyHostToDevice);
-//     CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU\n");
-//     err = cudaMemcpy(d_y, y, N*sizeof(float), cudaMemcpyHostToDevice);
-//     CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU\n");
-    
-//     // Compute FFT on 1M elements
-//     stockham_fft<<<(N+255)/256, 256>>>(N, 2.0f, d_x, d_y);
+                pingpong1[line + FFT_SIZE*(q + s*(2*p + 0))] = complex_add(a, b);
+                pingpong1[line + FFT_SIZE*(q + s*(2*p + 1))] = complex_mult(wp,complex_sub(a, b));
+            }
+            else {
+                // Compute natural order butterflies
+                float2 a = pingpong1[line + FFT_SIZE*(q + s*(p + 0))];
+                float2 b = pingpong1[line + FFT_SIZE*(q + s*(p + m))];
 
-//     float maxError = 0.0f;
-//     for (int i = 0; i < N; i++) {
-//         maxError = max(maxError, abs(y[i]-4.0f));
-//     }
+                pingpong0[line + FFT_SIZE*(q + s*(2*p + 0))] = complex_add(a, b);
+                pingpong0[line + FFT_SIZE*(q + s*(2*p + 1))] = complex_mult(wp,complex_sub(a, b));
+            }
+        }
 
-//     std::cout << "Max error: " << maxError << "\n";
+        // 2. Update Variables
+        pingpong = (pingpong + 1) % 2;
 
-//     err = cudaDeviceSynchronize();
-//     CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
-    
-//     // Retrieve device data back to host
-//     err = cudaMemcpy(x, d_x, N*sizeof(float), cudaMemcpyDeviceToHost);
-//     CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer from GPU\n");
-//     err = cudaMemcpy(y, d_y, N*sizeof(float), cudaMemcpyDeviceToHost);
-//     CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer from GPU\n");
-
-
-//     maxError = 0.0f;
-//     for (int i = 0; i < N; i++) {
-//         maxError = max(maxError, abs(y[i]-4.0f));
-//     }
-//     std::cout << "Max error: " << maxError << "\n";
-
-//     cudaFree(d_x);
-//     cudaFree(d_y);
-//     free(x);
-//     free(y);
-// }
+        // 3. Sync by Memory Barrier
+        __syncthreads();
+    }
+}
 
 
 // Host code
 int main() {
+    cudaError_t err;
+    ///////////////////////////////////////
+    //     Comarison Implementation      //
+    ///////////////////////////////////////
+    const size_t CUFFT_BUFFER_SIZE_BYTES = FFT_SIZE*FFT_SIZE*sizeof(cufftComplex);
+    cufftComplex* cufft_data = reinterpret_cast<cufftComplex*>(malloc(CUFFT_BUFFER_SIZE_BYTES));
+    cufftComplex* gpu_data;
+
+    // Initializing input sequence
+    for(size_t i = 0; i < FFT_SIZE*FFT_SIZE; ++i) {
+        cufft_data[i].x = i;
+        cufft_data[i].y = 0.00;
+    }
+
+    // Allocate device memory
+    err = cudaMalloc(&gpu_data, CUFFT_BUFFER_SIZE_BYTES);
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to allocate\n");
+
+    // Copy data to GPU buffer
+    err = cudaMemcpy(gpu_data, cufft_data, CUFFT_BUFFER_SIZE_BYTES, cudaMemcpyHostToDevice);
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU\n");
+
+    // Setup cufft plan
+    cufftHandle plan;
+    cufftResult_t res;
+    res = cufftPlan2d(&plan, FFT_SIZE, FFT_SIZE, CUFFT_C2C);
+    CU_CHECK_MSG(res, "cuFFT error: Plan creation failed\n");
+
+    auto miliseconds = benchmark([&]() {
+        // Submit execution
+        res = cufftExecC2C(plan, gpu_data, gpu_data, CUFFT_FORWARD);
+        CU_CHECK_MSG(res, "cuFFT error: ExecC2C Forward failed\n");
+    
+        // Await end of execution
+        err = cudaDeviceSynchronize();
+        CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
+    });
+    std::cout << "cuFFT: " << miliseconds << "ms\n";
+    
+    // Retrieve computed FFT buffer
+    err = cudaMemcpy(cufft_data, gpu_data, CUFFT_BUFFER_SIZE_BYTES, cudaMemcpyDeviceToHost);
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU\n");
+
+    ///////////////////////////////////////
+    //       CUDA Implementation         //
+    ///////////////////////////////////////
     const size_t BUFFER_SIZE_BYTES = FFT_SIZE*FFT_SIZE*sizeof(float2);
 
     // Allocate host memory
     float2* data;
+    data = reinterpret_cast<float2*>(malloc(BUFFER_SIZE_BYTES));
+    
+    // Allocate device memory
     float2* gpu_pingpong0;
     float2* gpu_pingpong1;
-    cudaError_t err;
-    data = reinterpret_cast<float2*>(malloc(BUFFER_SIZE_BYTES));
-
-    // Allocate device memory
     err = cudaMalloc(&gpu_pingpong0, BUFFER_SIZE_BYTES);
     CU_ERR_CHECK_MSG(err, "Cuda error: Failed to allocate\n");
     err = cudaMalloc(&gpu_pingpong1, BUFFER_SIZE_BYTES);
     CU_ERR_CHECK_MSG(err, "Cuda error: Failed to allocate\n");
-    
-    for (size_t i = 0; i < FFT_SIZE*FFT_SIZE; i++) {
+
+    for(size_t i = 0; i < FFT_SIZE*FFT_SIZE; i++) {
         data[i].x = static_cast<float>(i);
+        data[i].y = 0.f;
     }
-    
+
     // Upload host data to device
     err = cudaMemcpy(gpu_pingpong0, data, BUFFER_SIZE_BYTES, cudaMemcpyHostToDevice);
     CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU\n");
-    
-    std::cout << "Success\n";
-    // Compute FFT on 1M elements
-    // stockham_fft<<<(N+255)/256, 256>>>(N, 2.0f, d_x, d_y);
 
-    // float maxError = 0.0f;
-    // for (int i = 0; i < N; i++) {
-    //     maxError = max(maxError, abs(y[i]-4.0f));
+    std::cout << "Initialized Buffers on the GPU\n";
+    // Compute FFT
+    auto blocks = dim3(FFT_SIZE, 1);
+    auto block_threads = dim3((FFT_SIZE / 2)/NUM_BUTTERFLIES, 1);
+
+    miliseconds = benchmark([&]() {
+        // Horizontal pass
+        // Sync after execution
+        stockham_fft_horizontal<<<blocks, block_threads>>>(gpu_pingpong0, gpu_pingpong1, -1.f);
+        err = cudaDeviceSynchronize();
+        CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
+        // std::cout << "Sinchronized after execution\n";
+
+        // Vertical pass
+        // Sync after execution
+        stockham_fft_vertical<<<blocks, block_threads>>>(gpu_pingpong0, gpu_pingpong1, -1.f);
+        err = cudaDeviceSynchronize();
+        CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
+        // std::cout << "Sinchronized after execution\n";
+    });
+    std::cout << "CUDA: " << miliseconds << "ms\n";
+
+
+    // Retrieve device data back to host
+    err = cudaMemcpy(
+        data,
+        (LOG_SIZE % 2 == 0) ? gpu_pingpong0 : gpu_pingpong1,
+        BUFFER_SIZE_BYTES,
+        cudaMemcpyDeviceToHost
+    );
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer from GPU\n");
+
+    // // Print results
+    // // CUDA
+    // std::cout << "========= CUDA =========\n";
+    // for(size_t i = 0; i < FFT_SIZE*FFT_SIZE; ++i) {
+    //     std::cout << "(" << data[i].x << ", " << data[i].y << ")" << "\n";
+    // }
+    // // cuFFT
+    // std::cout << "========= cuFFT =========\n";
+    // for(size_t i = 0; i < FFT_SIZE*FFT_SIZE; ++i) {
+    //     std::cout << "(" << cufft_data[i].x << ", " << cufft_data[i].y << ")" << "\n";
     // }
 
-    // std::cout << "Max error: " << maxError << "\n";
-
-    // err = cudaDeviceSynchronize();
-    // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
-    
-    // // Retrieve device data back to host
-    // err = cudaMemcpy(x, d_x, N*sizeof(float), cudaMemcpyDeviceToHost);
-    // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer from GPU\n");
-    // err = cudaMemcpy(y, d_y, N*sizeof(float), cudaMemcpyDeviceToHost);
-    // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer from GPU\n");
-
-
-    // maxError = 0.0f;
-    // for (int i = 0; i < N; i++) {
-    //     maxError = max(maxError, abs(y[i]-4.0f));
-    // }
-    // std::cout << "Max error: " << maxError << "\n";
-
-    // cudaFree(d_x);
-    // cudaFree(d_y);
-    // free(x);
-    // free(y);
+    // Free allocated resources
+    cudaFree(gpu_pingpong0);
+    cudaFree(gpu_pingpong1);
+    free(data);
 }
