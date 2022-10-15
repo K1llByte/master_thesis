@@ -6,9 +6,9 @@
 #include "cuda_helper.hpp"
 
 #define M_PI 3.1415926535897932384626433832795
-#define FFT_SIZE 2048
-#define LOG_SIZE 11
-#define NUM_BUTTERFLIES 2
+#define FFT_SIZE 256
+#define LOG_SIZE 8
+#define NUM_BUTTERFLIES 1
 // #define BENCHMARK_RUNS 2
 
 // Actual kernel functions
@@ -62,16 +62,19 @@ float2 euler(float angle) {
 
 // GPU Kernel
 __global__
-void stockham_fft_horizontal(float2* pingpong0, float2* pingpong1, float fft_dir) {
+void stockham_fft_horizontal(float2* pingpong, float fft_dir) {
     int line = threadIdx.x;
     int column = blockIdx.x;
-    int pingpong = 0;
+    int pingpong_idx = 0;
 
     for(int stage = 0; stage < LOG_SIZE; ++stage) {
         // 1. Compute Butterflies
         int n = 1 << (LOG_SIZE - stage);
         int m = n >> 1;
         int s = 1 << stage;
+
+        int pp_read = pingpong_idx;
+        int pp_write = (pingpong_idx+1) % 2;
         for(int i = 0; i < NUM_BUTTERFLIES; ++i) {
             int idx = (line*NUM_BUTTERFLIES + i);
             // Compute p and q
@@ -79,26 +82,16 @@ void stockham_fft_horizontal(float2* pingpong0, float2* pingpong1, float fft_dir
             int q = idx % s;
             // Compute the twiddle factor
             float2 wp = euler(fft_dir * 2 * (M_PI / n) * p);
-            if(pingpong == 0) {
-                // Compute natural order butterflies
-                float2 a = pingpong0[q + s*(p + 0) + FFT_SIZE*column];
-                float2 b = pingpong0[q + s*(p + m) + FFT_SIZE*column];
+            // Compute natural order butterflies
+            float2 a = pingpong[pp_read*1 + (q + s*(p + 0))*2 + 2*FFT_SIZE*column];
+            float2 b = pingpong[pp_read*1 + (q + s*(p + m))*2 + 2*FFT_SIZE*column];
 
-                pingpong1[q + s*(2*p + 0) + FFT_SIZE*column] = complex_add(a, b);
-                pingpong1[q + s*(2*p + 1) + FFT_SIZE*column] = complex_mult(wp,complex_sub(a, b));
-            }
-            else {
-                // Compute natural order butterflies
-                float2 a = pingpong1[q + s*(p + 0) + FFT_SIZE*column];
-                float2 b = pingpong1[q + s*(p + m) + FFT_SIZE*column];
-
-                pingpong0[q + s*(2*p + 0) + FFT_SIZE*column] = complex_add(a, b);
-                pingpong0[q + s*(2*p + 1) + FFT_SIZE*column] = complex_mult(wp,complex_sub(a, b));
-            }
+            pingpong[pp_write*1 +  (q + s*(2*p + 0))*2 + 2*FFT_SIZE*column] = complex_add(a, b);
+            pingpong[pp_write*1 +  (q + s*(2*p + 1))*2 + 2*FFT_SIZE*column] = complex_mult(wp,complex_sub(a, b));
         }
 
         // 2. Update Variables
-        pingpong = ((pingpong + 1) % 2);
+        pingpong_idx = (pingpong_idx + 1) % 2;
 
         // 3. Sync by Memory Barrier
         __syncthreads();
@@ -107,16 +100,19 @@ void stockham_fft_horizontal(float2* pingpong0, float2* pingpong1, float fft_dir
 
 
 __global__
-void stockham_fft_vertical(float2* pingpong0, float2* pingpong1, float fft_dir) {
+void stockham_fft_vertical(float2* pingpong, float fft_dir) {
     int line = blockIdx.x;
     int column = threadIdx.x;
-    int pingpong = LOG_SIZE % 2;
+    int pingpong_idx = LOG_SIZE % 2;
 
     for(int stage = 0; stage < LOG_SIZE; ++stage) {
         // 1. Compute Butterflies
         int n = 1 << (LOG_SIZE - stage);
         int m = n >> 1;
         int s = 1 << stage;
+
+        int pp_read = pingpong_idx;
+        int pp_write = (pingpong_idx+1) % 2;
         for(int i = 0; i < NUM_BUTTERFLIES; ++i) {
             int idx = (column*NUM_BUTTERFLIES + i);
             // Compute p and q
@@ -124,26 +120,16 @@ void stockham_fft_vertical(float2* pingpong0, float2* pingpong1, float fft_dir) 
             int q = idx % s;
             // Compute the twiddle factor
             float2 wp = euler(fft_dir * 2 * (M_PI / n) * p);
-            if(pingpong == 0) {
-                // Compute natural order butterflies
-                float2 a = pingpong0[line + FFT_SIZE*(q + s*(p + 0))];
-                float2 b = pingpong0[line + FFT_SIZE*(q + s*(p + m))];
+            // Compute natural order butterflies
+            float2 a = pingpong[pp_read + 2*(line + FFT_SIZE*(q + s*(p + 0)))];
+            float2 b = pingpong[pp_read + 2*(line + FFT_SIZE*(q + s*(p + m)))];
 
-                pingpong1[line + FFT_SIZE*(q + s*(2*p + 0))] = complex_add(a, b);
-                pingpong1[line + FFT_SIZE*(q + s*(2*p + 1))] = complex_mult(wp,complex_sub(a, b));
-            }
-            else {
-                // Compute natural order butterflies
-                float2 a = pingpong1[line + FFT_SIZE*(q + s*(p + 0))];
-                float2 b = pingpong1[line + FFT_SIZE*(q + s*(p + m))];
-
-                pingpong0[line + FFT_SIZE*(q + s*(2*p + 0))] = complex_add(a, b);
-                pingpong0[line + FFT_SIZE*(q + s*(2*p + 1))] = complex_mult(wp,complex_sub(a, b));
-            }
+            pingpong[pp_write + 2*line + 2*FFT_SIZE*(q + s*(2*p + 0))] = complex_add(a, b);
+            pingpong[pp_write + 2*line + 2*FFT_SIZE*(q + s*(2*p + 1))] = complex_mult(wp,complex_sub(a, b));
         }
 
         // 2. Update Variables
-        pingpong = (pingpong + 1) % 2;
+        pingpong_idx = (pingpong_idx + 1) % 2;
 
         // 3. Sync by Memory Barrier
         __syncthreads();
@@ -199,27 +185,25 @@ int main() {
     ///////////////////////////////////////
     //       CUDA Implementation         //
     ///////////////////////////////////////
-    const size_t BUFFER_SIZE_BYTES = FFT_SIZE*FFT_SIZE*sizeof(float2);
+    const size_t BUFFER_SIZE_BYTES = 2*FFT_SIZE*FFT_SIZE*sizeof(float2);
 
     // Allocate host memory
     float2* data;
     data = reinterpret_cast<float2*>(malloc(BUFFER_SIZE_BYTES));
-    
+
     // Allocate device memory
-    float2* gpu_pingpong0;
-    float2* gpu_pingpong1;
-    err = cudaMalloc(&gpu_pingpong0, BUFFER_SIZE_BYTES);
-    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to allocate\n");
-    err = cudaMalloc(&gpu_pingpong1, BUFFER_SIZE_BYTES);
+    // Strided pingpong buffer
+    float2* gpu_pingpong;
+    err = cudaMalloc(&gpu_pingpong, BUFFER_SIZE_BYTES);
     CU_ERR_CHECK_MSG(err, "Cuda error: Failed to allocate\n");
 
     for(size_t i = 0; i < FFT_SIZE*FFT_SIZE; i++) {
-        data[i].x = static_cast<float>(i);
-        data[i].y = 0.f;
+        data[i*2].x = static_cast<float>(i);
+        data[i*2].y = 0.f;
     }
 
     // Upload host data to device
-    err = cudaMemcpy(gpu_pingpong0, data, BUFFER_SIZE_BYTES, cudaMemcpyHostToDevice);
+    err = cudaMemcpy(gpu_pingpong, data, BUFFER_SIZE_BYTES, cudaMemcpyHostToDevice);
     CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU\n");
 
     // std::cout << "Initialized Buffers on the GPU\n";
@@ -227,34 +211,17 @@ int main() {
     auto blocks = dim3(FFT_SIZE, 1);
     auto block_threads = dim3((FFT_SIZE / 2)/NUM_BUTTERFLIES, 1);
 
-    // std::cout << "CUDA Horizontal: " << benchmark([&]() {
-    //     // Horizontal pass
-    //     // Sync after execution
-    //     stockham_fft_horizontal<<<blocks, block_threads>>>(gpu_pingpong0, gpu_pingpong1, -1.f);
-    //     err = cudaDeviceSynchronize();
-    //     CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
-    //     // std::cout << "Sinchronized after execution\n";
-    // }) << "ms\n";
 
-    // std::cout << "CUDA Vertical: " << benchmark([&]() {
-    //     // Vertical pass
-    //     // Sync after execution
-    //     stockham_fft_vertical<<<blocks, block_threads>>>(gpu_pingpong0, gpu_pingpong1, -1.f);
-    //     err = cudaDeviceSynchronize();
-    //     CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
-    //     // std::cout << "Sinchronized after execution\n";
-    // }) << "ms\n";
-
-    std::cout << "CUDA: " << benchmark([&]() {
+    std::cout << "CUDA Branchless: " << benchmark([&]() {
         // Horizontal pass
         // Sync after execution
-        stockham_fft_horizontal<<<blocks, block_threads>>>(gpu_pingpong0, gpu_pingpong1, -1.f);
+        stockham_fft_horizontal<<<blocks, block_threads>>>(gpu_pingpong, -1.f);
         // err = cudaDeviceSynchronize();
         // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
 
         // Vertical pass
         // Sync after execution
-        stockham_fft_vertical<<<blocks, block_threads>>>(gpu_pingpong0, gpu_pingpong1, -1.f);
+        stockham_fft_vertical<<<blocks, block_threads>>>(gpu_pingpong, -1.f);
         err = cudaDeviceSynchronize();
         CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
     }) << "ms\n";
@@ -263,7 +230,7 @@ int main() {
     // Retrieve device data back to host
     err = cudaMemcpy(
         data,
-        (LOG_SIZE % 2 == 0) ? gpu_pingpong0 : gpu_pingpong1,
+        gpu_pingpong,
         BUFFER_SIZE_BYTES,
         cudaMemcpyDeviceToHost
     );
@@ -282,7 +249,6 @@ int main() {
     // }
 
     // Free allocated resources
-    cudaFree(gpu_pingpong0);
-    cudaFree(gpu_pingpong1);
+    cudaFree(gpu_pingpong);
     free(data);
 }
