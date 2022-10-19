@@ -6,8 +6,8 @@
 #include "cuda_helper.hpp"
 
 #define M_PI 3.1415926535897932384626433832795
-#define FFT_SIZE 256
-#define LOG_SIZE 8
+#define FFT_SIZE 2048
+#define LOG_SIZE 11
 #define NUM_BUTTERFLIES 1
 // #define BENCHMARK_RUNS 2
 
@@ -28,11 +28,15 @@
 
 inline double benchmark(std::function<void()> func)
 {
-    auto begin = std::chrono::high_resolution_clock::now();
-    func();
-    auto end = std::chrono::high_resolution_clock::now();
-    auto cpu_time = std::chrono::duration<double, std::milli>(end-begin).count();
-    return cpu_time;
+    double time_all = 0.;
+    int NUM_RUNS = 5;
+    for(int i = 0; i < NUM_RUNS; ++i) {
+        auto begin = std::chrono::high_resolution_clock::now();
+        func();
+        auto end = std::chrono::high_resolution_clock::now();
+        time_all += std::chrono::duration<double, std::milli>(end-begin).count();
+    }
+    return time_all / NUM_RUNS;
 }
 
 

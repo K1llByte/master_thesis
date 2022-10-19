@@ -6,8 +6,9 @@
 #include "cuda_helper.hpp"
 
 #define M_PI 3.1415926535897932384626433832795
-#define FFT_SIZE 256
-#define LOG_SIZE 8 
+#define FFT_SIZE 1024
+#define LOG_SIZE 10
+#define HALF_LOG_SIZE 5
 #define NUM_BUTTERFLIES 1
 // #define BENCHMARK_RUNS 2
 
@@ -16,6 +17,7 @@
 #define CU_ERR_CHECK_MSG(err, msg) {  \
     if(err != cudaSuccess) {          \
         fprintf(stderr, msg);         \
+        fprintf(stderr, "%d", int(err));      \
         exit(1);                      \
     }                                 \
 }
@@ -71,33 +73,59 @@ void stockham_fft_horizontal(float2* pingpong0, float2* pingpong1, float fft_dir
     int column = blockIdx.x;
     int pingpong = 0;
 
-    for(int stage = 0; stage < LOG_SIZE; ++stage) {
+    for(int stage = 0; stage < HALF_LOG_SIZE; ++stage) {
         // 1. Compute Butterflies
-        int n = 1 << (LOG_SIZE - stage);
-        int m = n >> 1;
-        int s = 1 << stage;
+
+        int n = 1 << ((HALF_LOG_SIZE - stage)*2);
+        int s = 1 << (stage*2);
+
+        int n0 = 0;
+        int n1 = n/4;
+        int n2 = n/2;
+        int n3 = n1 + n2; // 3N/4
+
         for(int i = 0; i < NUM_BUTTERFLIES; ++i) {
             int idx = (line*NUM_BUTTERFLIES + i);
             // Compute p and q
             int p = idx / s;
             int q = idx % s;
-            // Compute the twiddle factor
-            float2 wp = euler(fft_dir * 2 * (M_PI / n) * p);
+            // Compute the twiddle factors (2*(M_PI / n)) is constant
+            float2 w1p = euler(-2*(M_PI / n) * p);
+            float2 w2p = complex_mult(w1p,w1p);
+            float2 w3p = complex_mult(w1p,w2p);
             if(pingpong == 0) {
                 // Compute natural order butterflies
-                float2 a = pingpong0[q + s*(p + 0) + FFT_SIZE*column];
-                float2 b = pingpong0[q + s*(p + m) + FFT_SIZE*column];
+                float2 a = pingpong0[q + s*(p + n0) + FFT_SIZE*column];
+                float2 b = pingpong0[q + s*(p + n1) + FFT_SIZE*column];
+                float2 c = pingpong0[q + s*(p + n2) + FFT_SIZE*column];
+                float2 d = pingpong0[q + s*(p + n3) + FFT_SIZE*column];
 
-                pingpong1[q + s*(2*p + 0) + FFT_SIZE*column] = complex_add(a, b);
-                pingpong1[q + s*(2*p + 1) + FFT_SIZE*column] = complex_mult(wp,complex_sub(a, b));
+                float2 apc = complex_add(a,c);
+                float2 amc = complex_sub(a,c);
+                float2 bpd = complex_add(b,d);
+                float2 jbmd = complex_mult(float2{0,1}, complex_sub(b,d));
+
+                pingpong1[q + s*(4*p + 0) + FFT_SIZE*column] = complex_add(apc, bpd);
+                pingpong1[q + s*(4*p + 1) + FFT_SIZE*column] = complex_mult(w1p, complex_sub(amc, jbmd));
+                pingpong1[q + s*(4*p + 2) + FFT_SIZE*column] = complex_mult(w2p, complex_sub(apc, bpd));
+                pingpong1[q + s*(4*p + 3) + FFT_SIZE*column] = complex_mult(w3p, complex_add(amc, jbmd));
             }
             else {
                 // Compute natural order butterflies
-                float2 a = pingpong1[q + s*(p + 0) + FFT_SIZE*column];
-                float2 b = pingpong1[q + s*(p + m) + FFT_SIZE*column];
+                float2 a = pingpong1[q + s*(p + n0) + FFT_SIZE*column];
+                float2 b = pingpong1[q + s*(p + n1) + FFT_SIZE*column];
+                float2 c = pingpong1[q + s*(p + n2) + FFT_SIZE*column];
+                float2 d = pingpong1[q + s*(p + n3) + FFT_SIZE*column];
 
-                pingpong0[q + s*(2*p + 0) + FFT_SIZE*column] = complex_add(a, b);
-                pingpong0[q + s*(2*p + 1) + FFT_SIZE*column] = complex_mult(wp,complex_sub(a, b));
+                float2 apc = complex_add(a,c);
+                float2 amc = complex_sub(a,c);
+                float2 bpd = complex_add(b,d);
+                float2 jbmd = complex_mult(float2{0,1}, complex_sub(b,d));
+
+                pingpong0[q + s*(4*p + 0) + FFT_SIZE*column] = complex_add(apc, bpd);
+                pingpong0[q + s*(4*p + 1) + FFT_SIZE*column] = complex_mult(w1p, complex_sub(amc, jbmd));
+                pingpong0[q + s*(4*p + 2) + FFT_SIZE*column] = complex_mult(w2p, complex_sub(apc, bpd));
+                pingpong0[q + s*(4*p + 3) + FFT_SIZE*column] = complex_mult(w3p, complex_add(amc, jbmd));
             }
         }
 
@@ -114,35 +142,60 @@ __global__
 void stockham_fft_vertical(float2* pingpong0, float2* pingpong1, float fft_dir) {
     int line = blockIdx.x;
     int column = threadIdx.x;
-    int pingpong = LOG_SIZE % 2;
+    int pingpong = HALF_LOG_SIZE % 2;
 
-    for(int stage = 0; stage < LOG_SIZE; ++stage) {
+    for(int stage = 0; stage < HALF_LOG_SIZE; ++stage) {
         // 1. Compute Butterflies
-        int n = 1 << (LOG_SIZE - stage);
-        int m = n >> 1;
-        int s = 1 << stage;
+        int n = 1 << ((HALF_LOG_SIZE - stage)*2);
+        int s = 1 << (stage*2);
+
+        int n0 = 0;
+        int n1 = n/4;
+        int n2 = n/2;
+        int n3 = n1 + n2; // 3N/4
+
         for(int i = 0; i < NUM_BUTTERFLIES; ++i) {
             int idx = (column*NUM_BUTTERFLIES + i);
             // Compute p and q
             int p = idx / s;
             int q = idx % s;
-            // Compute the twiddle factor
-            float2 wp = euler(fft_dir * 2 * (M_PI / n) * p);
+            // Compute the twiddle factors (2*(M_PI / n)) is constant
+            float2 w1p = euler(-2*(M_PI / n) * p);
+            float2 w2p = complex_mult(w1p,w1p);
+            float2 w3p = complex_mult(w1p,w2p);
             if(pingpong == 0) {
                 // Compute natural order butterflies
-                float2 a = pingpong0[line + FFT_SIZE*(q + s*(p + 0))];
-                float2 b = pingpong0[line + FFT_SIZE*(q + s*(p + m))];
+                float2 a = pingpong0[line + FFT_SIZE*(q + s*(p + n0))];
+                float2 b = pingpong0[line + FFT_SIZE*(q + s*(p + n1))];
+                float2 c = pingpong0[line + FFT_SIZE*(q + s*(p + n2))];
+                float2 d = pingpong0[line + FFT_SIZE*(q + s*(p + n3))];
 
-                pingpong1[line + FFT_SIZE*(q + s*(2*p + 0))] = complex_add(a, b);
-                pingpong1[line + FFT_SIZE*(q + s*(2*p + 1))] = complex_mult(wp,complex_sub(a, b));
+                float2 apc = complex_add(a,c);
+                float2 amc = complex_sub(a,c);
+                float2 bpd = complex_add(b,d);
+                float2 jbmd = complex_mult(float2{0,1}, complex_sub(b,d));
+
+                pingpong1[line + FFT_SIZE*(q + s*(4*p + 0))] = complex_add(apc, bpd);
+                pingpong1[line + FFT_SIZE*(q + s*(4*p + 1))] = complex_mult(w1p, complex_sub(amc, jbmd));
+                pingpong1[line + FFT_SIZE*(q + s*(4*p + 2))] = complex_mult(w2p, complex_sub(apc, bpd));
+                pingpong1[line + FFT_SIZE*(q + s*(4*p + 3))] = complex_mult(w3p, complex_add(amc, jbmd));
             }
             else {
                 // Compute natural order butterflies
-                float2 a = pingpong1[line + FFT_SIZE*(q + s*(p + 0))];
-                float2 b = pingpong1[line + FFT_SIZE*(q + s*(p + m))];
+                float2 a = pingpong1[line + FFT_SIZE*(q + s*(p + n0))];
+                float2 b = pingpong1[line + FFT_SIZE*(q + s*(p + n1))];
+                float2 c = pingpong1[line + FFT_SIZE*(q + s*(p + n2))];
+                float2 d = pingpong1[line + FFT_SIZE*(q + s*(p + n3))];
 
-                pingpong0[line + FFT_SIZE*(q + s*(2*p + 0))] = complex_add(a, b);
-                pingpong0[line + FFT_SIZE*(q + s*(2*p + 1))] = complex_mult(wp,complex_sub(a, b));
+                float2 apc = complex_add(a,c);
+                float2 amc = complex_sub(a,c);
+                float2 bpd = complex_add(b,d);
+                float2 jbmd = complex_mult(float2{0,1}, complex_sub(b,d));
+
+                pingpong0[line + FFT_SIZE*(q + s*(4*p + 0))] = complex_add(apc, bpd);
+                pingpong0[line + FFT_SIZE*(q + s*(4*p + 1))] = complex_mult(w1p, complex_sub(amc, jbmd));
+                pingpong0[line + FFT_SIZE*(q + s*(4*p + 2))] = complex_mult(w2p, complex_sub(apc, bpd));
+                pingpong0[line + FFT_SIZE*(q + s*(4*p + 3))] = complex_mult(w3p, complex_add(amc, jbmd));
             }
         }
 
@@ -229,7 +282,7 @@ int main() {
     // std::cout << "Initialized Buffers on the GPU\n";
     // Compute FFT
     auto blocks = dim3(FFT_SIZE, 1);
-    auto block_threads = dim3((FFT_SIZE / 2)/NUM_BUTTERFLIES, 1);
+    auto block_threads = dim3((FFT_SIZE / 4)/NUM_BUTTERFLIES, 1);
 
     // std::cout << "CUDA Horizontal: " << benchmark([&]() {
     //     // Horizontal pass
@@ -273,8 +326,8 @@ int main() {
     );
     CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer from GPU\n");
 
-    // // Print results
-    // // CUDA
+    // Print results
+    // CUDA
     // std::cout << "========= CUDA =========\n";
     // for(size_t i = 0; i < FFT_SIZE*FFT_SIZE; ++i) {
     //     std::cout << "(" << data[i].x << ", " << data[i].y << ")" << "\n";
