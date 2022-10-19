@@ -46,7 +46,7 @@
         </viewports>	
         
         <materialLibs>
-            <materialLib filename="fft1024_stockham.mlib"/>
+            <materialLib filename="fft1024_stockham_radix4.mlib"/>
         </materialLibs>
         
     </assets>
