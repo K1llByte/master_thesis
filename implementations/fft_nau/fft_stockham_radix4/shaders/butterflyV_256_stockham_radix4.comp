@@ -31,7 +31,7 @@ void main() {
 	int column = int(gl_GlobalInvocationID.x);
     int pingpong = HALF_LOG_SIZE % 2;
 
-    for(int stage = 0; stage < LOG_SIZE; ++stage) {
+    for(int stage = 0; stage < HALF_LOG_SIZE; ++stage) {
         // Each iteration on this loop corresponds
         // to a stage iteration on each reserved positions
         // for this thread
@@ -50,7 +50,7 @@ void main() {
 
         // last stage
 	    float mult_factor = 1.0;
-	    if ((stage == HALF_LOG_SIZE - 1) && fft_dir == 1) {
+	    if((stage == HALF_LOG_SIZE - 1) && fft_dir == 1) {
 	    	mult_factor = 1.0 / (FFT_SIZE*FFT_SIZE) ;
 	    }
 
@@ -61,7 +61,7 @@ void main() {
             int q = idx % s;
 
             // Compute the twiddle factors
-            vec2 w1p = euler(-2*(M_PI / n) * p);
+            vec2 w1p = euler(2*(M_PI / n) * p * fft_dir);
             vec2 w2p = complex_mult(w1p,w1p);
             vec2 w3p = complex_mult(w1p,w2p);
 
@@ -77,10 +77,10 @@ void main() {
                 vec2 bpd = b + d;
                 vec2 jbmd = complex_mult(vec2(0,1), b - d);
 
-                imageStore(pingpong1, ivec2(line, q + s*(4*p + 0)), mult_factor * vec4(apc + bpd, 0,0));
-                imageStore(pingpong1, ivec2(line, q + s*(4*p + 1)), mult_factor * vec4(complex_mult(w1p, amc - jbmd), 0,0));
-                imageStore(pingpong1, ivec2(line, q + s*(4*p + 2)), mult_factor * vec4(complex_mult(w2p, apc - bpd ), 0,0));
-                imageStore(pingpong1, ivec2(line, q + s*(4*p + 3)), mult_factor * vec4(complex_mult(w3p, amc + jbmd), 0,0));
+                imageStore(pingpong1, ivec2(line, q + s*(4*p + 0)), vec4(mult_factor * (apc + bpd), 0,0));
+                imageStore(pingpong1, ivec2(line, q + s*(4*p + 1)), vec4(mult_factor * (complex_mult(w1p, amc + jbmd*fft_dir)), 0,0));
+                imageStore(pingpong1, ivec2(line, q + s*(4*p + 2)), vec4(mult_factor * (complex_mult(w2p, apc - bpd )), 0,0));
+                imageStore(pingpong1, ivec2(line, q + s*(4*p + 3)), vec4(mult_factor * (complex_mult(w3p, amc - jbmd*fft_dir)), 0,0));
             }
             else {
                 // Compute natural order butterflies
@@ -94,10 +94,10 @@ void main() {
                 vec2 bpd = b + d;
                 vec2 jbmd = complex_mult(vec2(0,1), b - d);
 
-                imageStore(pingpong0, ivec2(line, q + s*(4*p + 0)), mult_factor * vec4(apc + bpd, 0,0));
-                imageStore(pingpong0, ivec2(line, q + s*(4*p + 1)), mult_factor * vec4(complex_mult(w1p, amc - jbmd), 0,0));
-                imageStore(pingpong0, ivec2(line, q + s*(4*p + 2)), mult_factor * vec4(complex_mult(w2p, apc - bpd ), 0,0));
-                imageStore(pingpong0, ivec2(line, q + s*(4*p + 3)), mult_factor * vec4(complex_mult(w3p, amc + jbmd), 0,0));
+                imageStore(pingpong0, ivec2(line, q + s*(4*p + 0)), vec4(mult_factor * (apc + bpd), 0,0));
+                imageStore(pingpong0, ivec2(line, q + s*(4*p + 1)), vec4(mult_factor * (complex_mult(w1p, amc + jbmd*fft_dir)), 0,0));
+                imageStore(pingpong0, ivec2(line, q + s*(4*p + 2)), vec4(mult_factor * (complex_mult(w2p, apc - bpd )), 0,0));
+                imageStore(pingpong0, ivec2(line, q + s*(4*p + 3)), vec4(mult_factor * (complex_mult(w3p, amc - jbmd*fft_dir)), 0,0));
             }
         }
 
