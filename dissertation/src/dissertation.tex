@@ -1176,11 +1176,14 @@ To be able to analyse the implementation of FFT on the GPU, we need to provide s
 % Compute pipeline
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% TODO: Rewrite 
+% TODO: Rewrite this phrase
 The Graphics Processing Unit (GPU) provides much higher instruction throughput and memory bandwidth than the CPU within a similar price and power envelope having a much faster performance growth curve. Many applications leverage these higher capabilities to run faster on the GPU than on the CPU. While the hardware may change some components and architecture on different models, fundamentally most modern GPUs use single instruction multiple data (SIMD) stream architecture.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 A SIMD stream architecture forwards an instruction to multiple cores with dedicated memory for each instance, allowing data-level parallelism to compute more quickly and effectively.
-A CPU usually uses a von Neumann architecture, so it executes instructions sequentially one at a time and updates the memory progressively, however a stream architecture processor works in a slightly different way, they contain multiple streams of simpler processors with shared memory just like the ilustration in \autoref{fig:cpu-gpu} These processors execute programs called kernels that receive a finite set of input fragments to produce another set of output fragments in parallel \cite{fernando2004gpu}. This paradigm revolutionised the industry and with its evolution came the General Purpose Graphics Processing Unit (GPGPU) which allows this type of hardware to compute highly parallel procedures similarly to a CPU but with all the advantages of a GPU. 
+A CPU usually uses a von Neumann architecture, so it executes instructions sequentially one at a time and updates the memory progressively, however a stream architecture processor works in a slightly different way, they contain multiple streams of simpler processors with shared memory just like the ilustration in \autoref{fig:cpu-gpu}. These processors execute programs called kernels that receive a finite set of input fragments to produce another set of output fragments in parallel \cite{fernando2004gpu}. This paradigm revolutionised the industry and with its evolution came the General Purpose Graphics Processing Unit (GPGPU) which allows this type of hardware to compute highly parallel procedures similarly to a CPU but with all the advantages of a GPU. 
+Nowadays most GPUs provide this general purpose programming functionality and many parallel computing platforms help us take advantage of that such as Nvidia’s CUDA, OpenCL, or even graphics APIs like OpenGL with compute shaders. These tools help abstract the hardware and provide facilities to allow developers to focus on higher-level computing procedures.
+
+platforms allow developers to ignore the language barrier that exists between the CPU and the GPU and, instead, focus on higher-level computing concepts.
 
 \begin{figure}[h]
     \centering
@@ -1189,18 +1192,18 @@ A CPU usually uses a von Neumann architecture, so it executes instructions seque
     \label{fig:cpu-gpu}
 \end{figure}
 
+% FIXME: NOT SURE IF 'attend' HAS THE CORRECT MEANING IN THIS SENTENCE
+Developers and researchers often attend more specific scenarios and they configure multiple GPUs with distributed workflows in sync with each other to take better advantage of this hardware for more intensive problems \cite{heldens2022lightning}.
 
-The GPU programming model is bla bla bla \cite{CUDAcppguide}.
+The GPU programming model although sophisticated, at its core it provides dispatcheable thread groups, shared memories and GPU barries for synchronisation of threads, such abstractions provide data and thread level parallelism and offer to the developer more \cite{CUDAcppguide}.
 
-in a more extreme scenario there is the possibility of configuring multiple GPUs with distributed workflows for more intensive problems \cite{heldens2022lightning}.
-
-
+% - Talk about the programming model, the concepts of a warp/Work groups and threads/local groups
 
 
 \section{Fourier Transform on the GPU}
 % - 2D FFT's (if not exists already)
 % - Two pass approach for Horizontal and Vetical passes
-% - Matrix transposition
+% - Matrix transposition metion
 \section{Implementation Analysis in GLSL}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -6,9 +6,9 @@
 #include "cuda_helper.hpp"
 
 #define M_PI 3.1415926535897932384626433832795
-#define FFT_SIZE 1024
-#define LOG_SIZE 10
-#define HALF_LOG_SIZE 5
+#define FFT_SIZE 256
+#define LOG_SIZE 8
+#define HALF_LOG_SIZE 4
 #define NUM_BUTTERFLIES 1
 // #define BENCHMARK_RUNS 2
 
@@ -31,7 +31,7 @@
 inline double benchmark(std::function<void()> func)
 {
     double time_all = 0.;
-    int NUM_RUNS = 10;
+    int NUM_RUNS = 1;
     for(int i = 0; i < NUM_RUNS; ++i) {
         auto begin = std::chrono::high_resolution_clock::now();
         func();
@@ -68,7 +68,7 @@ float2 euler(float angle) {
 
 // GPU Kernel
 __global__
-void stockham_fft_horizontal(float2* pingpong0, float2* pingpong1, float fft_dir) {
+void stockham_fft_horizontal(cudaSurfaceObject_t pingpong0, cudaSurfaceObject_t pingpong1, float fft_dir) {
     int line = threadIdx.x;
     int column = blockIdx.x;
     int pingpong = 0;
@@ -95,37 +95,37 @@ void stockham_fft_horizontal(float2* pingpong0, float2* pingpong1, float fft_dir
             float2 w3p = complex_mult(w1p,w2p);
             if(pingpong == 0) {
                 // Compute natural order butterflies
-                float2 a = pingpong0[q + s*(p + n0) + FFT_SIZE*column];
-                float2 b = pingpong0[q + s*(p + n1) + FFT_SIZE*column];
-                float2 c = pingpong0[q + s*(p + n2) + FFT_SIZE*column];
-                float2 d = pingpong0[q + s*(p + n3) + FFT_SIZE*column];
+                float2 a = surf2Dread<float2>(pingpong0, q + s*(p + n0), column);
+                float2 b = surf2Dread<float2>(pingpong0, q + s*(p + n1), column);
+                float2 c = surf2Dread<float2>(pingpong0, q + s*(p + n2), column);
+                float2 d = surf2Dread<float2>(pingpong0, q + s*(p + n3), column);
 
                 float2 apc = complex_add(a,c);
                 float2 amc = complex_sub(a,c);
                 float2 bpd = complex_add(b,d);
                 float2 jbmd = complex_mult(float2{0,1}, complex_sub(b,d));
 
-                pingpong1[q + s*(4*p + 0) + FFT_SIZE*column] = complex_add(apc, bpd);
-                pingpong1[q + s*(4*p + 1) + FFT_SIZE*column] = complex_mult(w1p, complex_sub(amc, jbmd));
-                pingpong1[q + s*(4*p + 2) + FFT_SIZE*column] = complex_mult(w2p, complex_sub(apc, bpd));
-                pingpong1[q + s*(4*p + 3) + FFT_SIZE*column] = complex_mult(w3p, complex_add(amc, jbmd));
+                surf2Dwrite<float2>(complex_add(apc, bpd)                    , pingpong1, q + s*(4*p + 0), column);
+                surf2Dwrite<float2>(complex_mult(w1p, complex_sub(amc, jbmd)), pingpong1, q + s*(4*p + 1), column);
+                surf2Dwrite<float2>(complex_mult(w2p, complex_sub(apc, bpd)) , pingpong1, q + s*(4*p + 2), column);
+                surf2Dwrite<float2>(complex_mult(w3p, complex_add(amc, jbmd)), pingpong1, q + s*(4*p + 3), column);
             }
             else {
                 // Compute natural order butterflies
-                float2 a = pingpong1[q + s*(p + n0) + FFT_SIZE*column];
-                float2 b = pingpong1[q + s*(p + n1) + FFT_SIZE*column];
-                float2 c = pingpong1[q + s*(p + n2) + FFT_SIZE*column];
-                float2 d = pingpong1[q + s*(p + n3) + FFT_SIZE*column];
+                float2 a = surf2Dread<float2>(pingpong1, q + s*(p + n0), column);
+                float2 b = surf2Dread<float2>(pingpong1, q + s*(p + n1), column);
+                float2 c = surf2Dread<float2>(pingpong1, q + s*(p + n2), column);
+                float2 d = surf2Dread<float2>(pingpong1, q + s*(p + n3), column);
 
                 float2 apc = complex_add(a,c);
                 float2 amc = complex_sub(a,c);
                 float2 bpd = complex_add(b,d);
                 float2 jbmd = complex_mult(float2{0,1}, complex_sub(b,d));
 
-                pingpong0[q + s*(4*p + 0) + FFT_SIZE*column] = complex_add(apc, bpd);
-                pingpong0[q + s*(4*p + 1) + FFT_SIZE*column] = complex_mult(w1p, complex_sub(amc, jbmd));
-                pingpong0[q + s*(4*p + 2) + FFT_SIZE*column] = complex_mult(w2p, complex_sub(apc, bpd));
-                pingpong0[q + s*(4*p + 3) + FFT_SIZE*column] = complex_mult(w3p, complex_add(amc, jbmd));
+                surf2Dwrite<float2>(complex_add(apc, bpd)                    , pingpong0, q + s*(4*p + 0), column);
+                surf2Dwrite<float2>(complex_mult(w1p, complex_sub(amc, jbmd)), pingpong0, q + s*(4*p + 1), column);
+                surf2Dwrite<float2>(complex_mult(w2p, complex_sub(apc, bpd)) , pingpong0, q + s*(4*p + 2), column);
+                surf2Dwrite<float2>(complex_mult(w3p, complex_add(amc, jbmd)), pingpong0, q + s*(4*p + 3), column);
             }
         }
 
@@ -139,7 +139,7 @@ void stockham_fft_horizontal(float2* pingpong0, float2* pingpong1, float fft_dir
 
 
 __global__
-void stockham_fft_vertical(float2* pingpong0, float2* pingpong1, float fft_dir) {
+void stockham_fft_vertical(cudaSurfaceObject_t pingpong0, cudaSurfaceObject_t pingpong1, float fft_dir) {
     int line = blockIdx.x;
     int column = threadIdx.x;
     int pingpong = HALF_LOG_SIZE % 2;
@@ -165,37 +165,37 @@ void stockham_fft_vertical(float2* pingpong0, float2* pingpong1, float fft_dir) 
             float2 w3p = complex_mult(w1p,w2p);
             if(pingpong == 0) {
                 // Compute natural order butterflies
-                float2 a = pingpong0[line + FFT_SIZE*(q + s*(p + n0))];
-                float2 b = pingpong0[line + FFT_SIZE*(q + s*(p + n1))];
-                float2 c = pingpong0[line + FFT_SIZE*(q + s*(p + n2))];
-                float2 d = pingpong0[line + FFT_SIZE*(q + s*(p + n3))];
+                float2 a = surf2Dread<float2>(pingpong0, line, q + s*(p + n0));
+                float2 b = surf2Dread<float2>(pingpong0, line, q + s*(p + n1));
+                float2 c = surf2Dread<float2>(pingpong0, line, q + s*(p + n2));
+                float2 d = surf2Dread<float2>(pingpong0, line, q + s*(p + n3));
 
                 float2 apc = complex_add(a,c);
                 float2 amc = complex_sub(a,c);
                 float2 bpd = complex_add(b,d);
                 float2 jbmd = complex_mult(float2{0,1}, complex_sub(b,d));
 
-                pingpong1[line + FFT_SIZE*(q + s*(4*p + 0))] = complex_add(apc, bpd);
-                pingpong1[line + FFT_SIZE*(q + s*(4*p + 1))] = complex_mult(w1p, complex_sub(amc, jbmd));
-                pingpong1[line + FFT_SIZE*(q + s*(4*p + 2))] = complex_mult(w2p, complex_sub(apc, bpd));
-                pingpong1[line + FFT_SIZE*(q + s*(4*p + 3))] = complex_mult(w3p, complex_add(amc, jbmd));
+                surf2Dwrite(complex_add(apc, bpd)                    , pingpong1, line, q + s*(4*p + 0));
+                surf2Dwrite(complex_mult(w1p, complex_sub(amc, jbmd)), pingpong1, line, q + s*(4*p + 1));
+                surf2Dwrite(complex_mult(w2p, complex_sub(apc, bpd)) , pingpong1, line, q + s*(4*p + 2));
+                surf2Dwrite(complex_mult(w3p, complex_add(amc, jbmd)), pingpong1, line, q + s*(4*p + 3));
             }
             else {
                 // Compute natural order butterflies
-                float2 a = pingpong1[line + FFT_SIZE*(q + s*(p + n0))];
-                float2 b = pingpong1[line + FFT_SIZE*(q + s*(p + n1))];
-                float2 c = pingpong1[line + FFT_SIZE*(q + s*(p + n2))];
-                float2 d = pingpong1[line + FFT_SIZE*(q + s*(p + n3))];
+                float2 a = surf2Dread<float2>(pingpong1, line, q + s*(p + n0));
+                float2 b = surf2Dread<float2>(pingpong1, line, q + s*(p + n1));
+                float2 c = surf2Dread<float2>(pingpong1, line, q + s*(p + n2));
+                float2 d = surf2Dread<float2>(pingpong1, line, q + s*(p + n3));
 
                 float2 apc = complex_add(a,c);
                 float2 amc = complex_sub(a,c);
                 float2 bpd = complex_add(b,d);
                 float2 jbmd = complex_mult(float2{0,1}, complex_sub(b,d));
 
-                pingpong0[line + FFT_SIZE*(q + s*(4*p + 0))] = complex_add(apc, bpd);
-                pingpong0[line + FFT_SIZE*(q + s*(4*p + 1))] = complex_mult(w1p, complex_sub(amc, jbmd));
-                pingpong0[line + FFT_SIZE*(q + s*(4*p + 2))] = complex_mult(w2p, complex_sub(apc, bpd));
-                pingpong0[line + FFT_SIZE*(q + s*(4*p + 3))] = complex_mult(w3p, complex_add(amc, jbmd));
+                surf2Dwrite(complex_add(apc, bpd)                    , pingpong0, line, q + s*(4*p + 0));
+                surf2Dwrite(complex_mult(w1p, complex_sub(amc, jbmd)), pingpong0, line, q + s*(4*p + 1));
+                surf2Dwrite(complex_mult(w2p, complex_sub(apc, bpd)) , pingpong0, line, q + s*(4*p + 2));
+                surf2Dwrite(complex_mult(w3p, complex_add(amc, jbmd)), pingpong0, line, q + s*(4*p + 3));
             }
         }
 
@@ -207,6 +207,44 @@ void stockham_fft_vertical(float2* pingpong0, float2* pingpong1, float fft_dir) 
     }
 }
 
+
+struct Texture {
+    cudaSurfaceObject_t surface = 0;
+    cudaArray_t array;
+};
+Texture create_surface(float* source = nullptr) {
+    Texture res;
+    // Allocate CUDA arrays in device memory
+    cudaChannelFormatDesc channelDesc =
+        cudaCreateChannelDesc(32, 32, 0, 0, cudaChannelFormatKindFloat);
+    cudaMallocArray(&res.array, &channelDesc, FFT_SIZE, FFT_SIZE,
+                    cudaArraySurfaceLoadStore);
+
+    if(source != nullptr) {
+        // Set pitch of the source (the width in memory in bytes of the 2D array
+        // pointed to by src, including padding), we dont have any padding
+        const size_t spitch = 2 * FFT_SIZE * sizeof(float);
+        // Copy data located at address h_data in host memory to device memory
+        cudaMemcpy2DToArray(res.array, 0, 0, source, spitch,
+                            2 * FFT_SIZE * sizeof(float), FFT_SIZE,
+                            cudaMemcpyHostToDevice);
+    }
+
+    // Specify surface
+    struct cudaResourceDesc resDesc;
+    memset(&resDesc, 0, sizeof(resDesc));
+    resDesc.resType = cudaResourceTypeArray;
+
+    // Create the surface objects
+    resDesc.res.array.array = res.array;
+    cudaCreateSurfaceObject(&res.surface, &resDesc);
+    return res;
+}
+
+void destroy_surface(Texture& tex) {
+    cudaDestroySurfaceObject(tex.surface);
+    cudaFreeArray(tex.array);
+}
 
 // Host code
 int main() {
@@ -256,75 +294,46 @@ int main() {
     ///////////////////////////////////////
     //       CUDA Implementation         //
     ///////////////////////////////////////
-    const size_t BUFFER_SIZE_BYTES = FFT_SIZE*FFT_SIZE*sizeof(float2);
+    const size_t BUFFER_SIZE_BYTES = FFT_SIZE*FFT_SIZE*sizeof(float)*2;
 
     // Allocate host memory
-    float2* data;
-    data = reinterpret_cast<float2*>(malloc(BUFFER_SIZE_BYTES));
+    float* data;
+    data = reinterpret_cast<float*>(malloc(BUFFER_SIZE_BYTES));
+    // Initialize host memory
+    for(size_t i = 0; i < FFT_SIZE*FFT_SIZE; i++) {
+        data[i*2] = static_cast<float>(i);
+        data[(i+1)*2] = 0.f;
+    }
     
     // Allocate device memory
-    float2* gpu_pingpong0;
-    float2* gpu_pingpong1;
-    err = cudaMalloc(&gpu_pingpong0, BUFFER_SIZE_BYTES);
-    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to allocate\n");
-    err = cudaMalloc(&gpu_pingpong1, BUFFER_SIZE_BYTES);
-    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to allocate\n");
+    auto gpu_pp0 = create_surface(data);
+    auto gpu_pp1 = create_surface();
 
-    for(size_t i = 0; i < FFT_SIZE*FFT_SIZE; i++) {
-        data[i].x = static_cast<float>(i);
-        data[i].y = 0.f;
-    }
-
-    // Upload host data to device
-    err = cudaMemcpy(gpu_pingpong0, data, BUFFER_SIZE_BYTES, cudaMemcpyHostToDevice);
-    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU\n");
-
-    // std::cout << "Initialized Buffers on the GPU\n";
     // Compute FFT
     auto blocks = dim3(FFT_SIZE, 1);
     auto block_threads = dim3((FFT_SIZE / 4)/NUM_BUTTERFLIES, 1);
 
-    // std::cout << "CUDA Horizontal: " << benchmark([&]() {
-    //     // Horizontal pass
-    //     // Sync after execution
-    //     stockham_fft_horizontal<<<blocks, block_threads>>>(gpu_pingpong0, gpu_pingpong1, -1.f);
-    //     err = cudaDeviceSynchronize();
-    //     CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
-    //     // std::cout << "Sinchronized after execution\n";
-    // }) << "ms\n";
-
-    // std::cout << "CUDA Vertical: " << benchmark([&]() {
-    //     // Vertical pass
-    //     // Sync after execution
-    //     stockham_fft_vertical<<<blocks, block_threads>>>(gpu_pingpong0, gpu_pingpong1, -1.f);
-    //     err = cudaDeviceSynchronize();
-    //     CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
-    //     // std::cout << "Sinchronized after execution\n";
-    // }) << "ms\n";
-
     std::cout << "CUDA: " << benchmark([&]() {
         // Horizontal pass
         // Sync after execution
-        stockham_fft_horizontal<<<blocks, block_threads>>>(gpu_pingpong0, gpu_pingpong1, -1.f);
-        // err = cudaDeviceSynchronize();
-        // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
+        stockham_fft_horizontal<<<blocks, block_threads>>>(gpu_pp0.surface, gpu_pp1.surface, -1.f);
 
         // Vertical pass
         // Sync after execution
-        stockham_fft_vertical<<<blocks, block_threads>>>(gpu_pingpong0, gpu_pingpong1, -1.f);
+        stockham_fft_vertical<<<blocks, block_threads>>>(gpu_pp0.surface, gpu_pp1.surface, -1.f);
         err = cudaDeviceSynchronize();
         CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
     }) << "ms\n";
 
 
-    // Retrieve device data back to host
-    err = cudaMemcpy(
-        data,
-        (LOG_SIZE % 2 == 0) ? gpu_pingpong0 : gpu_pingpong1,
-        BUFFER_SIZE_BYTES,
-        cudaMemcpyDeviceToHost
-    );
-    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer from GPU\n");
+    // // Retrieve device data back to host
+    // err = cudaMemcpy(
+    //     data,
+    //     (LOG_SIZE % 2 == 0) ? gpu_pingpong0 : gpu_pingpong1,
+    //     BUFFER_SIZE_BYTES,
+    //     cudaMemcpyDeviceToHost
+    // );
+    // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer from GPU\n");
 
     // Print results
     // CUDA
@@ -339,7 +348,7 @@ int main() {
     // }
 
     // Free allocated resources
-    cudaFree(gpu_pingpong0);
-    cudaFree(gpu_pingpong1);
+    destroy_surface(gpu_pp0);
+    destroy_surface(gpu_pp1);
     free(data);
 }
