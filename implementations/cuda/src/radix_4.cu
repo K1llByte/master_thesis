@@ -10,7 +10,7 @@
 #define LOG_SIZE 2
 #define HALF_LOG_SIZE 1
 #define NUM_BUTTERFLIES 1
-// #define BENCHMARK_RUNS 2
+#define BENCHMARK_RUNS 1
 
 // Actual kernel functions
 
@@ -31,14 +31,13 @@
 inline double benchmark(std::function<void()> func)
 {
     double time_all = 0.;
-    int NUM_RUNS = 1;
-    for(int i = 0; i < NUM_RUNS; ++i) {
+    for(int i = 0; i < BENCHMARK_RUNS; ++i) {
         auto begin = std::chrono::high_resolution_clock::now();
         func();
         auto end = std::chrono::high_resolution_clock::now();
         time_all += std::chrono::duration<double, std::milli>(end-begin).count();
     }
-    return time_all / NUM_RUNS;
+    return time_all / BENCHMARK_RUNS;
 }
 
 
@@ -284,7 +283,6 @@ int main() {
         // Await end of execution
         err = cudaDeviceSynchronize();
         CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
-        CU_ERR_CHECK_MSG(cudaGetLastError(), "Cuda error: Failed to synchronize\n")
     });
     std::cout << "cuFFT: " << miliseconds << "ms\n";
     
@@ -316,30 +314,23 @@ int main() {
 
     std::cout << "CUDA: " << benchmark([&]() {
         // Horizontal pass
-        // Sync after execution
         stockham_fft_horizontal<<<blocks, block_threads>>>(gpu_pp0.surface, gpu_pp1.surface, -1.f);
 
         // Vertical pass
-        // Sync after execution
         stockham_fft_vertical<<<blocks, block_threads>>>(gpu_pp0.surface, gpu_pp1.surface, -1.f);
+        // Sync after execution
         err = cudaDeviceSynchronize();
         CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
+        CU_ERR_CHECK_MSG(cudaGetLastError(), "Cuda error: Failed to synchronize\n")
+        
     }) << "ms\n";
 
     // Retrieve device data back to host
     cudaMemcpy2DFromArray(data,
         FFT_SIZE * 2*sizeof(float),
-        (HALF_LOG_SIZE % 2 == 0) ? gpu_pp0.array : gpu_pp1.array,
+        (LOG_SIZE % 2 == 0) ? gpu_pp0.array : gpu_pp1.array,
         0, 0, FFT_SIZE * 2*sizeof(float), FFT_SIZE,
         cudaMemcpyDeviceToHost);
-
-    // err = cudaMemcpy(
-    //     data,
-    //     (LOG_SIZE % 2 == 0) ? gpu_pingpong0 : gpu_pingpong1,
-    //     BUFFER_SIZE_BYTES,
-    //     cudaMemcpyDeviceToHost
-    // );
-    // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer from GPU\n");
 
     // Print results
     // CUDA
@@ -347,11 +338,12 @@ int main() {
     for(size_t i = 0; i < FFT_SIZE*FFT_SIZE; ++i) {
         std::cout << "(" << data[i*2] << ", " << data[i*2+1] << ")" << "\n";
     }
+
     // cuFFT
-    std::cout << "========= cuFFT =========\n";
-    for(size_t i = 0; i < FFT_SIZE*FFT_SIZE; ++i) {
-        std::cout << "(" << cufft_data[i].x << ", " << cufft_data[i].y << ")" << "\n";
-    }
+    // std::cout << "========= cuFFT =========\n";
+    // for(size_t i = 0; i < FFT_SIZE*FFT_SIZE; ++i) {
+    //     std::cout << "(" << cufft_data[i].x << ", " << cufft_data[i].y << ")" << "\n";
+    // }
 
     // Free allocated resources
     destroy_surface(gpu_pp0);
