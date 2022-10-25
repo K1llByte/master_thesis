@@ -11,9 +11,9 @@
 31 Dec
 
 Reduzir info em 5.1
-Prioridade resultados praticos
-Resultados CUDA
-Resultados Stockham Radix-4
+[i] Prioridade resultados praticos (only missing benchmarks in tensendorf waves)
+[x] Resultados CUDA
+[x] Resultados Stockham Radix-4
 
 Enviar ao orientador blocks de resultados, todos de glsl, todos de cuda, todos de cufft etc ...
 -->
@@ -141,3 +141,10 @@ need to introduce some roots to justify implementations
 - attach all results and graphs
 
 # 7 CONCLUSIONS
+
+
+___
+# Meeting 2
+
+<!-- Duvidas -->
+- Há algum novo template?
