@@ -6,9 +6,9 @@
 #include "cuda_helper.hpp"
 
 #define M_PI 3.1415926535897932384626433832795
-#define FFT_SIZE 256
-#define LOG_SIZE 8
-#define HALF_LOG_SIZE 4
+#define FFT_SIZE 4
+#define LOG_SIZE 2
+#define HALF_LOG_SIZE 1
 #define NUM_BUTTERFLIES 1
 // #define BENCHMARK_RUNS 2
 
@@ -17,7 +17,7 @@
 #define CU_ERR_CHECK_MSG(err, msg) {  \
     if(err != cudaSuccess) {          \
         fprintf(stderr, msg);         \
-        fprintf(stderr, "%d", int(err));      \
+        fprintf(stderr, "%d", int(err)); \
         exit(1);                      \
     }                                 \
 }
@@ -95,37 +95,37 @@ void stockham_fft_horizontal(cudaSurfaceObject_t pingpong0, cudaSurfaceObject_t 
             float2 w3p = complex_mult(w1p,w2p);
             if(pingpong == 0) {
                 // Compute natural order butterflies
-                float2 a = surf2Dread<float2>(pingpong0, q + s*(p + n0), column);
-                float2 b = surf2Dread<float2>(pingpong0, q + s*(p + n1), column);
-                float2 c = surf2Dread<float2>(pingpong0, q + s*(p + n2), column);
-                float2 d = surf2Dread<float2>(pingpong0, q + s*(p + n3), column);
+                float2 a = surf2Dread<float2>(pingpong0, (q + s*(p + n0))*sizeof(float2), column);
+                float2 b = surf2Dread<float2>(pingpong0, (q + s*(p + n1))*sizeof(float2), column);
+                float2 c = surf2Dread<float2>(pingpong0, (q + s*(p + n2))*sizeof(float2), column);
+                float2 d = surf2Dread<float2>(pingpong0, (q + s*(p + n3))*sizeof(float2), column);
 
                 float2 apc = complex_add(a,c);
                 float2 amc = complex_sub(a,c);
                 float2 bpd = complex_add(b,d);
                 float2 jbmd = complex_mult(float2{0,1}, complex_sub(b,d));
 
-                surf2Dwrite<float2>(complex_add(apc, bpd)                    , pingpong1, q + s*(4*p + 0), column);
-                surf2Dwrite<float2>(complex_mult(w1p, complex_sub(amc, jbmd)), pingpong1, q + s*(4*p + 1), column);
-                surf2Dwrite<float2>(complex_mult(w2p, complex_sub(apc, bpd)) , pingpong1, q + s*(4*p + 2), column);
-                surf2Dwrite<float2>(complex_mult(w3p, complex_add(amc, jbmd)), pingpong1, q + s*(4*p + 3), column);
+                surf2Dwrite<float2>(complex_add(apc, bpd)                    , pingpong1, (q + s*(4*p + 0))*sizeof(float2), column);
+                surf2Dwrite<float2>(complex_mult(w1p, complex_sub(amc, jbmd)), pingpong1, (q + s*(4*p + 1))*sizeof(float2), column);
+                surf2Dwrite<float2>(complex_mult(w2p, complex_sub(apc, bpd)) , pingpong1, (q + s*(4*p + 2))*sizeof(float2), column);
+                surf2Dwrite<float2>(complex_mult(w3p, complex_add(amc, jbmd)), pingpong1, (q + s*(4*p + 3))*sizeof(float2), column);
             }
             else {
                 // Compute natural order butterflies
-                float2 a = surf2Dread<float2>(pingpong1, q + s*(p + n0), column);
-                float2 b = surf2Dread<float2>(pingpong1, q + s*(p + n1), column);
-                float2 c = surf2Dread<float2>(pingpong1, q + s*(p + n2), column);
-                float2 d = surf2Dread<float2>(pingpong1, q + s*(p + n3), column);
+                float2 a = surf2Dread<float2>(pingpong1, (q + s*(p + n0))*sizeof(float2), column);
+                float2 b = surf2Dread<float2>(pingpong1, (q + s*(p + n1))*sizeof(float2), column);
+                float2 c = surf2Dread<float2>(pingpong1, (q + s*(p + n2))*sizeof(float2), column);
+                float2 d = surf2Dread<float2>(pingpong1, (q + s*(p + n3))*sizeof(float2), column);
 
                 float2 apc = complex_add(a,c);
                 float2 amc = complex_sub(a,c);
                 float2 bpd = complex_add(b,d);
                 float2 jbmd = complex_mult(float2{0,1}, complex_sub(b,d));
 
-                surf2Dwrite<float2>(complex_add(apc, bpd)                    , pingpong0, q + s*(4*p + 0), column);
-                surf2Dwrite<float2>(complex_mult(w1p, complex_sub(amc, jbmd)), pingpong0, q + s*(4*p + 1), column);
-                surf2Dwrite<float2>(complex_mult(w2p, complex_sub(apc, bpd)) , pingpong0, q + s*(4*p + 2), column);
-                surf2Dwrite<float2>(complex_mult(w3p, complex_add(amc, jbmd)), pingpong0, q + s*(4*p + 3), column);
+                surf2Dwrite<float2>(complex_add(apc, bpd)                    , pingpong0, (q + s*(4*p + 0))*sizeof(float2), column);
+                surf2Dwrite<float2>(complex_mult(w1p, complex_sub(amc, jbmd)), pingpong0, (q + s*(4*p + 1))*sizeof(float2), column);
+                surf2Dwrite<float2>(complex_mult(w2p, complex_sub(apc, bpd)) , pingpong0, (q + s*(4*p + 2))*sizeof(float2), column);
+                surf2Dwrite<float2>(complex_mult(w3p, complex_add(amc, jbmd)), pingpong0, (q + s*(4*p + 3))*sizeof(float2), column);
             }
         }
 
@@ -165,37 +165,37 @@ void stockham_fft_vertical(cudaSurfaceObject_t pingpong0, cudaSurfaceObject_t pi
             float2 w3p = complex_mult(w1p,w2p);
             if(pingpong == 0) {
                 // Compute natural order butterflies
-                float2 a = surf2Dread<float2>(pingpong0, line, q + s*(p + n0));
-                float2 b = surf2Dread<float2>(pingpong0, line, q + s*(p + n1));
-                float2 c = surf2Dread<float2>(pingpong0, line, q + s*(p + n2));
-                float2 d = surf2Dread<float2>(pingpong0, line, q + s*(p + n3));
+                float2 a = surf2Dread<float2>(pingpong0, line*sizeof(float2), q + s*(p + n0));
+                float2 b = surf2Dread<float2>(pingpong0, line*sizeof(float2), q + s*(p + n1));
+                float2 c = surf2Dread<float2>(pingpong0, line*sizeof(float2), q + s*(p + n2));
+                float2 d = surf2Dread<float2>(pingpong0, line*sizeof(float2), q + s*(p + n3));
 
                 float2 apc = complex_add(a,c);
                 float2 amc = complex_sub(a,c);
                 float2 bpd = complex_add(b,d);
                 float2 jbmd = complex_mult(float2{0,1}, complex_sub(b,d));
 
-                surf2Dwrite(complex_add(apc, bpd)                    , pingpong1, line, q + s*(4*p + 0));
-                surf2Dwrite(complex_mult(w1p, complex_sub(amc, jbmd)), pingpong1, line, q + s*(4*p + 1));
-                surf2Dwrite(complex_mult(w2p, complex_sub(apc, bpd)) , pingpong1, line, q + s*(4*p + 2));
-                surf2Dwrite(complex_mult(w3p, complex_add(amc, jbmd)), pingpong1, line, q + s*(4*p + 3));
+                surf2Dwrite(complex_add(apc, bpd)                    , pingpong1, line*sizeof(float2), q + s*(4*p + 0));
+                surf2Dwrite(complex_mult(w1p, complex_sub(amc, jbmd)), pingpong1, line*sizeof(float2), q + s*(4*p + 1));
+                surf2Dwrite(complex_mult(w2p, complex_sub(apc, bpd)) , pingpong1, line*sizeof(float2), q + s*(4*p + 2));
+                surf2Dwrite(complex_mult(w3p, complex_add(amc, jbmd)), pingpong1, line*sizeof(float2), q + s*(4*p + 3));
             }
             else {
                 // Compute natural order butterflies
-                float2 a = surf2Dread<float2>(pingpong1, line, q + s*(p + n0));
-                float2 b = surf2Dread<float2>(pingpong1, line, q + s*(p + n1));
-                float2 c = surf2Dread<float2>(pingpong1, line, q + s*(p + n2));
-                float2 d = surf2Dread<float2>(pingpong1, line, q + s*(p + n3));
+                float2 a = surf2Dread<float2>(pingpong1, line*sizeof(float2), q + s*(p + n0));
+                float2 b = surf2Dread<float2>(pingpong1, line*sizeof(float2), q + s*(p + n1));
+                float2 c = surf2Dread<float2>(pingpong1, line*sizeof(float2), q + s*(p + n2));
+                float2 d = surf2Dread<float2>(pingpong1, line*sizeof(float2), q + s*(p + n3));
 
                 float2 apc = complex_add(a,c);
                 float2 amc = complex_sub(a,c);
                 float2 bpd = complex_add(b,d);
                 float2 jbmd = complex_mult(float2{0,1}, complex_sub(b,d));
 
-                surf2Dwrite(complex_add(apc, bpd)                    , pingpong0, line, q + s*(4*p + 0));
-                surf2Dwrite(complex_mult(w1p, complex_sub(amc, jbmd)), pingpong0, line, q + s*(4*p + 1));
-                surf2Dwrite(complex_mult(w2p, complex_sub(apc, bpd)) , pingpong0, line, q + s*(4*p + 2));
-                surf2Dwrite(complex_mult(w3p, complex_add(amc, jbmd)), pingpong0, line, q + s*(4*p + 3));
+                surf2Dwrite(complex_add(apc, bpd)                    , pingpong0, line*sizeof(float2), q + s*(4*p + 0));
+                surf2Dwrite(complex_mult(w1p, complex_sub(amc, jbmd)), pingpong0, line*sizeof(float2), q + s*(4*p + 1));
+                surf2Dwrite(complex_mult(w2p, complex_sub(apc, bpd)) , pingpong0, line*sizeof(float2), q + s*(4*p + 2));
+                surf2Dwrite(complex_mult(w3p, complex_add(amc, jbmd)), pingpong0, line*sizeof(float2), q + s*(4*p + 3));
             }
         }
 
@@ -223,10 +223,10 @@ Texture create_surface(float* source = nullptr) {
     if(source != nullptr) {
         // Set pitch of the source (the width in memory in bytes of the 2D array
         // pointed to by src, including padding), we dont have any padding
-        const size_t spitch = 2 * FFT_SIZE * sizeof(float);
-        // Copy data located at address h_data in host memory to device memory
+        const size_t spitch = FFT_SIZE * 2*sizeof(float);
+        // Copy data located at address source in host memory to device memory
         cudaMemcpy2DToArray(res.array, 0, 0, source, spitch,
-                            2 * FFT_SIZE * sizeof(float), FFT_SIZE,
+                            FFT_SIZE * 2*sizeof(float), FFT_SIZE,
                             cudaMemcpyHostToDevice);
     }
 
@@ -234,9 +234,9 @@ Texture create_surface(float* source = nullptr) {
     struct cudaResourceDesc resDesc;
     memset(&resDesc, 0, sizeof(resDesc));
     resDesc.resType = cudaResourceTypeArray;
-
-    // Create the surface objects
     resDesc.res.array.array = res.array;
+    
+    // Create the surface objects
     cudaCreateSurfaceObject(&res.surface, &resDesc);
     return res;
 }
@@ -284,6 +284,7 @@ int main() {
         // Await end of execution
         err = cudaDeviceSynchronize();
         CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
+        CU_ERR_CHECK_MSG(cudaGetLastError(), "Cuda error: Failed to synchronize\n")
     });
     std::cout << "cuFFT: " << miliseconds << "ms\n";
     
@@ -325,8 +326,13 @@ int main() {
         CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
     }) << "ms\n";
 
+    // Retrieve device data back to host
+    cudaMemcpy2DFromArray(data,
+        FFT_SIZE * 2*sizeof(float),
+        (HALF_LOG_SIZE % 2 == 0) ? gpu_pp0.array : gpu_pp1.array,
+        0, 0, FFT_SIZE * 2*sizeof(float), FFT_SIZE,
+        cudaMemcpyDeviceToHost);
 
-    // // Retrieve device data back to host
     // err = cudaMemcpy(
     //     data,
     //     (LOG_SIZE % 2 == 0) ? gpu_pingpong0 : gpu_pingpong1,
@@ -337,18 +343,19 @@ int main() {
 
     // Print results
     // CUDA
-    // std::cout << "========= CUDA =========\n";
-    // for(size_t i = 0; i < FFT_SIZE*FFT_SIZE; ++i) {
-    //     std::cout << "(" << data[i].x << ", " << data[i].y << ")" << "\n";
-    // }
-    // // cuFFT
-    // std::cout << "========= cuFFT =========\n";
-    // for(size_t i = 0; i < FFT_SIZE*FFT_SIZE; ++i) {
-    //     std::cout << "(" << cufft_data[i].x << ", " << cufft_data[i].y << ")" << "\n";
-    // }
+    std::cout << "========= CUDA =========\n";
+    for(size_t i = 0; i < FFT_SIZE*FFT_SIZE; ++i) {
+        std::cout << "(" << data[i*2] << ", " << data[i*2+1] << ")" << "\n";
+    }
+    // cuFFT
+    std::cout << "========= cuFFT =========\n";
+    for(size_t i = 0; i < FFT_SIZE*FFT_SIZE; ++i) {
+        std::cout << "(" << cufft_data[i].x << ", " << cufft_data[i].y << ")" << "\n";
+    }
 
     // Free allocated resources
     destroy_surface(gpu_pp0);
     destroy_surface(gpu_pp1);
     free(data);
+    return 0;
 }
