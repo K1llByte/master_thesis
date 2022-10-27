@@ -6,11 +6,11 @@
 #include "cuda_helper.hpp"
 
 #define M_PI 3.1415926535897932384626433832795
-#define FFT_SIZE 4
-#define LOG_SIZE 2
-#define HALF_LOG_SIZE 1
+#define FFT_SIZE 1024
+#define LOG_SIZE 10
+#define HALF_LOG_SIZE 5
 #define NUM_BUTTERFLIES 1
-#define BENCHMARK_RUNS 1
+#define BENCHMARK_RUNS 5
 
 // Actual kernel functions
 
@@ -248,6 +248,7 @@ void destroy_surface(Texture& tex) {
 // Host code
 int main() {
     cudaError_t err;
+
     ///////////////////////////////////////
     //     Comarison Implementation      //
     ///////////////////////////////////////
@@ -279,13 +280,15 @@ int main() {
         // Submit execution
         res = cufftExecC2C(plan, gpu_data, gpu_data, CUFFT_FORWARD);
         CU_CHECK_MSG(res, "cuFFT error: ExecC2C Forward failed\n");
-    
+
+
         // Await end of execution
         err = cudaDeviceSynchronize();
         CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
     });
     std::cout << "cuFFT: " << miliseconds << "ms\n";
-    
+
+
     // Retrieve computed FFT buffer
     err = cudaMemcpy(cufft_data, gpu_data, CUFFT_BUFFER_SIZE_BYTES, cudaMemcpyDeviceToHost);
     CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU\n");
@@ -312,18 +315,38 @@ int main() {
     auto blocks = dim3(FFT_SIZE, 1);
     auto block_threads = dim3((FFT_SIZE / 4)/NUM_BUTTERFLIES, 1);
 
-    std::cout << "CUDA: " << benchmark([&]() {
+    // Init Benchmark stuff
+    cudaEvent_t start_event;
+    cudaEvent_t end_event;
+    CU_ERR_CHECK_MSG(cudaEventCreate(&start_event), "");
+    CU_ERR_CHECK_MSG(cudaEventCreate(&end_event), "");
+
+    std::cout << "CUDA CPU: " << benchmark([&]() {
+        // Record event before execution on stream 0 (default)
+        CU_ERR_CHECK_MSG(cudaEventRecord(start_event, 0), "");
+
         // Horizontal pass
         stockham_fft_horizontal<<<blocks, block_threads>>>(gpu_pp0.surface, gpu_pp1.surface, -1.f);
 
         // Vertical pass
         stockham_fft_vertical<<<blocks, block_threads>>>(gpu_pp0.surface, gpu_pp1.surface, -1.f);
+
+        // Record event after execution on stream 0 (default)
+        CU_ERR_CHECK_MSG(cudaEventRecord(end_event, 0), "");
+        
         // Sync after execution
         err = cudaDeviceSynchronize();
-        CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
-        CU_ERR_CHECK_MSG(cudaGetLastError(), "Cuda error: Failed to synchronize\n")
+        // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
+        // CU_ERR_CHECK_MSG(cudaGetLastError(), "Cuda error: Failed to synchronize\n")
         
     }) << "ms\n";
+
+    float gpu_time;
+    CU_ERR_CHECK_MSG(cudaEventElapsedTime(&gpu_time, start_event, end_event), "");
+    std::cout << "CUDA GPU: " << gpu_time << "ms\n";
+
+    CU_ERR_CHECK_MSG(cudaEventDestroy(start_event), "");
+    CU_ERR_CHECK_MSG(cudaEventDestroy(end_event), "");
 
     // Retrieve device data back to host
     cudaMemcpy2DFromArray(data,
@@ -334,10 +357,10 @@ int main() {
 
     // Print results
     // CUDA
-    std::cout << "========= CUDA =========\n";
-    for(size_t i = 0; i < FFT_SIZE*FFT_SIZE; ++i) {
-        std::cout << "(" << data[i*2] << ", " << data[i*2+1] << ")" << "\n";
-    }
+    // std::cout << "========= CUDA =========\n";
+    // for(size_t i = 0; i < FFT_SIZE*FFT_SIZE; ++i) {
+    //     std::cout << "(" << data[i*2] << ", " << data[i*2+1] << ")" << "\n";
+    // }
 
     // cuFFT
     // std::cout << "========= cuFFT =========\n";

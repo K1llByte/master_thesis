@@ -11,14 +11,19 @@
 31 Dec
 
 Reduzir info em 5.1
-[i] Prioridade resultados praticos (only missing benchmarks in tensendorf waves)
-[x] Resultados CUDA
-[x] Resultados Stockham Radix-4
+- Informaçao relevante:
+    - GPU tem uma arquitetura SIMT (que se baseia numa arquitetura SIMD mas mais especifica) [TALVEZ NAO SEJA RELEVANTE, OU RESUMIR EM MENOS DE UMA FRASE]
+    - Por isso os GPUs trabalham nos dados de maneira diferente e isso deve ter-se em conta ao programalo
+    - GPUs modernos agora sao GPGPUs
 
-Enviar ao orientador blocks de resultados, todos de glsl, todos de cuda, todos de cufft etc ...
+[i] Prioridade resultados praticos (only missing benchmarks in tensendorf waves)
+[i] Resultados CUDA (Substituir surface para outros impls dps da reuniao)
+[x] Resultados Stockham Radix-4
 -->
 
+<!--
 
+-->
 ## Goals
 
 - [] Results
@@ -83,6 +88,8 @@ ___
 -->
 
 # 5 IMPLEMENTATION ON THE GPU <!-- (or) GLSL, both titles apply -->
+<!-- FIXME: Maybe change this title to GPU architecture -->
+<!-- Programming model information will be mentioned in the implementation details in GLSL -->
 ## 5.1 GPU Programming model 
 > Note: Since the readers might not be within HPC then i
 need to introduce some roots to justify implementations
@@ -130,14 +137,19 @@ need to introduce some roots to justify implementations
 - Pros and cons (NVIDIA only)
 - Sample code for in and out of place implementations
 
-### 6.1.2 OpenCL
+### 6.1.2 Environment overhead
 - What it is
 - Pros and cons
 - Sample code for in and out of place implementations
 
-## 6.2 Comparison with GLSL implementation
+## 6.2 Comparison with CUDA implementation
 - Brief the comparisons
-### 6.2.1 Results
+
+### 6.2.1 CUDA Setup
+Explain the setup of the comparisons and how does it differ from the GLSL implementation so that the results can be justified
+Mention benchmark method (cuda events over the default stream)
+
+### 6.2.2 Results
 - attach all results and graphs
 
 # 7 CONCLUSIONS
