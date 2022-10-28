@@ -95,22 +95,24 @@ ___
 need to introduce some roots to justify implementations
 
 - GPU architecture brief
-- GPU programming model brief
+<!-- - GPU programming model brief -->
 
 ## 5.2 2D Fourier Transform on the GPU
 - 2D FFT
 - Two pass approach for Horizontal and Vetical passes
-- Memory layout
-- Matrix transposition mention
+<!-- - Memory layout -->
 
 ## 5.3 Implementation Analysis in GLSL
+- Matrix transposition mention
 
 ### 5.3.1 GLSL
 
-- Brief of GLSL (what it is and hwo it is used)
+- Brief of GLSL (what it is and how it is used)
 - Why we're using it
 
 ### 5.3.2 Implementation
+- Say it was an iterative process by applying and studying
+- Mention to use GLSL bitreverse if cooley-tukey is to be implemented
 - Explain every iteration of the FFT implmentations and GLSL and GPU programming good practices
 
 ## 5.4 Case of study
