@@ -2,13 +2,13 @@
 
 <!-- Duvidas -->
 <!--
-
 -->
 
 <!-- Notes -->
 <!--
-2X Out
-31 Dec
+Datas de entrega:
+- 2X Out
+- 31 Dec
 
 Reduzir info em 5.1
 - Informaçao relevante:
@@ -52,8 +52,8 @@ i - incomplete, because needs something from the final pratical phase
             - [x] 4.1.2 Stockham algorithm
             - [i] 4.1.3 Radix-4 instead of Radix-2
     - [i] 5 IMPLEMENTATION ON THE GPU 
-        - [i] 5.1 GPU Programming model 
-        - [ ] 5.2 2D Fourier Transform on the GPU
+        - [x] 5.1 GPU Programming model 
+        - [x] 5.2 2D Fourier Transform on the GPU
         - [ ] 5.3 Implementation Analysis in GLSL
             <!-- - [ ] 5.3.1 GLSL  -->
             - [ ] 5.3.2 Implementation
@@ -85,6 +85,12 @@ ___
 ### 4.1.1 Natural order Cooley-Tukey
 ### 4.1.2 Stockham algorithm
 ### 4.1.3 Radix-4 instead of Radix-2
+- Brief introduction to multiple factorizations
+- Theres pros and cons to higher radix factorizations
+- Mention there can be mix-radix implementations and that radix4 can be combined with radix2 easily to allow
+to compute the same sizes
+- Explain with dragonfly the main difference between stockham radix-2 and 4
+- 
 -->
 
 # 5 IMPLEMENTATION ON THE GPU <!-- (or) GLSL, both titles apply -->
@@ -111,6 +117,36 @@ need to introduce some roots to justify implementations
 - Why we're using it
 
 ### 5.3.2 Implementation
+
+<!--
+
+#### Setup
+- Implementation setup
+    - Using Nau3D engine with 2 passes and 2 pingpong image buffers
+- What application it was tested
+    - The input image was sampled as a texture
+    - 2D simple Forward FFt and Inverse FFT display mipmapped
+
+#### Cooley-Tukey
+- most naive implementation
+- pass per stage
+    - The way it is dispatched and why it is made that way
+- Updating to all stages in a single pass
+    - One problem of this is the synchronization between threads
+
+#### Radix-2 Stockam
+- Why there are benefits on using stockham on the GPU
+    - No bit reversal step
+
+#### Radix-4 Stockam
+- How the size of the kernel is affected by this and the performance acquired
+- How there are less synchronization
+- Why not higher radices? Cons of size constraints and portability to more GPUs
+- Performance of higher radices depends on the hardware
+
+-->
+
+- 2D fft computes a lot of 1d fft's so each performancce improvement in the algorithms will be noticeable
 - Say it was an iterative process by applying and studying
 - Mention to use GLSL bitreverse if cooley-tukey is to be implemented
 - Explain every iteration of the FFT implmentations and GLSL and GPU programming good practices
@@ -140,9 +176,6 @@ need to introduce some roots to justify implementations
 - Sample code for in and out of place implementations
 
 ### 6.1.2 Environment overhead
-- What it is
-- Pros and cons
-- Sample code for in and out of place implementations
 
 ## 6.2 Comparison with CUDA implementation
 - Brief the comparisons
