@@ -9,6 +9,7 @@ def ms_graph(title, sizes, data):
         plt.plot(default_sizes_ticks, ms, label=lbl)
     plt.xlabel('FFT size')
     plt.ylabel('ms')
+    plt.margins(0, 0.2)
     plt.title(title)
     plt.legend()
     plt.show()
