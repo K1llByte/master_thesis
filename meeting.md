@@ -118,17 +118,14 @@ need to introduce some roots to justify implementations
 
 ### 5.3.2 Implementation
 
+- Say it was an iterative process by applying, studying and testing
+- 2D fft computes a lot of 1d fft's so each performancce improvement in the algorithms will be noticeable
+- Explain every iteration of the FFT implmentations and GLSL and GPU programming good practices
+
 <!--
-
-#### Setup
-- Implementation setup
-    - Using Nau3D engine with 2 passes and 2 pingpong image buffers
-- What application it was tested
-    - The input image was sampled as a texture
-    - 2D simple Forward FFt and Inverse FFT display mipmapped
-
 #### Cooley-Tukey
 - most naive implementation
+- Mention to use GLSL bitreverse instead of manual
 - pass per stage
     - The way it is dispatched and why it is made that way
 - Updating to all stages in a single pass
@@ -144,12 +141,16 @@ need to introduce some roots to justify implementations
 - Why not higher radices? Cons of size constraints and portability to more GPUs
 - Performance of higher radices depends on the hardware
 
+
+
 -->
 
-- 2D fft computes a lot of 1d fft's so each performancce improvement in the algorithms will be noticeable
-- Say it was an iterative process by applying and studying
-- Mention to use GLSL bitreverse if cooley-tukey is to be implemented
-- Explain every iteration of the FFT implmentations and GLSL and GPU programming good practices
+<!--
+Say:
+- In this thesis we provide a set of experiments that effectively study key components in the implementation of FFT's that
+matter and impact the performance
+-->
+
 
 ## 5.4 Case of study
 ### 5.4.1 Tensendorf waves
@@ -164,6 +165,12 @@ need to introduce some roots to justify implementations
 - Possibly use many comfigurations for more deep testing
 - Preview of the rendered image and graphs with the improvements results
 
+<!-- #### Setup
+- Implementation setup
+    - Using Nau3D engine with 2 passes and 2 pingpong image buffers
+- What application it was tested
+    - The input image was sampled as a texture
+    - 2D simple Forward FFt and Inverse FFT display mipmapped -->
 
 # 6 ANALYSIS AND COMPARISON
 ## 6.1 Popular implementations
