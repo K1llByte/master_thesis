@@ -23,16 +23,8 @@ vec2 complex_mult(vec2 v0, vec2 v1) {
 
 
 int bit_reverse(int k) {
-
-	uint x = uint(k);
-	uint n = 0;
-	uint mask = 0x1;
-	for (int i = 0; i < log_width; ++i) {
-		n <<= 1;
-		n |= (x & 1);
-		x >>= 1;
-	}
-	return int(n);
+    uint br = bitfieldReverse(k);
+    return int(bitfieldExtract(br, 32 - log_width, log_width));
 }
 
 vec2 euler(float angle) {
@@ -47,7 +39,7 @@ void main() {
 	int group_size = 2 << stage;
 	int shift = 1 << stage;
 
-	vec2 elemk, elemks;
+	vec2 a, b;
     for(int i = 0; i < NUM_BUTTERFLIES ; ++i) {
         // Compute the virtual index of the number of the
         // butterfly we're about to compute.
@@ -61,35 +53,29 @@ void main() {
         if (pingpong == 0) {
             if (stage == 0) {
             // when stage = 0 use bit reverse indices
-                elemk = imageLoad(pingpong0, ivec2(bit_reverse(idx), column)).rg;
-                elemks = imageLoad(pingpong0, ivec2(bit_reverse(idx + shift), column)).rg;
+                a = imageLoad(pingpong0, ivec2(bit_reverse(idx), column)).rg;
+                b = imageLoad(pingpong0, ivec2(bit_reverse(idx + shift), column)).rg;
             }
             else {
-                elemk = imageLoad(pingpong0, ivec2(idx, column)).rg;
-                elemks = imageLoad(pingpong0, ivec2(idx + shift, column)).rg;
+                a = imageLoad(pingpong0, ivec2(idx, column)).rg;
+                b = imageLoad(pingpong0, ivec2(idx + shift, column)).rg;
             }
 
             // Write the outputs
-            vec2 raux = elemk + complex_mult(w, elemks);
+            vec2 raux = a + complex_mult(w, b);
             imageStore(pingpong1, ivec2(idx, column), vec4(raux, 0, 0));
                 
-            raux = elemk - complex_mult(w, elemks);
+            raux = a - complex_mult(w, b);
             imageStore(pingpong1, ivec2(idx + shift, column), vec4(raux, 0, 0));
         }
         else {
-            if (stage == 0) {
-                elemk = imageLoad(pingpong1, ivec2(bit_reverse(idx), column)).rg;
-                elemks = imageLoad(pingpong1, ivec2(bit_reverse(idx + shift), column)).rg;
-            }
-            else {	
-                elemk = imageLoad(pingpong1, ivec2(idx, column)).rg;
-                elemks = imageLoad(pingpong1, ivec2(idx + shift, column)).rg;
-            }
-
-            vec2 raux = elemk + complex_mult(w, elemks);
+            a = imageLoad(pingpong1, ivec2(idx, column)).rg;
+            b = imageLoad(pingpong1, ivec2(idx + shift, column)).rg;
+            
+            vec2 raux = a + complex_mult(w, b);
             imageStore(pingpong0, ivec2(idx, column), vec4(raux,0,0));
                 
-            raux = elemk - complex_mult(w, elemks);
+            raux = a - complex_mult(w, b);
             imageStore(pingpong0, ivec2(idx + shift, column), vec4(raux,0,0));
         }
     }

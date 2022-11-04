@@ -10,7 +10,7 @@
 #define LOG_SIZE 10
 #define HALF_LOG_SIZE 5
 #define NUM_BUTTERFLIES 1
-#define BENCHMARK_RUNS 5
+#define BENCHMARK_RUNS 30
 
 // Actual kernel functions
 
@@ -30,6 +30,7 @@
 
 inline double benchmark(std::function<void()> func)
 {
+    // TODO_ Skiup first iter
     double time_all = 0.;
     for(int i = 0; i < BENCHMARK_RUNS; ++i) {
         auto begin = std::chrono::high_resolution_clock::now();

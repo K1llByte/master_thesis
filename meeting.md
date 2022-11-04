@@ -1,6 +1,12 @@
 # Meeting
 
-<!-- Duvidas -->
+<!-- Topics -->
+<!--
+- Stockham radix4 tem resultados melhores, mas há uma incoherencia nos resultados dos kernels em cuda
+- Posso usar listas, quando devo usar italico explicitamente?
+-->
+
+<!-- Questions -->
 <!--
 -->
 
@@ -10,15 +16,11 @@ Datas de entrega:
 - 2X Out
 - 31 Dec
 
-Reduzir info em 5.1
-- Informaçao relevante:
-    - GPU tem uma arquitetura SIMT (que se baseia numa arquitetura SIMD mas mais especifica) [TALVEZ NAO SEJA RELEVANTE, OU RESUMIR EM MENOS DE UMA FRASE]
-    - Por isso os GPUs trabalham nos dados de maneira diferente e isso deve ter-se em conta ao programalo
-    - GPUs modernos agora sao GPGPUs
-
-[i] Prioridade resultados praticos (only missing benchmarks in tensendorf waves)
-[i] Resultados CUDA (Substituir surface para outros impls dps da reuniao)
-[x] Resultados Stockham Radix-4
+Todo:
+- [x] Prioridade resultados praticos
+- [i] Resultados CUDA (Substituir surface para outros impls dps da reuniao)
+- [x] Resultados Stockham Radix-4
+- Reduzir info em 5.1
 -->
 
 <!--
@@ -195,10 +197,3 @@ Mention benchmark method (cuda events over the default stream)
 - attach all results and graphs
 
 # 7 CONCLUSIONS
-
-
-___
-# Meeting 2
-
-<!-- Duvidas -->
-- Há algum novo template?

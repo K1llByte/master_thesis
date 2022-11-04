@@ -60,10 +60,12 @@
 }
 %---
 
-\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegreen}{rgb}{0.4,0.4,0.4}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
-\definecolor{codepurple}{rgb}{0.58,0,0.82}
-\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{codepurple}{rgb}{0.5,0.4,0.8}
+\definecolor{codehighlight}{rgb}{0.2,0.2,0.2} %{0.5,0.4,0.8}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.95}
+
 \definecolor{s_orange}{HTML}{ef821c}
 \definecolor{s_gray}{HTML}{8292A1}
 \definecolor{s_line_gray}{HTML}{8e8f90}
@@ -71,7 +73,7 @@
 \lstdefinestyle{mystyle}{
     backgroundcolor=\color{backcolour},   
     commentstyle=\color{codegreen},
-    keywordstyle=\color{magenta},
+    keywordstyle=\color{codehighlight}\textbf,
     numberstyle=\tiny\color{codegray},
     stringstyle=\color{codepurple},
     basicstyle=\ttfamily\footnotesize,
@@ -79,8 +81,8 @@
     breaklines=true,                 
     captionpos=b,                    
     keepspaces=true,                 
-    numbers=left,                    
-    numbersep=5pt,                  
+    % numbers=left,                    
+    % numbersep=1pt,                  
     showspaces=false,                
     showstringspaces=false,
     showtabs=false,                  
@@ -384,7 +386,7 @@ This formulation shows the usage of complex-valued domain since the imaginary un
 If we take into account the Euler's formula, we can replace the Fourier Transform for an equivalent, fragmenting the euler constant for a sine and cosine pair.
 
 % Euler's Formula
-\begin{equation} \label{euler_formula}
+\begin{equation} \label{eq:euler}
     e^{ix} = \cos x + i \sin x \\ %\eqname{Euler's Formula} \\
 \end{equation}
 
@@ -766,7 +768,7 @@ This algorithm is a Radix-2 Decimation-in-Time in the sence that the time values
 
 % 2. Continue explaining this algorithm
 
-Effectivelly, this smaller DFT's are recursively reduced by this algorithm until theres only the computation of a length-2 DFT where its only applied the Cooley-Tukey butterfly operation \cite{chu1999inside} illustrated in \autoref{fig:dit-butterfly}.
+Effectively, this smaller DFT's are recursively reduced by this algorithm until theres only the computation of a length-2 DFT where its only applied the Cooley-Tukey butterfly operation \cite{chu1999inside} illustrated in \autoref{fig:dit-butterfly}.
 
 % NOTE: Handmade since there wan't one that had exacly what i wanted
 \begin{figure}[h] 
@@ -778,9 +780,9 @@ Effectivelly, this smaller DFT's are recursively reduced by this algorithm until
 
 % "Whereas direct computation of all N DFT frequencies according to the DFT equation would require N2 complex multiplies and N2−N complex additions (for complex-valued data), by reusing the results of the two short-length DFTs as illustrated in Figure, the computational cost is now" 
 
-The complexity work within the algorithm is distributed with the DIT approach which decomposes each DFT by 2 having \(\log{N}\) stages \cite{smith2007mathematics} while there are approximately \(N\) complex multiplications needed for each stage of the DIT decomposition, therefore the multiplication complexity for a \(N\) sized DFT is reduced from \(O(N^{2})\) to \(O(N \log{N})\) without any programming specific optimizations.
+The complexity work within the algorithm is distributed with the DIT approach which decomposes each DFT by 2 having \(\log{N}\) stages \cite{smith2007mathematics} while there are approximately \(N\) complex multiplications needed for each stage of the DIT decomposition, therefore the multiplication complexity for a \(N\) sized DFT is reduced from \(O(N^{2})\) to \(O(N \log{N})\) without any programming specific optimisations.
 
-Additionally, this algorithm and the one in \autoref{subsec:radix-2-dif} both contain a bit reversal step but used in diferent ways. For the DIT FFT  the input sequence of the algorithm must be in bit reversal order since the algorithm returns a natural order sequence but requires the input to be bit reversed. This way we need to apply the bit reversal at the beggining before applying the algorithm.
+Additionally, this algorithm and the one in \autoref{subsec:radix-2-dif} both contain a bit reversal step but used in different ways. For the DIT FFT  the input sequence of the algorithm must be in bit reversal order since the algorithm returns a natural order sequence but requires the input to be bit reversed. This way we need to apply the bit reversal at the beginning before applying the algorithm.
 
 However it seems shadowed in \autoref{alg:dit} the implementation of the bit reversal is quite simple and any decent version can be used in regards of this algorithm. The key idea is that each element must be placed in its bit reversed index, so for each element of the sequence the $bit\_reverse$ version of the index is calculated and the element is swapped with the on in the original index.
 
@@ -1173,18 +1175,25 @@ To be able to analyse the implementation of FFT on the GPU, we need to provide s
 % Introducing GPU and why it is better
 % GPU architecture and programming model
 % What we can do and how to take advantage of the GPU
-% Compute pipeline
+% Compute pipeline in GLSL
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % TODO: Rewrite this phrase
-The Graphics Processing Unit (GPU) provides much higher instruction throughput and memory bandwidth than the CPU within a similar price and power envelope having a much faster performance growth curve. Many applications leverage these higher capabilities to run faster on the GPU than on the CPU. While the hardware may change some components and architecture on different models, fundamentally most modern GPUs use single instruction multiple data (SIMD) stream architecture.
+The Graphics Processing Unit (GPU) provides much higher instruction throughput and memory bandwidth than the CPU within a similar price and power envelope having a much faster performance growth curve. Many applications leverage these higher capabilities to run faster on the GPU than on the CPU. While the hardware may change some components and architecture on different models, fundamentally most modern GPUs adopt a specific kind of single instruction multiple data (SIMD) stream architecture which is single instruction multiple threads (SIMT) that is an extension of the SIMD paradigm with large scale multi-threading, streaming memory and dynamic scheduling. \newline
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-A SIMD stream architecture forwards an instruction to multiple cores with dedicated memory for each instance, allowing data-level parallelism to compute more quickly and effectively.
-A CPU usually uses a von Neumann architecture, so it executes instructions sequentially one at a time and updates the memory progressively, however a stream architecture processor works in a slightly different way, they contain multiple streams of simpler processors with shared memory just like the ilustration in \autoref{fig:cpu-gpu}. These processors execute programs called kernels that receive a finite set of input fragments to produce another set of output fragments in parallel \cite{fernando2004gpu}. This paradigm revolutionised the industry and with its evolution came the General Purpose Graphics Processing Unit (GPGPU) which allows this type of hardware to compute highly parallel procedures similarly to a CPU but with all the advantages of a GPU. 
-Nowadays most GPUs provide this general purpose programming functionality and many parallel computing platforms help us take advantage of that such as Nvidia’s CUDA, OpenCL, or even graphics APIs like OpenGL with compute shaders. These tools help abstract the hardware and provide facilities to allow developers to focus on higher-level computing procedures.
+A SIMT stream architecture forwards an instruction to multiple threads with dedicated memory for each instance, allowing data-level parallelism to compute more quickly and effectively.
+A modern CPU uses a von Neumann architecture, so it executes instructions sequentially one at a time and updates the memory progressively, however a stream architecture processor works in a slightly different way, they contain multiple streams of simpler processors with shared memory just like the illustration in \autoref{fig:cpu-gpu}. These processors execute programs called kernels that receive a finite set of input fragments to produce another set of output fragments in parallel \cite{fernando2004gpu}. \newline
+
+With the introduction of programmable General Purpose Graphics Processing Unit (GPGPU) the industry required a lot more parallel algorithms.
+
+%This paradigm revolutionised the industry and with its evolution came the General Purpose Graphics Processing Unit (GPGPU) which allows this type of hardware to compute highly parallel procedures similarly to a CPU but with all the advantages of a GPU. \newline
+
+%Nowadays most GPUs provide this general purpose programming functionality and many parallel computing platforms help us take advantage of that such as Nvidia’s CUDA, OpenCL, or even graphics APIs like OpenGL with compute shaders. These tools help abstract the hardware and provide facilities to allow developers to focus on higher-level computing procedures.
 
 platforms allow developers to ignore the language barrier that exists between the CPU and the GPU and, instead, focus on higher-level computing concepts.
 
+% TODO: Cite the source
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.7\textwidth]{imgs/cpu_gpu.png}
@@ -1195,16 +1204,239 @@ platforms allow developers to ignore the language barrier that exists between th
 % FIXME: NOT SURE IF 'attend' HAS THE CORRECT MEANING IN THIS SENTENCE
 Developers and researchers often attend more specific scenarios and they configure multiple GPUs with distributed workflows in sync with each other to take better advantage of this hardware for more intensive problems \cite{heldens2022lightning}.
 
-The GPU programming model although sophisticated, at its core it provides dispatcheable thread groups, shared memories and GPU barries for synchronisation of threads, such abstractions provide data and thread level parallelism and offer to the developer more \cite{CUDAcppguide}.
+The GPU programming model although sophisticated, at its core it provides thread groups hierarchies, shared memories and GPU barriers for synchronisation of threads, such abstractions provide data and thread level parallelism for the developer to ulitize. \newline
 
-% - Talk about the programming model, the concepts of a warp/Work groups and threads/local groups
+%%%%%
+In this programming model we introduce the concept of granularity, that refers to the amount of computation relatively to the transfer of data. It is used to describe types of parallelism as fine-grained or coarse-grained. 
+Fine-grained parallelism describes a small multi threaded tasks in kernel size and execution time with frequent small data transfers between the processors. On the opposite side there's coarse-grained parallelism that describes larger amounts of computation followed by larger infrequent data transfers \cite{CUDAcppguide}.
+
+% SUMMARY OF: % In parallel programming, granularity means the amount of computation in relation to communication (or transfer) of data. Fine-grained parallelism means individual tasks are relatively small in terms of code size and execution time. The data is transferred among processors frequently in amounts of one or a few memory words. Coarse-grained is the opposite in that data is communicated infrequently, after larger amounts of computation.
+%%%%%%
+
+This concept is important to reflect on the association of the GPU programming model with further details on the provided implementations within the next chapters. \newline
+
+%%%%%
+Most GPGPU programming frameworks such as CUDA provide coarse-grained data and task parallelism with nested fine-grained data and thread parallelism. This type of task hierarchy architecture promotes the partitioning of the problems to independently solvable subgroups of smaller problems which fit into smaller blocks of threads that can be solved cooperatively in parallel. This relevant information provides us more insight of how the work groups for FFT should be dispatched.
+% SUMMARY OF: % The CUDA abstractions provide fine-grained data parallelism and thread parallelism, nested within coarse-grained data parallelism and task parallelism. They guide the programmer to partition the problem into coarse sub-problems that can be solved independently in parallel by blocks of threads, and each sub-problem into finer pieces that can be solved cooperatively in parallel by all threads within the block.
+%%%%%
 
 
-\section{Fourier Transform on the GPU}
-% - 2D FFT's (if not exists already)
+% NOTE - Cant sync in between local threads of the same thread group, only sync with work groups (Say thgis here, and then on the chapter of the explanation of the implementation on the GPU)
+
+% [x] Talk about the programming model, the concepts of a warp/Work groups and threads/local groups
+% What we can do and how to take advantage of the GPU
+
+
+
+\section{2D Fourier Transform on the GPU}
+% - 2D FFT's 
+%   - Greyscale images
+%   - RGB to Complex domain (relative luminance)
+%   - 2D FFT formula representation
 % - Two pass approach for Horizontal and Vetical passes
-% - Matrix transposition metion
+
+
+% FIXME: Soft text, needs a more formal rewrtite
+% Reference page 4 
+Computing a 2D Fourier Transform requires a two dimensional input sequence to produce another for the output. However we could use any usable arbitrary values in the the real world we often use this 2D FFT on images and it isn't immediately obvious how this should be applied since the target data source might have three color channels, therefore three different values for this multidimensional sequence element that can be used, and not even in floating point complex domain. Precisely, it needs to be adapted to the application use case, we may use it as greyscale image if want a derivation of the luminance via quantized RGB signals of the image \citep{itu2002parameter}, use only the values of one channel, or compute multiple FFT's for each channel values. Either way we will preferably at the end have a two dimensional buffer with floating point complex values prepared to be used.
+\newline
+
+
+% USED %\cite{dudgeon1984multidimensional} % for horizontal and vertical passes
+The 2D FFT is computed by performing single dimension FFT's for every row and then for every columns after that \cite{dudgeon1984multidimensional}, so we can divide its application to a horizontal and vertical pass. This describes the way 2D FFT are computed but it is independent of the 1D FFT implementation chosen, so there's freedom to use any type of algorithm.
+
+% TODO: Formula
+% \cite{mermer2003efficient} % FOR THE FORMULA
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{tese/imgs/2d_fft.png}
+    \caption{High level illustration of horizontal and vertical passes}
+    \label{fig:2d-fft}
+\end{figure}
+
+At the end of a forward FFT vertical pass the result will be a 2D complex buffer with the frequency domain values of the original image as illustrated in \autoref{fig:2d-fft}.
+
+
 \section{Implementation Analysis in GLSL}
+
+The implementations were made using GLSL, a high-level shader language for graphics API's such as OpenGL, and it was used the compute pipeline from OpenGL to integrate a FFT implementation using compute shaders, which are general purpose programmable shaders.
+
+Since there are many aspects that may impact on the performance the implementation was an interactive process that required researching and testing to compose an optimal solution. One of the main targets was to keep the code generalised so that it can be used as base for other implementations using FFTs.
+\newline
+
+The next sections go in detail about the way every major iteration evolved into the next one and why there was the need to do it, starting by the Cooley-Tukey algorithm then progressively improving on the Stockham algorithm, all this while implementing good GPGPU programming strategies.
+
+% - [x] Brief about GLSL and the compute shaders used
+% - [x]  Compute pipeline in GLSL
+% - [x] Say it was an iterative process by applying, studying and testing
+
+\subsection{Cooley-Tukey}
+
+% Basic algorithm
+% - iterative version
+% - based on the dit described in state of art
+% -
+
+%FIXME: The beginning of this phrase is weird, rewrite
+The GPU implementation took as a starting point was with the DIT Cooley-Tukey algorithm, since it is the most popular one with time complexity of $O(N\log{N})$, and it is based on the iterative version adapted for parallel processors.
+
+Since this implementation is highly parallel there's the need to separate the reads and writes for each processor into two different buffers in memory due lack of order between processors, therefore the declaration of two complex pingpong buffers.
+
+\begin{lstlisting}[language=C]
+ layout (binding = 0, rg32f) uniform image2D pingpong0;
+ layout (binding = 1, rg32f) uniform image2D pingpong1;
+\end{lstlisting}
+
+The read write control for this buffers can be achieved with a flag variable \texttt{pingpong}.
+
+Initially this algorithm will work with a pass per stage approach, where a kernel is dispatched every stage and since there's a synchronisation step at the end of the pass its granted that all the work groups have finished off writing to the buffer when a pass ends. This case holds up for both the horizontal and vertical FFT steps.
+
+As a result, each kernel has the opportunity to work within every segment of the image, so the local threads can be dispatched with two dimensions, so each work group will have a total of 32 local threads, a reference number used in this implementations for setting up local threads in a work group, this may vary depending on the GPU for optimal performance but 32 is a good number to fill in the thread warp size os most GPUs.
+
+So an example dispatch group for this implementation could be $(fft\_width/8,fft\_height/8)$ work groups since 8 is the number of threads in the $y$ axis
+
+By using GLSL there is some advantages on the complex values operations, since the addition and subtraction for vector types already have operators overloading which function the same as in the complex domain. However the multiplication works a bit differently so we need to provide an auxiliary function to abstract and support this operator.
+
+\label{}
+\begin{lstlisting}[language=C,caption=Complex multiplication,label=lst:mul]
+ vec2 complex_mult(vec2 v0, vec2 v1) {
+ 	return vec2(v0.x * v1.x - v0.y * v1.y,
+ 				v0.x * v1.y + v0.y * v1.x);
+ }
+\end{lstlisting}
+
+Due to the adoption of a different programming paradigm the FFT segment iteration loop doesn't exist such as in \autoref{alg:dit}, instead the processors identifiers are used to fetch the index of the butterflies they're gonna work on based on the work groups and threads dispatch setup, and this holds up for any implementation using compute shaders.
+
+\begin{lstlisting}[language=C]
+ int line = int(gl_GlobalInvocationID.x);
+ int column = int(gl_GlobalInvocationID.y);
+\end{lstlisting}
+
+Since this first approach is a dynamic implementation that invokes a pass per stage some stage control variables need to be feed into the shader in order to compute the correct butterfly index or control the butterfly process.
+
+\begin{lstlisting}[language=C]
+ uniform int pingpong;
+ uniform int log_width;
+ uniform int stage;
+ uniform int fft_dir;
+\end{lstlisting}
+
+Effectively, we use these shader uniform input variables and obtain actual index we're gonna use on the 1D FFT of the image.
+
+\begin{lstlisting}[language=C]
+ int group_size = 2 << stage;
+ int shift = 1 << stage;
+ 
+ int idx = (line % shift) + group_size * (line / shift);
+\end{lstlisting}
+
+To calculate the twiddle factor we use Euler's formula such as in \autoref{eq:euler} and resort to the control variable \texttt{fft\_dir} to flip the twiddle factor for the inverse if we want to reuse this shader.
+
+\begin{lstlisting}[language=C]
+ vec2 euler(float angle) {
+     return vec2(cos(angle), sin(angle));
+ }
+ 
+ void main() {
+     // ...
+     vec2 w = euler(fft_dir * 2 * (M_PI / group_size) * ((idx % group_size) % shift));
+     // ...
+ }
+\end{lstlisting}
+
+% Explain butterfly
+% - butterfly alternate read writes
+Now with the computed twiddle factor we may proceed to compute and store the Cooley-Tukey FFT butterfly, and that's where we need to control the reads and writes for each stage. Since the \texttt{pingpong} variable is toggled every pass invocation, it is used to choose with what image we will use to lookup the elements and which one to store into, and that is achieved with an if statement, just like it is used in \autoref{alg:stockham-dit}.
+
+The butterfly computation itself is simply calculated as a Cooley-Tukey DIT butterfly as illustrated in \autoref{fig:dit-butterfly}.
+
+\begin{lstlisting}[language=C]
+ if (pingpong == 0) {
+     // Read
+     a = imageLoad(pingpong0, ivec2(idx, column)).rg;
+     b = imageLoad(pingpong0, ivec2(idx + shift, column)).rg;
+
+     // Compute and store
+     vec2 raux = a + complex_mult(w, b);
+     imageStore(pingpong1, ivec2(idx, column), vec4(raux, 0, 0));
+     raux = a - complex_mult(w, b);
+     imageStore(pingpong1, ivec2(idx + shift, column), vec4(raux, 0, 0));
+ }
+ else {
+     // Read
+     a = imageLoad(pingpong1, ivec2(idx, column)).rg;
+     b = imageLoad(pingpong1, ivec2(idx + shift, column)).rg;
+     
+     // Compute and store
+     vec2 raux = a + complex_mult(w, b);
+     imageStore(pingpong0, ivec2(idx, column), vec4(raux,0,0));    
+     raux = a - complex_mult(w, b);
+     imageStore(pingpong0, ivec2(idx + shift, column), vec4(raux,0,0));
+ }
+\end{lstlisting}
+
+Finally there's only one step missing, the bit reversal of indices to have a natural order result. A \texttt{bit\_reverse} function could be easily defined, however there's already a GLSL alternative which is \texttt{bitfieldReverse} and \texttt{bitfieldExtract} \cite{kessenich4opengl}.
+
+Despite not having a noticeable performance hit, it is good practice to use GLSL predefined functions and operators since they might be optimised for that specific device hardware and using these functions instead of a handmade implementation reduces the kernel size about approximately 400 bytes (evaluated using \textit{glslang}) since they are reusable functions. 
+
+\begin{lstlisting}[language=C]
+ int bit_reverse(int k) {
+     uint br = bitfieldReverse(k);
+     return int(bitfieldExtract(br, 32 - log_width, log_width));
+ }
+\end{lstlisting}
+
+
+% - butterfly initial bit reverse on first stage
+
+
+%We can already see some branching in this code that might not be desirable.
+
+
+% Initial implementation model
+% - [x]Read write requirements
+% - [x] Per stage synchronisation (multiple submissions)
+% - [ ] 2D Work dispatch (with illustration)
+
+% - [x] Vector type operations
+% - [ ] Mention to use GLSL bitreverse instead of manual implementation (perhaps no noticeable performance but the kernel size reduces significantly)
+% - pass per stage
+%     - The way it is dispatched and why it is made that way
+% - Updating to all stages in a single pass
+%     - One problem of this is the synchronization between threads
+%     - And by using only 1 pass for all stages there's a big difference, the implementation can be static for the size, so there's no branching associated, with that the pingpong variable now is constexpr so the compiler optimizes the kernel execution to inline the ifstatement and the while loop
+% - Reference somewhere with loop unroll glsl version
+
+% AT THE END OF THIS TOPIC MAKE A DIAGRAM WITH 2 REPRESEWNTATIONS OF THE PASSES EXECUTION AND THE INTEMEDIATE STEPS OF LUA SCRIPTS AND HOW MUCH SYNCHRONIZATION OVERHEAD THERE IS.
+
+\subsection{Radix-2 Stockham}
+% - How the removal of bitReverse improves kernel size and performance
+\subsection{Radix-4 Stockham}
+% - We may use simple multiplication arithmethic to flip the operator according to the fft direction
+% - Explain what is branchless programming and how it may affect the code and how it may not affect this code
+% - Loop inlines and stripped down if statements on const expressions
+% - Information  obtained directly from compiling source code with a sahder compiler to intermediate representation
+% - Any shader compiler strips down every piece of the kernel and tries to apply optimizations to most operations 
+% TODO: Testing inlined loop vs the code provided
+
+%%% Code Snipet
+%% \begin{lstlisting}[language=Python, caption=Python example]
+%% # This is a comment
+%% def hello():
+%%     pass
+%% \end{lstlisting}
+
+
+% - Matrix transposition mention, and that the results aren't better
+
+\section{Case of study}
+\subsection{Tensendorf waves}
+
+% Say "An application use case that relies heavily on FFT's to deliver fast performance"
+
+\subsection{Implementation details}
+\subsection{Results}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   Analysis and Comparison                    %
@@ -1214,7 +1446,9 @@ The GPU programming model although sophisticated, at its core it provides dispat
 \subsection{cuFFT}
 \subsection{FFTW}
 \section{Comparison with GLSL implementation}
-\subsection{Analysis}
+\subsection{Results}
+% - Add GPU, CPU, graphics drivers operating system and graphics video memory for reference of the data collected
+% - Benchmark on another nvidia gpu laptop and collect the data to check for the analysis coherency on multiple gpu's
 Popular implementations
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
