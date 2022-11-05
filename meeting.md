@@ -1,26 +1,20 @@
 # Meeting
 
-<!-- Topics -->
-<!--
-- Stockham radix4 tem resultados melhores, mas há uma incoherencia nos resultados dos kernels em cuda
-- Posso usar listas, quando devo usar italico explicitamente?
--->
-
 <!-- Questions -->
 <!--
+How do i use citations? should i use \citep when it doesn't fit in the phrase?
 -->
 
 <!-- Notes -->
 <!--
 Datas de entrega:
-- 2X Out
 - 31 Dec
 
 Todo:
 - [x] Prioridade resultados praticos
 - [i] Resultados CUDA (Substituir surface para outros impls dps da reuniao)
 - [x] Resultados Stockham Radix-4
-- Reduzir info em 5.1
+- [ ] Rebenchmark cuda kernels by skipping first iteration
 -->
 
 <!--

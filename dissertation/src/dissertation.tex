@@ -207,7 +207,7 @@ In this dissertation we provide, compare and analyze FFT implementations with po
 
 \chapter*{Resumo}
 
-O progresso contínuo da evolução dos GPUs aumentou a popularidade das implementações de algoritmos paralelizáveis ​​neste tipo de hardware.
+O progresso contínuo da evolução dos GPUs aumentou a popularidade das implementações de algoritmos paralelizáveis neste tipo de hardware.
 \textit{Fast Fourier Transforms} são uma família de algoritmos úteis para o cálculo de transformadas de Fourier discretas que são aplicadas em muitos cenários práticos para diversas áreas.
 
 Devido à sua utilidade e à necessidade de otimizar as \textit{Fast Fourier Transforms}, esses algoritmos são efetivamente computados na GPU para aproveitar suas variantes paralelizáveis
@@ -1115,7 +1115,7 @@ Theoretically Radix-4 formulation can be twice as fast as a Radix-2 \cite{hussai
     \centering
     \includegraphics[width=0.6\textwidth]{tese/imgs/dragonfly.png}
     \caption{Radix-4 FFT butterfly structure \source{marti2009radix}}
-    \label{fig:signal-decomposition}
+    \label{fig:radix4-dragonfly}
 \end{figure}
 
 
@@ -1298,8 +1298,7 @@ So an example dispatch group for this implementation could be $(fft\_width/8,fft
 
 By using GLSL there is some advantages on the complex values operations, since the addition and subtraction for vector types already have operators overloading which function the same as in the complex domain. However the multiplication works a bit differently so we need to provide an auxiliary function to abstract and support this operator.
 
-\label{}
-\begin{lstlisting}[language=C,caption=Complex multiplication,label=lst:mul]
+\begin{lstlisting}[language=C,caption=Complex multiplication]
  vec2 complex_mult(vec2 v0, vec2 v1) {
  	return vec2(v0.x * v1.x - v0.y * v1.y,
  				v0.x * v1.y + v0.y * v1.x);
@@ -1376,9 +1375,9 @@ The butterfly computation itself is simply calculated as a Cooley-Tukey DIT butt
  }
 \end{lstlisting}
 
-Finally there's only one step missing, the bit reversal of indices to have a natural order result. A \texttt{bit\_reverse} function could be easily defined, however there's already a GLSL alternative which is \texttt{bitfieldReverse} and \texttt{bitfieldExtract} \cite{kessenich4opengl}.
+Finally there's only one step missing, the bit reversal of indices to have a natural order result. A \texttt{bit\_reverse} function could be easily defined, however there's already a GLSL alternative which is \texttt{bitfieldReverse} together with \texttt{bitfieldExtract} \cite{kessenich4opengl}.
 
-Despite not having a noticeable performance hit, it is good practice to use GLSL predefined functions and operators since they might be optimised for that specific device hardware and using these functions instead of a handmade implementation reduces the kernel size about approximately 400 bytes (evaluated using \textit{glslang}) since they are reusable functions. 
+Despite not having a noticeable performance hit, it is good practice to use GLSL predefined functions and operators since they might be optimised for that specific device hardware and using these functions instead of a handmade implementation reduces the kernel size significantly about approximately 400 bytes (evaluated using \textit{glslang}) since they are reusable functions. 
 
 \begin{lstlisting}[language=C]
  int bit_reverse(int k) {
@@ -1387,12 +1386,32 @@ Despite not having a noticeable performance hit, it is good practice to use GLSL
  }
 \end{lstlisting}
 
-
 % - butterfly initial bit reverse on first stage
+This auxiliar function will be conditionally used inside the branching if statement for alternating read writes to be only applied on the first stage of transform both for the possible values of \texttt{pingpong == 0} and \texttt{pingpong == 1}, since the vertical pass might start reading on the first pingpong buffer. This is not the case for the horizontal pass, its ensured that the first stage will always read from \texttt{pingpong0} reforccing that the bit reverse branching when \texttt{pingpong == 0} is disposable.
 
+\begin{lstlisting}[language=C]
+ if (pingpong == 0) {
+     if (stage == 0) {
+         a = imageLoad(pingpong0, ivec2(bit_reverse(idx), column)).rg;
+         b = imageLoad(pingpong0, ivec2(bit_reverse(idx + shift), column)).rg;
+     }
+     else {
+         a = imageLoad(pingpong0, ivec2(idx, column)).rg;
+         b = imageLoad(pingpong0, ivec2(idx + shift, column)).rg;
+     }
+
+     // ... Compute and store results
+ }
+ else {
+     a = imageLoad(pingpong1, ivec2(idx, column)).rg;
+     b = imageLoad(pingpong1, ivec2(idx + shift, column)).rg;
+
+     // ... Compute and store results
+ }
+\end{lstlisting}
 
 %We can already see some branching in this code that might not be desirable.
-
+% Cooley-Tukey
 
 % Initial implementation model
 % - [x]Read write requirements
@@ -1400,7 +1419,7 @@ Despite not having a noticeable performance hit, it is good practice to use GLSL
 % - [ ] 2D Work dispatch (with illustration)
 
 % - [x] Vector type operations
-% - [ ] Mention to use GLSL bitreverse instead of manual implementation (perhaps no noticeable performance but the kernel size reduces significantly)
+% - [x] Mention to use GLSL bitreverse instead of manual implementation (perhaps no noticeable performance but the kernel size reduces significantly)
 % - pass per stage
 %     - The way it is dispatched and why it is made that way
 % - Updating to all stages in a single pass
@@ -1408,10 +1427,189 @@ Despite not having a noticeable performance hit, it is good practice to use GLSL
 %     - And by using only 1 pass for all stages there's a big difference, the implementation can be static for the size, so there's no branching associated, with that the pingpong variable now is constexpr so the compiler optimizes the kernel execution to inline the ifstatement and the while loop
 % - Reference somewhere with loop unroll glsl version
 
+
+
 % AT THE END OF THIS TOPIC MAKE A DIAGRAM WITH 2 REPRESEWNTATIONS OF THE PASSES EXECUTION AND THE INTEMEDIATE STEPS OF LUA SCRIPTS AND HOW MUCH SYNCHRONIZATION OVERHEAD THERE IS.
 
+With all this steps aggregated, the shader for the horizontal pass of this FFT DIT Cooley-Tukey implementation will be such as \autoref{lst:ct-horizontal}.
+
+\begin{lstlisting}[language=C,caption={FFT Cooley-Tukey Horizontal},label={lst:ct-horizontal}]
+ #version 440
+ 
+ #define M_PI 3.1415926535897932384626433832795
+ 
+ layout (local_size_x = 4, local_size_y = 8) in;
+ 
+ layout (binding = 0, rg32f) uniform image2D pingpong0;
+ layout (binding = 0, rg32f) uniform image2D pingpong1;
+ 
+ uniform int pingpong;
+ uniform int log_width;
+ uniform int stage;
+ uniform int fft_dir;
+ 
+ vec2 complex_mult(vec2 v0, vec2 v1) {
+ 	return vec2(v0.x * v1.x - v0.y * v1.y,
+ 				v0.x * v1.y + v0.y * v1.x);
+ }
+ 
+ int bit_reverse(int k) {
+     uint br = bitfieldReverse(k);
+     return int(bitfieldExtract(br, 32 - log_width, log_width));
+ }
+ 
+ vec2 euler(float angle) {
+ 	return vec2(cos(angle), sin(angle));
+ }
+ 
+ void main() {
+ 	int line = int(gl_GlobalInvocationID.x);
+ 	int column = int(gl_GlobalInvocationID.y);
+ 
+ 	int group_size = 2 << stage;
+ 	int shift = 1 << stage;
+ 
+ 	vec2 a, b;
+ 
+     int idx = (line % shift) + group_size * (line / shift);
+     vec2 w = euler(fft_dir * 2 * (M_PI / group_size) * ((idx % group_size) % shift));
+ 
+     if (pingpong == 0) {
+         if (stage == 0) {
+             a = imageLoad(pingpong0, ivec2(bit_reverse(idx), column)).rg;
+             b = imageLoad(pingpong0, ivec2(bit_reverse(idx + shift), column)).rg;
+         }
+         else {
+             a = imageLoad(pingpong0, ivec2(idx, column)).rg;
+             b = imageLoad(pingpong0, ivec2(idx + shift, column)).rg;
+         }
+ 
+         vec2 raux = a + complex_mult(w, b);
+         imageStore(pingpong1, ivec2(idx, column), vec4(raux, 0, 0));
+             
+         raux = a - complex_mult(w, b);
+         imageStore(pingpong1, ivec2(idx + shift, column), vec4(raux, 0, 0));
+     }
+     else {
+         a = imageLoad(pingpong1, ivec2(idx, column)).rg;
+         b = imageLoad(pingpong1, ivec2(idx + shift, column)).rg;
+ 
+         vec2 raux = a + complex_mult(w, b);
+         imageStore(pingpong0, ivec2(idx, column), vec4(raux,0,0));
+             
+         raux = a - complex_mult(w, b);
+         imageStore(pingpong0, ivec2(idx + shift, column), vec4(raux,0,0));
+     }
+ }
+\end{lstlisting}
+
+% TODO: Mention this normalization in the 2D
+For the vertical pass shader there is however one extra multiplication by \texttt{mult_factor} in the butterfly results for the last stage when the pass is inverse. This corresponds to the normalization of the multidimensional transform simlilar to the normalization in the inverse DFT in \autoref{eq4}.
+
+\begin{lstlisting}[language=C,caption={FFT Cooley-Tukey Vertical},label={lst:ct-vertical}]
+#version 440
+
+#define M_PI 3.1415926535897932384626433832795
+
+layout (local_size_x = 8, local_size_y = 4) in;
+
+layout (binding = 0, rg32f) uniform image2D pingpong0;
+layout (binding = 1, rg32f) uniform image2D pingpong1;
+
+uniform int pingpong;
+uniform int log_width;
+uniform int stage;
+uniform int fft_dir;
+
+int iter = 1 << log_width;
+int shift = (1 << stage);
+
+vec2 complex_mult(vec2 v0, vec2 v1) {
+	return vec2(v0.x * v1.x - v0.y * v1.y,
+				v0.x * v1.y + v0.y * v1.x);
+}
+
+int bit_reverse(int k) {
+    uint br = bitfieldReverse(k);
+    return int(bitfieldExtract(br, 32 - log_width, log_width));
+}
+
+vec2 euler(float angle) {
+	return vec2(cos(angle), sin(angle));
+}
+
+void main() {
+	int line = int(gl_GlobalInvocationID.x);
+	int column = int(gl_GlobalInvocationID.y);
+
+	int group_size = 2 << stage;
+	int shift = 1 << stage;
+
+	vec2 a, b;
+
+    int idx = (column % shift) + group_size * (column / shift);
+    vec2 w = euler(fft_dir * 2 * (M_PI / group_size) * ((idx % group_size) % shift));
+
+    float mult_factor = 1.0;
+    if ((stage == log_width - 1) && fft_dir == 1) {
+        mult_factor = 1.0 / (iter*iter) ;
+    }
+
+    if (pingpong == 0) {
+        if (stage == 0) {
+            a = imageLoad(pingpong0, ivec2(line, bit_reverse(idx))).rg;
+            b = imageLoad(pingpong0, ivec2(line, bit_reverse(idx + shift))).rg;
+        }
+        else {
+            a = imageLoad(pingpong0, ivec2(line, idx)).rg;
+            b = imageLoad(pingpong0, ivec2(line, idx + shift)).rg;
+        }
+        
+        vec2 raux = (a + complex_mult(w, b)) * mult_factor;
+        imageStore(pingpong1, ivec2(line, idx), vec4(raux,0,0));
+            
+        raux = (a - complex_mult(w, b)) * mult_factor;
+        imageStore(pingpong1, ivec2(line, idx + shift), vec4(raux,0,0));
+    }
+    else {
+        if (stage == 0) {
+            a = imageLoad(pingpong1, ivec2(line, bit_reverse(idx))).rg;
+            b = imageLoad(pingpong1, ivec2(line, bit_reverse(idx + shift))).rg;
+        }
+        else {	
+            a = imageLoad(pingpong1, ivec2(line, idx)).rg;
+            b = imageLoad(pingpong1, ivec2(line, idx + shift)).rg;
+        }
+
+        vec2 raux = (a + complex_mult(w, b)) * mult_factor;
+        imageStore(pingpong0, ivec2(line, idx), vec4(raux,0,0));
+            
+        raux = (a - complex_mult(w, b)) * mult_factor;
+        imageStore(pingpong0, ivec2(line, idx + shift), vec4(raux,0,0));
+    }
+}
+\end{lstlisting}
+
+\subsubsection{All stages in one pass}
+
+The previous implementation demonstrates a generic 2D FFT that may be reused for multiple FFT sizes, however this comes at a cost of efficiency when it comes to the synchronization of the of the stage itself, moreover it requires use multiple uniform variables for control of the fft that are transfered between CPU and GPU when there are updates in between stages.
+\newline
+
+
+barrier synchronization \citep{stuart2011efficient}
+
+% Updating to all stages in a single pass
+
+% - One problem of the previous is the synchronization between threads and multiple input variables for control that update on the cpu.
+% ====================================== %
+% - For this we need to sync inside fft and we dont have a way to arbitrarly sync between work groups but we can sync between local threads
+% - Dispatch settings may be changed to allow an implementation to sync the stage between reads and writes for each one dimensional FFT
+
+% - And by using only 1 pass for all stages there's a big difference, the implementation can be static for the size, so there's no branching associated, with that the pingpong variable now is constexpr so the compiler optimizes the kernel execution to inline the ifstatement and the while loop
+% - Reference somewhere with loop unroll glsl version
+
 \subsection{Radix-2 Stockham}
-% - How the removal of bitReverse improves kernel size and performance
+
 \subsection{Radix-4 Stockham}
 % - We may use simple multiplication arithmethic to flip the operator according to the fft direction
 % - Explain what is branchless programming and how it may affect the code and how it may not affect this code
@@ -1420,12 +1618,6 @@ Despite not having a noticeable performance hit, it is good practice to use GLSL
 % - Any shader compiler strips down every piece of the kernel and tries to apply optimizations to most operations 
 % TODO: Testing inlined loop vs the code provided
 
-%%% Code Snipet
-%% \begin{lstlisting}[language=Python, caption=Python example]
-%% # This is a comment
-%% def hello():
-%%     pass
-%% \end{lstlisting}
 
 
 % - Matrix transposition mention, and that the results aren't better
