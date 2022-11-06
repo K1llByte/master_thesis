@@ -1504,7 +1504,7 @@ With all this steps aggregated, the shader for the horizontal pass of this FFT D
 \end{lstlisting}
 
 % TODO: Mention this normalization in the 2D
-For the vertical pass shader there is however one extra multiplication by \texttt{mult_factor} in the butterfly results for the last stage when the pass is inverse. This corresponds to the normalization of the multidimensional transform simlilar to the normalization in the inverse DFT in \autoref{eq4}.
+For the vertical pass shader there is however one extra multiplication by \texttt{mult\_factor} in the butterfly results for the last stage when the pass is inverse. This corresponds to the normalization of the multidimensional transform simlilar to the normalization in the inverse DFT in \autoref{eq4}.
 
 \begin{lstlisting}[language=C,caption={FFT Cooley-Tukey Vertical},label={lst:ct-vertical}]
 #version 440
@@ -1590,20 +1590,28 @@ void main() {
 }
 \end{lstlisting}
 
+We can already see in the above code a lot of branching that might be undesirable on the GPU  ... % TODO: Reference that thing where a warp branching has a huge performance hit due to the way it is implemented
+
 \subsubsection{All stages in one pass}
 
-The previous implementation demonstrates a generic 2D FFT that may be reused for multiple FFT sizes, however this comes at a cost of efficiency when it comes to the synchronization of the of the stage itself, moreover it requires use multiple uniform variables for control of the fft that are transfered between CPU and GPU when there are updates in between stages.
+The previous implementation demonstrates a generic 2D FFT that may be reused for multiple FFT sizes, however this comes at a cost of efficiency when it comes to the synchronisation of the of the stage itself, moreover it requires use multiple uniform variables for control of the FFT that are transferred between CPU and GPU when there are updates in between stages.
 \newline
 
+% NOTE: Uncertain if the 'kernel-wise' is a good way to say
+Undoubtedly the best solution here is to port this implementation synchronisation step to be kernel-wise and this detail changes quite a bit the properties of how the code is structured and how it may be dispatched.
 
-barrier synchronization \citep{stuart2011efficient}
+At the moment there isn't a way to trivially ensure the reads and writes of all work groups  \cite{stuart2011efficient} without interrupting at the end of the stage, but there is functions that make use of barriers that synchronise all the threads within a work group. However there is a lot of literature on behalf of GPU compute execution synchronisation (maybe list some references here) we'll make use of the GLSL predefined barrier synchronisation functions.
 
-% Updating to all stages in a single pass
+The current grouping of threads doesn't allow the use of these barrier synchronisation since the computation of one dimensional FFT is distributed between multiple work groups, so using a call to \texttt{barrier()} inside the kernel wouldn't fix the race conditions of several segments of the image. We could however, change the setup of these work groups in such way that each 1D FFT threads fit in one work group. 
 
-% - One problem of the previous is the synchronization between threads and multiple input variables for control that update on the cpu.
-% ====================================== %
+% Updating to all stages in a single pass %
+% - One problem of the previous is the synchronisation between threads and multiple input variables for control that update on the cpu.
 % - For this we need to sync inside fft and we dont have a way to arbitrarly sync between work groups but we can sync between local threads
 % - Dispatch settings may be changed to allow an implementation to sync the stage between reads and writes for each one dimensional FFT
+% ====================================== %
+%   - Image that represents the before and after of the dispatch architecture
+% - Pros and const of this way of dispatching work groups
+%   - Cons: there is less immediate control over how many threads we want in each work group since we need as many as FFT_SIZE / 2.
 
 % - And by using only 1 pass for all stages there's a big difference, the implementation can be static for the size, so there's no branching associated, with that the pingpong variable now is constexpr so the compiler optimizes the kernel execution to inline the ifstatement and the while loop
 % - Reference somewhere with loop unroll glsl version

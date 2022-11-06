@@ -3,6 +3,7 @@
 <!-- Questions -->
 <!--
 How do i use citations? should i use \citep when it doesn't fit in the phrase?
+Should i write in EN-US or EN-UK? (synchronization/synchronisation ...)
 -->
 
 <!-- Notes -->
@@ -22,7 +23,6 @@ Todo:
 -->
 ## Goals
 
-- [] Results
 - [1 month] Write until chapters 4 and 5 (incomplete stuff for the last pratical phase, algos, code blocks, etc ...) []
 - [2 weeks] Final practical corrections ...
 
