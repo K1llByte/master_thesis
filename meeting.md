@@ -2,12 +2,13 @@
 
 <!-- Questions -->
 <!--
-How do i use citations? should i use \citep when it doesn't fit in the phrase?
-Should i write in EN-US or EN-UK? (synchronization/synchronisation ...)
+- Does the supervisor have any dissertation of the work done in the ocean waves implementation on the nau?
 -->
 
 <!-- Notes -->
 <!--
+"is presented in" instead of such as
+
 Datas de entrega:
 - 31 Dec
 
@@ -16,6 +17,7 @@ Todo:
 - [i] Resultados CUDA (Substituir surface para outros impls dps da reuniao)
 - [x] Resultados Stockham Radix-4
 - [ ] Rebenchmark cuda kernels by skipping first iteration
+- [ ] Corrigir informaçao sobre que o warp size deve ser por volta de 32
 -->
 
 <!--
@@ -169,6 +171,15 @@ matter and impact the performance
     - 2D simple Forward FFt and Inverse FFT display mipmapped -->
 
 # 6 ANALYSIS AND COMPARISON
+- Explain whats this chapter about
+- First we'll make the comparison with same algorithms in CUDA
+- Then we'll talk about popular implementations and the merit they have and then compare them with our implementation in GLSL
+
+<!-- 
+## 6.1 cuFFT
+## 6.2 Comparison with CUDA implementation
+ -->
+
 ## 6.1 Popular implementations
 - Talk about popular implementations
 - FFTW but since we care about GPU oriented approaches we use as reference cuFFT
