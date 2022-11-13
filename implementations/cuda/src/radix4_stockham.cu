@@ -6,9 +6,9 @@
 #include "cuda_helper.hpp"
 
 #define M_PI 3.1415926535897932384626433832795
-#define FFT_SIZE 1024
-#define LOG_SIZE 10
-#define HALF_LOG_SIZE 5
+#define FFT_SIZE 256
+#define LOG_SIZE 8
+#define HALF_LOG_SIZE 4
 #define NUM_BUTTERFLIES 1
 #define BENCHMARK_RUNS 30
 
@@ -84,6 +84,7 @@ void stockham_fft_horizontal(cudaSurfaceObject_t pingpong0, cudaSurfaceObject_t 
         int n2 = n/2;
         int n3 = n1 + n2; // 3N/4
 
+        #pragma unroll
         for(int i = 0; i < NUM_BUTTERFLIES; ++i) {
             int idx = (line*NUM_BUTTERFLIES + i);
             // Compute p and q
@@ -144,6 +145,7 @@ void stockham_fft_vertical(cudaSurfaceObject_t pingpong0, cudaSurfaceObject_t pi
     int column = threadIdx.x;
     int pingpong = HALF_LOG_SIZE % 2;
 
+    #pragma unroll
     for(int stage = 0; stage < HALF_LOG_SIZE; ++stage) {
         // 1. Compute Butterflies
         int n = 1 << ((HALF_LOG_SIZE - stage)*2);
@@ -322,6 +324,8 @@ int main() {
     CU_ERR_CHECK_MSG(cudaEventCreate(&start_event), "");
     CU_ERR_CHECK_MSG(cudaEventCreate(&end_event), "");
 
+    float gpu_time_sum;
+    size_t bench_run = 0;
     std::cout << "CUDA CPU: " << benchmark([&]() {
         // Record event before execution on stream 0 (default)
         CU_ERR_CHECK_MSG(cudaEventRecord(start_event, 0), "");
@@ -339,12 +343,17 @@ int main() {
         err = cudaDeviceSynchronize();
         // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
         // CU_ERR_CHECK_MSG(cudaGetLastError(), "Cuda error: Failed to synchronize\n")
+
         
+        if(bench_run != 0) {
+            float gpu_time;
+            CU_ERR_CHECK_MSG(cudaEventElapsedTime(&gpu_time, start_event, end_event), "");
+            gpu_time_sum += gpu_time;
+        }
+        ++bench_run;
     }) << "ms\n";
 
-    float gpu_time;
-    CU_ERR_CHECK_MSG(cudaEventElapsedTime(&gpu_time, start_event, end_event), "");
-    std::cout << "CUDA GPU: " << gpu_time << "ms\n";
+    std::cout << "CUDA GPU Events average time: " << gpu_time_sum / (BENCHMARK_RUNS-1) << "ms\n";
 
     CU_ERR_CHECK_MSG(cudaEventDestroy(start_event), "");
     CU_ERR_CHECK_MSG(cudaEventDestroy(end_event), "");
