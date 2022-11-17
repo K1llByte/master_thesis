@@ -1,9 +1,9 @@
-#version 440
+#version 460
 
 #define M_PI 3.1415926535897932384626433832795
-#define NUM_BUTTERFLIES 2
-#define FFT_SIZE 256
-#define LOG_SIZE 8 // log2(FFT_SIZE)
+#define NUM_BUTTERFLIES 1
+#define FFT_SIZE 1024
+#define LOG_SIZE 10 // log2(FFT_SIZE)
 
 layout (local_size_x = (FFT_SIZE/2)/NUM_BUTTERFLIES, local_size_y = 1) in;
 
@@ -21,23 +21,9 @@ vec2 complex_mult(vec2 v0, vec2 v1) {
 
 
 int bit_reverse(int k) {
-    // // No bit reversal
-    // return 1;
-
     // Integrated bit reversal
     uint br = bitfieldReverse(k);
     return int(bitfieldExtract(br, 32 - LOG_SIZE, LOG_SIZE));
-    
-    // // Homemade bit reversal algorithm
-    // uint x = uint(k);
-    // uint n = 0;
-    // uint mask = 0x1;
-    // for (int i = 0; i < LOG_SIZE; ++i) {
-    //     n <<= 1;
-    //     n |= (x & 1);
-    //     x >>= 1;
-    // }
-    // return int(n);
 }
 
 
@@ -120,7 +106,11 @@ void main() {
         pingpong = ((pingpong + 1) % 2);
 
         // 3. Sync by Memory Barrier
+        // memoryBarrierImage();
+        // memoryBarrier();
         barrier();
+        // groupMemoryBarrier();
+        // memoryBarrierShared();
     }
     
 }

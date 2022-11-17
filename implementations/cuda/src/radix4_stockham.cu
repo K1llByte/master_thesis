@@ -6,9 +6,9 @@
 #include "cuda_helper.hpp"
 
 #define M_PI 3.1415926535897932384626433832795
-#define FFT_SIZE 256
-#define LOG_SIZE 8
-#define HALF_LOG_SIZE 4
+#define FFT_SIZE 1024
+#define LOG_SIZE 10
+#define HALF_LOG_SIZE 5
 #define NUM_BUTTERFLIES 1
 #define BENCHMARK_RUNS 30
 

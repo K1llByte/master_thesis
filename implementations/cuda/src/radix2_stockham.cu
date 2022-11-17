@@ -6,8 +6,8 @@
 #include "cuda_helper.hpp"
 
 #define M_PI 3.1415926535897932384626433832795
-#define FFT_SIZE 256
-#define LOG_SIZE 8
+#define FFT_SIZE 1024
+#define LOG_SIZE 10
 #define HALF_LOG_SIZE 4
 #define NUM_BUTTERFLIES 1
 #define BENCHMARK_RUNS 30
@@ -143,8 +143,8 @@ void stockham_fft_vertical(cudaSurfaceObject_t pingpong0, cudaSurfaceObject_t pi
                 float2 ra = complex_add(a, b);
                 float2 rb = complex_mult(wp,complex_sub(a, b));
                 
-                surf2Dwrite<float2>(float2{ra.x * mult_factor, ra.y * mult_factor}, pingpong1, (q + s*(2*p + 0))*sizeof(float2), column);
-                surf2Dwrite<float2>(float2{rb.x * mult_factor, rb.y * mult_factor}, pingpong1, (q + s*(2*p + 1))*sizeof(float2), column);
+                surf2Dwrite<float2>(ra * mult_factor, pingpong1, line*sizeof(float2), (q + s*(2*p + 0)));
+                surf2Dwrite<float2>(rb * mult_factor, pingpong1, line*sizeof(float2), (q + s*(2*p + 1)));
             }
             else {
                 // Compute natural order butterflies
@@ -154,8 +154,8 @@ void stockham_fft_vertical(cudaSurfaceObject_t pingpong0, cudaSurfaceObject_t pi
                 float2 ra = complex_add(a, b);
                 float2 rb = complex_mult(wp,complex_sub(a, b));
                 
-                surf2Dwrite<float2>(float2{ra.x * mult_factor, ra.y * mult_factor}, pingpong1, (q + s*(2*p + 0))*sizeof(float2), column);
-                surf2Dwrite<float2>(float2{rb.x * mult_factor, rb.y * mult_factor}, pingpong1, (q + s*(2*p + 1))*sizeof(float2), column);
+                surf2Dwrite<float2>(ra * mult_factor, pingpong1, line*sizeof(float2), (q + s*(2*p + 0)));
+                surf2Dwrite<float2>(rb * mult_factor, pingpong1, line*sizeof(float2), (q + s*(2*p + 1)));
             }
         }
 

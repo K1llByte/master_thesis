@@ -6,9 +6,8 @@
 #include "cuda_helper.hpp"
 
 #define M_PI 3.1415926535897932384626433832795
-#define FFT_SIZE 256
-#define LOG_SIZE 8
-#define HALF_LOG_SIZE 4
+#define FFT_SIZE 128
+#define LOG_SIZE 7
 #define NUM_BUTTERFLIES 1
 #define BENCHMARK_RUNS 30
 
@@ -30,7 +29,7 @@
 
 inline double benchmark(std::function<void()> func)
 {
-    // TODO_ Skiup first iter
+    // TODO_ Skip first iter
     double time_all = 0.;
     for(int i = 0; i < BENCHMARK_RUNS; ++i) {
         auto begin = std::chrono::high_resolution_clock::now();
@@ -68,6 +67,7 @@ float2 euler(float angle) {
 __device__ __forceinline__
 unsigned int bit_reverse(unsigned int k) {
     return __brev(k) >> (32-LOG_SIZE);
+    // return k;
 }
 
 
@@ -141,7 +141,7 @@ void stockham_fft_vertical(cudaSurfaceObject_t pingpong0, cudaSurfaceObject_t pi
 
         float2 a, b;
         for(int i = 0; i < NUM_BUTTERFLIES; ++i) {
-            int id = (line*NUM_BUTTERFLIES + i);
+            int id = (column*NUM_BUTTERFLIES + i);
             int idx = (id % shift) + group_size * (id / shift);
             float2 w = euler(fft_dir * 2 * (M_PI / group_size) * ((idx % group_size) % shift));
 
@@ -152,29 +152,29 @@ void stockham_fft_vertical(cudaSurfaceObject_t pingpong0, cudaSurfaceObject_t pi
 
             if(pingpong == 0) {
                 if(stage == 0) {
-                    a = surf2Dread<float2>(pingpong0, bit_reverse(idx)*sizeof(float2), column);
-                    b = surf2Dread<float2>(pingpong0, bit_reverse(idx+shift)*sizeof(float2), column);
+                    a = surf2Dread<float2>(pingpong0, line*sizeof(float2), bit_reverse(idx));
+                    b = surf2Dread<float2>(pingpong0, line*sizeof(float2), bit_reverse(idx+shift));
                 }
                 else {
-                    a = surf2Dread<float2>(pingpong0, (idx)*sizeof(float2), column);
-                    b = surf2Dread<float2>(pingpong0, (idx+shift)*sizeof(float2), column);
+                    a = surf2Dread<float2>(pingpong0, line*sizeof(float2), idx);
+                    b = surf2Dread<float2>(pingpong0, line*sizeof(float2), idx+shift);
                 }
 
-                surf2Dwrite<float2>((a + complex_mult(w, b)) * mult_factor, pingpong1, (idx)*sizeof(float2), column);
-                surf2Dwrite<float2>((a - complex_mult(w, b)) * mult_factor, pingpong1, (idx+shift)*sizeof(float2), column);
+                surf2Dwrite<float2>((a + complex_mult(w, b)) * mult_factor, pingpong1, line*sizeof(float2), idx);
+                surf2Dwrite<float2>((a - complex_mult(w, b)) * mult_factor, pingpong1, line*sizeof(float2), idx+shift);
             }
             else {
                 if(stage == 0) {
-                    a = surf2Dread<float2>(pingpong1, bit_reverse(idx)*sizeof(float2), column);
-                    b = surf2Dread<float2>(pingpong1, bit_reverse(idx+shift)*sizeof(float2), column);
+                    a = surf2Dread<float2>(pingpong1, line*sizeof(float2), bit_reverse(idx));
+                    b = surf2Dread<float2>(pingpong1, line*sizeof(float2), bit_reverse(idx+shift));
                 }
                 else {
-                    a = surf2Dread<float2>(pingpong1, (idx)*sizeof(float2), column);
-                    b = surf2Dread<float2>(pingpong1, (idx+shift)*sizeof(float2), column);
+                    a = surf2Dread<float2>(pingpong1, line*sizeof(float2), idx);
+                    b = surf2Dread<float2>(pingpong1, line*sizeof(float2), idx+shift);
                 }
 
-                surf2Dwrite<float2>((a + complex_mult(w, b)) * mult_factor, pingpong0, (idx)*sizeof(float2), column);
-                surf2Dwrite<float2>((a - complex_mult(w, b)) * mult_factor, pingpong0, (idx+shift)*sizeof(float2), column);
+                surf2Dwrite<float2>((a + complex_mult(w, b)) * mult_factor, pingpong0, line*sizeof(float2), idx);
+                surf2Dwrite<float2>((a - complex_mult(w, b)) * mult_factor, pingpong0, line*sizeof(float2), idx+shift);
             }
         }
 
@@ -303,6 +303,7 @@ int main() {
 
     float gpu_time_sum;
     size_t bench_run = 0;
+    std::cout << "DEBUG 1\n";
     std::cout << "CUDA CPU: " << benchmark([&]() {
         // Record event before execution on stream 0 (default)
         CU_ERR_CHECK_MSG(cudaEventRecord(start_event, 0), "");
@@ -318,8 +319,8 @@ int main() {
         
         // Sync after execution
         err = cudaDeviceSynchronize();
-        // CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
-        // CU_ERR_CHECK_MSG(cudaGetLastError(), "Cuda error: Failed to synchronize\n")
+        CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
+        CU_ERR_CHECK_MSG(cudaGetLastError(), "Cuda error: Failed to synchronize\n")
 
         
         if(bench_run != 0) {

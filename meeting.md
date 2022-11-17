@@ -3,6 +3,10 @@
 <!-- Questions -->
 <!--
 - Does the supervisor have any dissertation of the work done in the ocean waves implementation on the nau?
+- Is it worth to include the times of the inverse fft? The difference of forward and inverse is negligible
+- When nau has multiple runs for the same pass the GPU time is for all thoses passes or just 1?
+- Besides the graphs ill have to analyse differences between implementations, can i have a table with all relevant numeric results?
+- Should I include in-place cuFFT data too (its not the MOST performant)?
 -->
 
 <!-- Notes -->
@@ -12,17 +16,15 @@
 Datas de entrega:
 - 31 Dec
 
-Todo:
-- [x] Prioridade resultados praticos
-- [i] Resultados CUDA (Substituir surface para outros impls dps da reuniao)
-- [x] Resultados Stockham Radix-4
-- [ ] Rebenchmark cuda kernels by skipping first iteration
+Todo[Content]:
 - [ ] Corrigir informaçao sobre que o warp size deve ser por volta de 32
+
+Todo[Fixes]:
+- For every chapter and section, write a brief description of what it contains with references for the parts
+- Label every chapter, section, subsections and figures and all that
 -->
 
-<!--
 
--->
 ## Goals
 
 - [1 month] Write until chapters 4 and 5 (incomplete stuff for the last pratical phase, algos, code blocks, etc ...) []
@@ -60,21 +62,12 @@ i - incomplete, because needs something from the final pratical phase
             - [ ] 5.4.2 Implementation details
             - [ ] 5.4.3 Results
     - [ ] 6 ANALYSIS AND COMPARISON
-        - [ ] 6.1 Popular implementations
-            - [ ] 6.1.1 cuFFT
-            - [ ] 6.1.2 FFTW
-        - [ ] 6.2 Comparison with GLSL implementation
-            - [ ] 6.2.1 Results
-    - [ ] 7 CONCLUSIONS
+        - [ ] 6.1 cuFFT
+        - [ ] 6.2 Implementation analysis in GLSL
+        - [ ] 6.3 Implementation analysis in CUDA
+    - [ ] 7 CONCLUSIONS AND FUTURE WORK
 
 ### Practical
-
-- Final stage:
-    - Corrections on the algorithms
-    <!-- - OpenCL impl -->
-    - Rest of the benchmarkings
-        - And radix-4
-        - for CUDA vs GLSL overhead comparison)
 
 ___
 <!--
@@ -175,11 +168,25 @@ matter and impact the performance
 - First we'll make the comparison with same algorithms in CUDA
 - Then we'll talk about popular implementations and the merit they have and then compare them with our implementation in GLSL
 
-<!-- 
-## 6.1 cuFFT
-## 6.2 Comparison with CUDA implementation
- -->
+## 6.2 cuFFT
+- What it is
+- Pros and cons (NVIDIA only)
+- Sample code for in and out of place implementations
+- It selects the best algorithm and properties of the fft to achieve best performance
+- The performance of cufft is used as a reference for the difference of the other benchmarks
 
+## 6.1 Implementation analysis in GLSL
+- Compare all implementations from section 5.3.2
+- Details reasons why the results are this way 
+
+## 6.3 Implementation analysis in CUDA
+- Brief the comparisons
+- Explain the setup of the comparisons and how does it differ from the GLSL implementation so that the results can be justified
+Mention benchmark method (cuda events over the default stream)
+- Explain how the similar implementations scale differently and this is worth noting when implementing fft for a specific platform
+- Attach results and graphs and reflect
+
+<!--
 ## 6.1 Popular implementations
 - Talk about popular implementations
 - FFTW but since we care about GPU oriented approaches we use as reference cuFFT
@@ -200,5 +207,6 @@ Mention benchmark method (cuda events over the default stream)
 
 ### 6.2.2 Results
 - attach all results and graphs
+-->
 
-# 7 CONCLUSIONS
+# 7 CONCLUSIONS AND FUTURE WORK
