@@ -307,21 +307,18 @@ int main() {
     std::cout << "CUDA CPU: " << benchmark([&]() {
         // Record event before execution on stream 0 (default)
         CU_ERR_CHECK_MSG(cudaEventRecord(start_event, 0), "");
-
+        
         // Horizontal pass
         stockham_fft_horizontal<<<blocks, block_threads>>>(gpu_pp0.surface, gpu_pp1.surface, -1.f);
 
         // Vertical pass
         stockham_fft_vertical<<<blocks, block_threads>>>(gpu_pp0.surface, gpu_pp1.surface, -1.f);
-
+        
         // Record event after execution on stream 0 (default)
         CU_ERR_CHECK_MSG(cudaEventRecord(end_event, 0), "");
         
-        // Sync after execution
         err = cudaDeviceSynchronize();
         CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
-        CU_ERR_CHECK_MSG(cudaGetLastError(), "Cuda error: Failed to synchronize\n")
-
         
         if(bench_run != 0) {
             float gpu_time;

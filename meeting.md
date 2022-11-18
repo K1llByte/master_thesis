@@ -2,15 +2,22 @@
 
 <!-- Questions -->
 <!--
-- Does the supervisor have any dissertation of the work done in the ocean waves implementation on the nau?
 - Is it worth to include the times of the inverse fft? The difference of forward and inverse is negligible
-- When nau has multiple runs for the same pass the GPU time is for all thoses passes or just 1?
+    - Prove that it is negligible and then there's no need to include it
 - Besides the graphs ill have to analyse differences between implementations, can i have a table with all relevant numeric results?
+    - Include benchmark table in the apendix
 - Should I include in-place cuFFT data too (its not the MOST performant)?
+    - Mention why we only benchmark out-of-place
+- In lists should i use '.' or ';'?
+    - ';' com '.' na ultima
+- In 6.1 should i include code snipet of cuFFT in apendix?
+    - Yes
 -->
 
 <!-- Notes -->
 <!--
+
+
 "is presented in" instead of such as
 
 Datas de entrega:
