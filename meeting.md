@@ -2,48 +2,56 @@
 
 <!-- Questions -->
 <!--
-- Is it worth to include the times of the inverse fft? The difference of forward and inverse is negligible
-    - Prove that it is negligible and then there's no need to include it
-- Besides the graphs ill have to analyse differences between implementations, can i have a table with all relevant numeric results?
-    - Include benchmark table in the apendix
-- Should I include in-place cuFFT data too (its not the MOST performant)?
-    - Mention why we only benchmark out-of-place
-- In lists should i use '.' or ';'?
-    - ';' com '.' na ultima
-- In 6.1 should i include code snipet of cuFFT in apendix?
-    - Yes
+- Devo remover o que estiver a bold?
 -->
 
 <!-- Notes -->
 <!--
-
-
-"is presented in" instead of such as
-
-Datas de entrega:
-- 31 Dec
+- "is presented in" instead of "such as"
 
 Todo[Content]:
+- [x] 1. "Where it is used" como parte introdutória na secção de Fourier Transform.~
+    * Resumido um bocado, como sugerido
+- [ ] 2. Juntar Continuous Fourier Transform com a parte de Discrete Fourier Transform.
+- [x] 3. Dizer que a razao pela qual está no estado de arte so o Cooley-Tukey DIT e DIF é porque sao as versões que mais sao usadas.
+    * End of section 2.3
+- [ ] 5. Justificar a derivação da fórmula de DIT em 2.3.1 e igualmente fazer um equivalente para 2.3.2
+- [x] 6. Fazer alguma coisa relativamente a versão da DFT que divide por raiz de N em que a torna reversível 
+    * Section 2.2.1, mudei o texto para que a informação de como tornar a matriz unitária seja vista mais como uma nota, e não uma informação critica.
+- [x] 7. Justificar o porquê de termos que usar um bit reversal step.
+    * Section 2.3.1.
+- Duvida: É suposto apagar o exemplo?
+
+- [ ] Prove that the difference inverse vs forward times are negligible and that's there's no need to include the inverse
+- [ ] Mention why we only benchmark out-of-place
+- [ ] Include code snipet of cuFFT in apendix
+
 - [ ] Corrigir informaçao sobre que o warp size deve ser por volta de 32
+- [ ] (Optional) Include benchmark table in the apendix
 
 Todo[Fixes]:
 - For every chapter and section, write a brief description of what it contains with references for the parts
 - Label every chapter, section, subsections and figures and all that
+- Lists items end with ';' and last item with '.'
+
+- [ ] "listings" on the first page of the pre-dissertation stuff
+- [ ] Add/Update Keywords
 -->
 
+<!-- Temporary -->
+<!--
+
+-->
 
 ## Goals
+
+**Last submission day:** 31 Dec
 
 - [1 month] Write until chapters 4 and 5 (incomplete stuff for the last pratical phase, algos, code blocks, etc ...) []
 - [2 weeks] Final practical corrections ...
 
 ### Writing
 
-- Correct written practices: (Only at the end)
-    - When talking about the work done remove the "We" and reference it as "It was done"
-    - "listings" on the first page of the pre-dissertation stuff
-    - Add/Update Keywords
-- Review of the written text
 
 <!--
 x - Done
