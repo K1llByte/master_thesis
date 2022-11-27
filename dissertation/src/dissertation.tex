@@ -782,6 +782,8 @@ The complexity work within the algorithm is distributed with the DIT approach wh
 
 In practice, \autoref{alg:dit} demonstrates the aforesaid with an iterative representation of a possible implementation. Although this algorithm is congruent with a code implementation, its worth noting that the input sequence can either have real or complex numbers, since the arithmetic is the same for both domains the only thing that needs to be specialized is the operator overloading in the inner most loop.
 
+\break
+
 % 3. Algorithmic overview
 \SetKwComment{Comment}{/* }{ */}
 \RestyleAlgo{ruled}
@@ -981,12 +983,27 @@ Finally, as expected the DIT and DIF algorithms overrule the other alternatives 
 
 
 \section{Improving the Cooley-Tukey algorithm}
-Nowadays there is a lot more to the computation of FFT's than just the basic Cooley-Tukey algorithm described in \ref{subsec:radix-2-decimation-in-time-fft} there are more algorithms, variations and improvements that enhace the computation in many aspects. Even the target hardware can change the restrictions on the computation of this primitive.
+Nowadays there is a lot more to the computation of FFT's than just the basic Cooley-Tukey algorithm described in \ref{subsec:radix-2-decimation-in-time-fft} there are more algorithms, variations and improvements that enhace the computation in many aspects. Even the selected hardware can change the restrictions on the computation of this primitive.
 
-One could optimize the fft by providing precomputed twiddle factors, or spare space for the output sequence by adopting an inplace FFT algorithm  and all those factors influence the performance, evidently a balance must be stablished depending on the constraints for the FFT.
+One could optimize the fft by providing precomputed twiddle factors, or spare space for the output sequence by adopting an in-place FFT algorithm  and all those factors influence the performance. Evidently a balance must be stablished depending on the constraints for the FFT to take advantage on the target environment.
 
 \subsection{Natural order Cooley-Tukey}
+The main characteristic of Cooley\-Tukey algorithm is the presence of the bit reversal step needed to store the result in natural order. Both the DIT and DIF version apply this step, for the first it is done before the first stage, and for the later version its delayed up until the end of the last stage to be applied. This bit reversal step is essential for this algorithm to obtain the same input sequence if the inversion of the forward fft is computed, however, it is possible to change the algorithm a bit to rearrange the output in natural order.  
 
+% TODO: Composition of odd and even numbers
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.5\textwidth]{imgs/natural_order.png}
+    \caption{Natural order composition}
+    \label{fig:natural-order}
+\end{figure}
+
+% TODO: Review what this change does and how it integrates with the Cooley-Tukey algorithm
+To replace the bit reversal step we can introduce an equivalent procedure applied in each stage after the butterflies are computed,
+this procedure is illustrated in \autoref{fig:natural-order}
+% TODO: Natural order Cooley-Tukey algorithm
+
+However this change gets rid of the bit reversal step, it is not optimal, for each stage there's a swap over the subtransform elements beyond the butterflies and that's what leads us to the next section, the stockham algorithm.
 
 \subsection{Stockham algorithm}
 \subsection{Radix-4 instead of Radix-2}
