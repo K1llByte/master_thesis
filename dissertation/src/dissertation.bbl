@@ -1,4 +1,4 @@
-\begin{thebibliography}{14}
+\begin{thebibliography}{23}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -23,6 +23,12 @@ Eleanor Chu and Alan George.
   transform algorithms}.
 \newblock CRC press, 1999.
 
+\bibitem[Fernando et~al.(2004)]{fernando2004gpu}
+Randima Fernando et~al.
+\newblock \emph{GPU gems: programming techniques, tips, and tricks for
+  real-time graphics}, volume 590.
+\newblock Addison-Wesley Reading, 2004.
+
 \bibitem[Fl{\"u}gge(2017)]{flugge2017realtime}
 Fynn-Jorin Fl{\"u}gge.
 \newblock Realtime gpgpu fft ocean water simulation.
@@ -33,10 +39,33 @@ Matteo Frigo and Steven~G Johnson.
 \newblock Fftw: Fastest fourier transform in the west.
 \newblock \emph{Astrophysics Source Code Library}, pages ascl--1201, 2012.
 
+\bibitem[Govindaraju et~al.(2008)Govindaraju, Lloyd, Dotsenko, Smith, and
+  Manferdelli]{govindaraju2008high}
+Naga~K Govindaraju, Brandon Lloyd, Yuri Dotsenko, Burton Smith, and John
+  Manferdelli.
+\newblock High performance discrete fourier transforms on graphics processors.
+\newblock In \emph{SC'08: Proceedings of the 2008 ACM/IEEE conference on
+  Supercomputing}, pages 1--12. Ieee, 2008.
+
+\bibitem[Heldens et~al.(2022)Heldens, Hijma, Van~Werkhoven, Maassen, and
+  Van~Nieuwpoort]{heldens2022lightning}
+Stijn Heldens, Pieter Hijma, Ben Van~Werkhoven, Jason Maassen, and Rob~V
+  Van~Nieuwpoort.
+\newblock Lightning: Scaling the gpu programming model beyond a single gpu.
+\newblock In \emph{2022 IEEE International Parallel and Distributed Processing
+  Symposium (IPDPS)}, pages 492--503. IEEE, 2022.
+
 \bibitem[Horn and Johnson(2012)]{horn2012matrix}
 Roger~A Horn and Charles~R Johnson.
 \newblock \emph{Matrix analysis}.
 \newblock Cambridge university press, 2012.
+
+\bibitem[Hussain et~al.(2010)Hussain, Garzia, and Nurmi]{hussain2010evaluation}
+Waqar Hussain, Fabio Garzia, and Jari Nurmi.
+\newblock Evaluation of radix-2 and radix-4 fft processing on a reconfigurable
+  platform.
+\newblock In \emph{13th IEEE Symposium on Design and Diagnostics of Electronic
+  Circuits and Systems}, pages 249--254. IEEE, 2010.
 
 \bibitem[Jia(2014)]{jia2014polynomial}
 Yan-Bin Jia.
@@ -48,6 +77,12 @@ Douglas~L Jones.
 \newblock Digital signal processing: A user's guide.
 \newblock 2014.
 
+\bibitem[Marti-Puig and Bolano(2009)]{marti2009radix}
+Pere Marti-Puig and Ramon~Reig Bolano.
+\newblock Radix-4 fft algorithms with ordered input and output data.
+\newblock In \emph{2009 16th International Conference on Digital Signal
+  Processing}, pages 1--6. IEEE, 2009.
+
 \bibitem[NTiAudio()]{fftntiaudio}
 NTiAudio.
 \newblock {Fast Fourier Transformation FFT - Basics}.
@@ -55,10 +90,29 @@ NTiAudio.
   \url{https://www.nti-audio.com/en/support/know-how/fast-fourier-transform-fft}.
 \newblock Accessed at 2022-01-28.
 
+\bibitem[NVIDIA()]{CUDAcppguide}
+NVIDIA.
+\newblock Cuda c++ programming guide.
+\newblock
+  \url{https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#scalable-programming-model}.
+\newblock Accessed: 2022-07-27.
+
 \bibitem[Nvidia()]{nvidiacufft}
 CUDA Nvidia.
 \newblock Cufft library (2018).
 \newblock \emph{URL developer. nvidia. com/cuFFT}.
+
+\bibitem[OKAHISA)()]{OTFFTnoct}
+OK~Ojisan~(Takuya OKAHISA).
+\newblock Introduction to the stockham fft.
+\newblock \url{http://wwwa.pikara.ne.jp/okojisan/otfft-en/stockham1.html}.
+\newblock Accessed: 2022-07-22.
+
+\bibitem[Prado(2004)]{prado2004new}
+J~Prado.
+\newblock A new fast bit-reversal permutation algorithm based on a symmetry.
+\newblock \emph{IEEE Signal Processing Letters}, 11\penalty0 (12):\penalty0
+  933--936, 2004.
 
 \bibitem[Rader(1968)]{rader1968discrete}
 Charles~M Rader.
@@ -70,6 +124,12 @@ Charles~M Rader.
 Kamisetty~Ramam Rao and Patrick~C Yip.
 \newblock \emph{The transform and data compression handbook}.
 \newblock CRC press, 2018.
+
+\bibitem[Singleton(1969)]{singleton1969algorithm}
+RC~Singleton.
+\newblock An algorithm for computing the mixed radix fast fourier transform.
+\newblock \emph{IEEE Transactions on audio and electroacoustics}, 17\penalty0
+  (2):\penalty0 93--103, 1969.
 
 \bibitem[Smith(2007)]{smith2007mathematics}
 Julius~Orion Smith.

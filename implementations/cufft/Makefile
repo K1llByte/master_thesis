@@ -9,3 +9,5 @@ test:
 
 run: all
 	./a.out
+
+# nvcc -lcufft src/main.cu -Xcompiler="/Zc:preprocessor" && .\a.exe

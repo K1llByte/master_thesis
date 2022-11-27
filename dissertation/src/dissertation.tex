@@ -60,10 +60,12 @@
 }
 %---
 
-\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegreen}{rgb}{0.4,0.4,0.4}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
-\definecolor{codepurple}{rgb}{0.58,0,0.82}
-\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{codepurple}{rgb}{0.5,0.4,0.8}
+\definecolor{codehighlight}{rgb}{0.2,0.2,0.2} %{0.5,0.4,0.8}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.95}
+
 \definecolor{s_orange}{HTML}{ef821c}
 \definecolor{s_gray}{HTML}{8292A1}
 \definecolor{s_line_gray}{HTML}{8e8f90}
@@ -71,7 +73,7 @@
 \lstdefinestyle{mystyle}{
     backgroundcolor=\color{backcolour},   
     commentstyle=\color{codegreen},
-    keywordstyle=\color{magenta},
+    keywordstyle=\color{codehighlight}\textbf,
     numberstyle=\tiny\color{codegray},
     stringstyle=\color{codepurple},
     basicstyle=\ttfamily\footnotesize,
@@ -79,8 +81,8 @@
     breaklines=true,                 
     captionpos=b,                    
     keepspaces=true,                 
-    numbers=left,                    
-    numbersep=5pt,                  
+    % numbers=left,                    
+    % numbersep=1pt,                  
     showspaces=false,                
     showstringspaces=false,
     showtabs=false,                  
@@ -127,8 +129,18 @@
 \begin{document}\fontfamily{phv}\fontseries{mc}\selectfont
     
 % Add acronym definitions
-\newacronym{gcd}{GCD}{Greatest Common Divisor}
-\newacronym{lcm}{LCM}{Least Common Multiple}
+\newacronym{dft}{DFT}{Discrete Fourier Transform}
+\newacronym{fft}{FFT}{Fast Fourier Transform}
+\newacronym{ifft}{IFFT}{Inverse Fast Fourier Transform}
+\newacronym{glsl}{GLSL}{OpenGL Shading Language}
+\newacronym{cuda}{CUDA}{Compute Unified Device Architecture}
+\newacronym{cufft}{cuFFT}{NVIDIA-CUDA Fast Fourier Transform}
+\newacronym{fftw}{FFTW}{Fastest Fourier Transform in the West}
+\newacronym{cpu}{CPU}{Central Processing Unit}
+\newacronym{gpu}{GPU}{Graphics Processing Unit}
+\newacronym{simd}{SIMD}{Single Instruction, Multiple Data}
+\newacronym{simt}{SIMT}{Single Instruction, Multiple Threads}
+
     
 % Cover page ---------------------------------------------
 %	\thispagestyle{empty}
@@ -148,17 +160,17 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% \chapter*{Copyright and Terms of Use for Third Party Work}
+\chapter*{Copyright and Terms of Use for Third Party Work}
 
-% This dissertation reports on academic work that can be used by third parties as long as the internationally accepted standards and good practices are respected concerning copyright and related rights.
-% \vskip 1em
-% \noindent This work can thereafter be used under the terms established in the license below.
-% \vskip 1em
-% \noindent Readers needing authorization conditions not provided for in the indicated licensing should contact the author through the RepositóriUM of the University of Minho.
+This dissertation reports on academic work that can be used by third parties as long as the internationally accepted standards and good practices are respected concerning copyright and related rights.
+\vskip 1em
+\noindent This work can thereafter be used under the terms established in the license below.
+\vskip 1em
+\noindent Readers needing authorization conditions not provided for in the indicated licensing should contact the author through the RepositóriUM of the University of Minho.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{License granted to users of this work:}
 
-% \section*{License granted to users of this work:}
+\CCBYSA
 
 % \CCBY % or replace by one in***************** the list below, cf https://alunos.uminho.pt/PT/estudantes/Formataes/3_Despacho_RT-31_2019_Anexo%203-Informa%c3%a7%c3%a3o-Direitor%20de%20Autor.docx 
 %---------
@@ -178,24 +190,24 @@
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% \chapter*{Statement of Integrity}
+\chapter*{Statement of Integrity}
 
-% I hereby declare having conducted this academic work with integrity.
-% \vskip 1em\noindent
-% I confirm that I have not used plagiarism or any form of undue use of information or falsification of results along the process leading to its elaboration. 
-% \vskip 1em\noindent
-% I further declare that I have fully acknowledged the Code of Ethical Conduct of the University of Minho.
+I hereby declare having conducted this academic work with integrity.
+\vskip 1em\noindent
+I confirm that I have not used plagiarism or any form of undue use of information or falsification of results along the process leading to its elaboration. 
+\vskip 1em\noindent
+I further declare that I have fully acknowledged the Code of Ethical Conduct of the University of Minho.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter*{Abstract}
 
 The continuous progress of the evolution of GPUs has increased the popularity of parallelizable algorithm implementations on this type of hardware.
-Fast Fourier Transforms is a family of algorithms which are very useful for the computation of Discrete Fourier Transforms which is applied in many practical scenarios for serveral areas.
+Fast Fourier Transforms is a family of algorithms which are very useful for the computation of Discrete Fourier Transforms which is applied in many practical scenarios for several areas.
 
-Due to its usefullness and the need to optimize Fast Fourier Transforms this algorithms are effectively computed on the GPU to take advantage of its parallelizable variants
+Due to its usefulness and the need to optimize Fast Fourier Transforms this algorithms are effectively computed on the GPU to take advantage of its parallelizable variants
 
-In this dissertation we provide, compare and analyze FFT implementations with popular libraries that are known to compute this efficiently, and provide specially forged GLSL implementations in the context of applications.
+In this dissertation we provide, compare and analyze \acrshort{fft} implementations with popular libraries that are known to compute this efficiently, and provide specially forged \acrshort{glsl} implementations in the context of applications.
 
 \paragraph{Keywords} FFT, GLSL, cuFFT, analysis, performance.
 
@@ -205,12 +217,12 @@ In this dissertation we provide, compare and analyze FFT implementations with po
 
 \chapter*{Resumo}
 
-O progresso contínuo da evolução dos GPUs aumentou a popularidade das implementações de algoritmos paralelizáveis ​​neste tipo de hardware.
+O progresso contínuo da evolução dos GPUs aumentou a popularidade das implementações de algoritmos paralelizáveis neste tipo de hardware.
 \textit{Fast Fourier Transforms} são uma família de algoritmos úteis para o cálculo de transformadas de Fourier discretas que são aplicadas em muitos cenários práticos para diversas áreas.
 
 Devido à sua utilidade e à necessidade de otimizar as \textit{Fast Fourier Transforms}, esses algoritmos são efetivamente computados na GPU para aproveitar suas variantes paralelizáveis
 
-Nesta dissertação, fornecemos, comparamos e analisamos implementações de FFT com bibliotecas populares que são conhecidas por computar isso de forma eficiente e fornecemos implementações GLSL especialmente forjadas no contexto de aplicativos.
+Nesta dissertação, fornecemos, comparamos e analisamos implementações de \acrshort{fft} com bibliotecas populares que são conhecidas por computar isso de forma eficiente e fornecemos implementações GLSL especialmente forjadas no contexto de aplicativos.
     
 \paragraph{Palavras-chave} FFT, GLSL, cuFFT, análise, performance
 
@@ -233,11 +245,11 @@ Nesta dissertação, fornecemos, comparamos e analisamos implementações de FFT
     
     \cleardoublepage
     \listoftables
-    
-    % \cleardoublepage
-    % \lstlistoflistings
+            
+    \cleardoublepage
+    \lstlistoflistings
 
-    % \printglossary[type=\acronymtype]
+    \printglossary[type=\acronymtype]
     
     % Add list of acronyms
     \cleardoublepage
@@ -253,7 +265,7 @@ Nesta dissertação, fornecemos, comparamos e analisamos implementações de FFT
 \section{Contextualization} \label{sec:contextualization}
 
 % % 1.1 O que sao transofrmadas de fourier e em que contexto se enquadram
-The Fast Fourier Transforms have been present in our sorroundings for a long time, they're used extensively in digital signal processing including many other areas and they often need to be used in a realtime context, where the computations must be performed fast enough. Fast Fourier Transforms essentially are optimized algorithms to compute the Discrete Fourier Transform of some data, data that might be sampled from a signal, an oscilating object or even an image, which is transformed into the frequency domain allowing any kind of processing for a relativelly low computational cost. Despite already existing pretty fast computations of the FFT, many applications require the processing of serveral transforms so its necessary to manage the implementations properties and achieve the best speed.
+The Fast Fourier Transforms have been present in our surroundings for a long time, they're used extensively in digital signal processing including many other areas and they often need to be used in a realtime context, where the computations must be performed fast enough. Fast Fourier Transforms essentially are optimized algorithms to compute the Discrete Fourier Transform of some data, data that might be sampled from a signal, an oscillating object or even an image, which is transformed into the frequency domain allowing any kind of processing for a relatively low computational cost. Despite already existing pretty fast computations of the \acrshort{fft}, many applications require the processing of several transforms so its necessary to manage the implementations properties and achieve the best speed.
 
 % 2. De que forma este algoritmo pode beneficiar ao ser usado no GPU eao ser usado para aplicações  
 
@@ -261,28 +273,28 @@ The Fast Fourier Transforms have been present in our sorroundings for a long tim
 
 The continuous progress of the evolution of GPUs has increased the popularity of parallelizable algorithm implementations on this type of hardware.
 % % UNUSED: \cite{zhang2013design}
-Notably the FFT algorithms family is constantly present in Computer Graphics, it's usual to find inlined implementations in shader code which offer reliable Fast Fourier Transforms \cite{flugge2017realtime}, but lack tuning of settings for a more optimized versions of these computations. On the other hand there's already out there libraries that provide efficient implementations of FFT on the GPU and CPU like cuFFT \cite{nvidiacufft}, a library provided by NVIDIA exclusively for their GPU's implemented for CUDA, and FFTW \cite{frigo2012fftw}, a library dedicated to computations of FFT on the CPU with SIMD instructions support.
+Notably the \acrshort{fft} algorithms family is constantly present in Computer Graphics, it's usual to find inlined implementations in shader code which offer reliable Fast Fourier Transforms \cite{flugge2017realtime}, but lack tuning of settings for a more optimized versions of these computations. On the other hand there's already out there libraries that provide efficient implementations of \acrshort{fft} on the GPU and CPU like cuFFT \cite{nvidiacufft}, a library provided by NVIDIA exclusively for their GPU's implemented for CUDA, and FFTW \cite{frigo2012fftw}, a library dedicated to computations of \acrshort{fft} on the CPU with SIMD instructions support.
 
 % FIXME: THIS PARAGRAPH IS NOT OK THE PROBLEM ISNT SYNCRONIZATION IN THE GRAPHICS PIPELINE
-Although this libraries can provide efficient transforms with specialized cases over a proper plan, in some applications its performance might be compromised for cases where, for example, the graphics pipeline needs to be sincronized with the computation of the Fourier Transform.
+Although this libraries can provide efficient transforms with specialized cases over a proper plan, in some applications its performance might be compromised for cases where, for example, the graphics pipeline needs to be synchronized with the computation of the Fourier Transform.
 
 \section{Objectives} \label{sec:objectives}
 
-The main objective of this dissertation is to provide efficient FFT alternatives in GLSL compared with dedicated tools for high performance of FFT computations like NVIDIA cuFFT library or FFTW, while analysing the intrinsic of a good Fast Fourier Transform implementation on the GPU and even make a one to one comparison of implementations on different frameworks. % ie: if the same implementation has different costs in different frameworks (cuda, opencl, compute shaders in glsl)
-To accomplish the main objective there are two stages taken in consideration, \textit{Analysis of CUDA and GLSL kernels} to be well settled in their differences and to have a reference for the second stage \textit{Analysis of application specific implementations} which will cluster the study's main objective and where we'll use as case of study applications with implementation of the FFT in the field of Computer Graphics that require realtime performance.
+The main objective of this dissertation is to provide efficient \acrshort{fft} alternatives in GLSL compared with dedicated tools for high performance of \acrshort{fft} computations like NVIDIA cuFFT library or FFTW, while analysing the intrinsic of a good Fast Fourier Transform implementation on the GPU and even make a one to one comparison of implementations on different frameworks. % ie: if the same implementation has different costs in different frameworks (cuda, opencl, compute shaders in glsl)
+To accomplish the main objective there are two stages taken in consideration, \textit{Analysis of CUDA and GLSL kernels} to be well settled in their differences and to have a reference for the second stage \textit{Analysis of application specific implementations} which will cluster the study's main objective and where we'll use as case of study applications with implementation of the \acrshort{fft} in the field of Computer Graphics that require realtime performance.
 
 % ====== New Planning Schedule
 
 With constant progression of the research needed for this project, some steps of the work plan were refactored to meet the needs. The two main stages of the objectives stay the same but there are some adjustments to the schedule dates and steps as shown in \autoref{tab:schedule}.
 
 \begin{itemize}
-    \item \textbf{Research Fast Fourier Transform}
-    \item \textbf{Study cuFFT}, understand internal optimizations and prepare specialized profiles.
-    \item \textbf{Analysis of CUDA and GLSL kernels} for FFT raw computations.
-    \item \textbf{Research of Application driven FFT}, specialized implementations on the context of the application.
+    \item \textbf{Research Fast Fourier Transform};
+    \item \textbf{Study cuFFT}, understand internal optimizations and prepare specialized profiles;
+    \item \textbf{Analysis of CUDA and GLSL kernels} for \acrshort{fft} raw computations;
+    \item \textbf{Research of Application driven FFT}, specialized implementations on the context of the application;
     % \item \textbf{Benchmarking} and comparison of work performed.
-    \item \textbf{Writing of pre-dissertation}
-    \item \textbf{Writing of dissertation}
+    \item \textbf{Writing of pre-dissertation};
+    \item \textbf{Writing of dissertation}.
 \end{itemize}
 
 
@@ -345,11 +357,26 @@ To give a state of the art overview of the theory and practice associated with F
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                       State of the Art                       %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{State of the Art} \label{chap:state-of-the-art}
+\chapter{The Fourier Transform} \label{chap:state-of-the-art}
 
-\section{Fourier Transform} \label{sec:fourier-transform}
+It's noticeable the presence of Fourier Transforms in a great variety of apparent unrelated fields of application, even the \acrshort{fft} is often called ubiquitous due to its effective nature of solving a great hand of problems for the most intended time complexity. Some applications include polynomial multiplication \cite{jia2014polynomial}, numerical integration, time-domain interpolation, x-ray diffraction. Furthermore it is present in several fields of study such as Applied Mechanics, Signal Processing, Sonics and Acoustics, Biomedical Engineering, Instrumentation, Radar, Numerical Methods, Electromagnetics, Computer Graphics and more \cite{brigham1988fast}.
 
-\subsection{What is Fourier Transform} \label{subsec:what-is-fourier-transform}
+In \textbf{Signal Analysis} when representing a signal with amplitude as function of time, it can be translated to the frequency domain, a domain that consists of signals of sines and cosines waves of varied frequencies, as illustrated in \autoref{fig:signal-decomposition}, but to calculate the coefficients of those waves we use the Fourier Transform.
+
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/fft_time_freq.png}
+    \caption{Time to frequency signal decomposition \source{fftntiaudio}}
+    \label{fig:signal-decomposition}
+\end{figure}
+
+% REVIEW
+Since the sine and cosine waves are in simple wave forms they can then be manipulated with relative ease. This process is constantly present in communications since the transmission of data over wires and radio circuits through signals and most devices nowadays perform it frequently.
+\newline
+
+In this introductory chapter we present a rudimentary introduction to the Fourier Transform in \autoref{sec:continuous-fourier-transform} and describe the discrete version of the Fourier Transform, which we focus more in this dissertation in \autoref{sec:discrete-fourier-transform} and finalizing with the state of the art of the most popular algorithms in \autoref{sec:fast-fourier-transform}.
+
+\section{Continuous Fourier Transform} \label{sec:continuous-fourier-transform}
 
 The \textbf{Fourier Transform} is a mathematical method to transform the domain refered to as \textit{time} of a function, to the \textit{frequency} domain, intuitively the Inverse Fourier Transform is the corresponding method to reverse that process and reconstruct the original function from the one in \textit{frequency} domain representation.
 
@@ -358,38 +385,36 @@ Although there are many forms, the Fourier Transform key definition can be descr
 % Forward Fourier Transform
 %FIXME: This equations are replacing the reference number for the name with '\eqname'
 % It must show the name AND the number
-\begin{equation} \label{eq1}
-    % \begin{split}
-    X(f) = \int_{-\infty}^{+\infty} x(t)e^{-i f t} dt \\ %\eqname{Forward Fourier Transform} \\
-    % \end{split}
+\begin{equation} \label{eq:fourier-transform}
+    \begin{split}
+        % Fourier Transform
+        X(f) = \int_{-\infty}^{+\infty} x(t)e^{-i f t} dt \\
+        % Invense Fourier Transform
+        x(t) = \frac{1}{2\pi} \int_{-\infty}^{+\infty} X(f)e^{-i f t} df \\
+    \end{split} %\eqname{Fourier Transform}
 \end{equation}
 
-% Invense Fourier Transform
-%FIXME: This equations are replacing the reference number for the name with '\eqname'
-% It must show the name AND the number
-\begin{equation} \label{eq2}
-        x(t) = \frac{1}{2\pi} \int_{-\infty}^{+\infty} X(f)e^{-i f t} df \\ %\eqname{Inverse Fourier Transform} \\
-\end{equation}
 
-% REVIEW
-% FIXME: I think f isn't REAL, its COMPLEX
 \begin{itemize}
-    \item \( x(t), \forall t \in \mathbb{R} \rightarrow \) function in \textit{time} domain representation with real \( t \).
-    \item \( X(f), \forall f \in \mathbb{R} \rightarrow \) function in \textit{frequency} domain representation with real \( f \), also called the Fourier Transform of \( x(t) \)
-    \item \( i \rightarrow \) imaginary unit \( i = \sqrt{-1} \)
+    \item \( X(f), \forall f \in \mathbb{R} \rightarrow \) function in \textit{frequency} domain representation, also called the Fourier Transform of \( x(t) \);
+    \item \( x(t), \forall t \in \mathbb{R} \rightarrow \) function in \textit{time} domain representation;
+    \item \( i \rightarrow \) imaginary unit \( i = \sqrt{-1} \).
 \end{itemize}
 
-This formulation shows the usage of complex-valued domain since the imaginary unit \( i \) doesn't represent a value in the set of real numbers, making the fourier transform range from real to complex values, one complex coefficient per frequency \( X : \mathbb{R} \rightarrow \mathbb{C} \) 
+The definition of \autoref{eq:fourier-transform} integral is only valid if the integral exists for every value of parameter \(f\). 
+This formulation shows the usage of complex-valued domain, making the fourier transform range from real to complex values, one complex coefficient per frequency \( X : \mathbb{R} \rightarrow \mathbb{C} \) 
+% IN CORRECTION STATE % This formulation shows the usage of complex-valued domain since the imaginary unit \( i \) doesn't represent a value in the set of real numbers, making the fourier transform range from real to complex values, one complex coefficient per frequency \( X : \mathbb{R} \rightarrow \mathbb{C} \) 
 
-If we take into account the Euler's formula, we can replace the Fourier Transform for an equivalent, fragmenting the euler constant for a sine and cosine pair.
+If we take into account \autoref{eq:euler}, we can rewrite the Fourier Transform for an equivalent by resolving the Euler's constant for a sine and cosine sum, as represented in \autoref{eq:ft-with-euler}.
+% IN CORRECTION STATE % If we take into account Euler's formula \autoref{eq:euler}, we can replace the Fourier Transform for an equivalent, fragmenting the Euler constant for a sine and cosine pair.
 
 % Euler's Formula
-\begin{equation} \label{euler_formula}
+\begin{equation} \label{eq:euler}
     e^{ix} = \cos x + i \sin x \\ %\eqname{Euler's Formula} \\
 \end{equation}
 
 % Forward Fourier Transform with Euler's Formula
-\begin{equation}
+\begin{equation} \label{eq:ft-with-euler}
     X(f) = \int_{-\infty}^{+\infty} x(t) (\cos (-f t) + i \sin (-f t)) dt \\
 \end{equation}
 
@@ -410,80 +435,27 @@ Hence, we can break the Fourier Transform apart into two formulas that give each
 % Fourier's original formulation of the transform did not use complex numbers, but rather sines and cosines. % Chatfield, Chris (2004), The Analysis of Time Series: An Introduction, Texts in Statistical Science (6th ed.), London: Chapman & Hall/CRC, ISBN 9780203491683.
 
 % TODO: explain the formula better
-The above definition of the Fourier Integral \autoref{eq1} can only be valid if the integral exists for every value of the parameter \(f\). This model of the fourier transform applied to infinite domain functions is called \textbf{Continous Fourier Transform} and its targeted to the calculation of the this transform directly to functions with only finite discontinuities in \( x(t) \).
-
-\subsection{Where it is used} \label{subsec:where-it-is-used}
-
-It's noticieable the presence of Fourier Transforms in a great variety of apparent unrelated fields of application, even the FFT is often called ubiquitous\footnote{present, appearing, or found everywhere.} due to its effective nature of solving a great hand of problems for the most intended complexity time. Some of the fields of application include Applied Mechanics, Signal Processing, Sonics and Acoustics, Biomedical Engineering, Instrumentation, Radar, Numerical Methods, Electromagnetics, Computer Graphics and more \cite{brigham1988fast}. % \gls{gcd}
-
-One of the most well known cases of application is \textbf{Signal Analysis}, the Fourier Transform is probably the most important tool for analyzing signals, when representing a signal with amplitude as function of time, a signal can be translated to the frequency domain, a domain that consists of signals of sines and consines waves of varied frequencies, as demonstrated in \ref{fig:signal-decomposition}, but to calculate the coefficients of those waves we need to use the Fourier Transform.
-
-\begin{figure}[h] 
-    \centering
-    \includegraphics[width=0.5\textwidth]{imgs/fft_time_freq.png}
-    \caption{Time to frequency signal decomposition \source{fftntiaudio}}
-    \label{fig:signal-decomposition}
-\end{figure}
-
-% REVIEW
-Since the sine and consine waves are in simple waveforms they can then be manipulated with relative ease. This process is constantly present in communications since the transmission of data over wires and radio circuits through signals and most devices nowadays perform it frequently
+This model of the Fourier transform applied to infinite domain functions is called \textbf{Continuous Fourier Transform} and it is targeted to the calculation of the this transform directly to functions with only finite discontinuities in \( x(t) \).
 
 
-% TODO:
-% - Elaborate more
-% - Maybe describe the polynomial multiplication too
-% - Maybe move the 'jia2014polynomial' citation
-% . . .
-
-And much more applications such as polynomial multiplication \cite{jia2014polynomial}, numerical integration, time-domain interpolation, x-ray diffracition ...
-
-% \begin{tikzpicture}
-%   \begin{axis}[
-%       axis lines = left,
-%       xlabel = \(x\),
-%       ylabel = {\(f(x)\)},
-%   ]
-%   %Below the red parabola is defined
-%   \addplot [
-%       domain=-10:10, 
-%       samples=100, 
-%       color=red,
-%   ]
-%   {x^2 - 2*x - 1};
-%   \addlegendentry{\(x^2 - 2x - 1\)}
-%   %Here the blue parabola is defined
-%   \addplot [
-%       domain=-10:10, 
-%       samples=100, 
-%       color=blue,
-%       ]
-%       {x^2 + 2*x + 1};
-%   \addlegendentry{\(x^2 + 2x + 1\)}
-  
-%   \end{axis}
-%   \end{tikzpicture}
-% Dar 2 exemplos principais de como é aplicado e uma breve explicação
-% - Signal processing
-
-% Denote in the end that we'll use a different case of application for this comparison (might not be true since we could use the image processing case as study)
 
 
 \section{Discrete Fourier Transform} \label{sec:discrete-fourier-transform}
-% \section{Discrete Fourier Transform}
 
-The Fourier Transform of a finite sequence of equally-spaced samples of a function is the called the \textbf{Discrete Fourier Transform} (DFT), it converts a finite set of values in \textit{time} domain to \textit{frequency} domain representation. Its the most important type of transform since it deals with a discrete amount of data and has the popular algorithm in which is the center of attention of fourier transforms, which can be implemented in machines and be computed by specialized hardware.
+
+The Fourier Transform of a finite sequence of equally-spaced samples of a function is the called the \textbf{Discrete Fourier Transform} (DFT). It converts a finite set of values in \textit{time} domain to \textit{frequency} domain representation. It is an important version of the Fourier transform since it deals with a discrete amount of data, therefore programmers use it to implement in machines or to compute it in specialized hardware.
+% IN CORRECTION STATE % It is an important version of the Fourier transform since it deals with a discrete amount of data and has the popular algorithm in which is the center of attention of fourier transforms, which can be implemented in machines and be computed by specialized hardware.
 
 % Forward Discrete Fourier Transform
 %FIXME: This equations are replacing the reference number for the name with '\eqname'
 % It must show the name AND the number
-\begin{equation} \label{eq3}
+\begin{equation} \label{eq:forward-discrete-fourier-transform}
     X_{k} = \sum_{n=0}^{N-1}x_{n} \cdot e^{- \frac{i 2 \pi}{N}kn} \\ %\eqname{Forward Discrete Fourier Transform} \\
 \end{equation}
 
 % Inverse Discrete Fourier Transform
-%FIXME: This equations are replacing the reference number for the name with '\eqname'
-% It must show the name AND the number
-\begin{equation} \label{eq4}
+% FIXME: This equations are replacing the reference number for the name with '\eqname'
+\begin{equation} \label{eq:inverse-discrete-fourier-transform}
     x_{n} = \frac{1}{N} \sum_{k=0}^{N-1}X_{k} \cdot e^{\frac{i 2 \pi}{N}kn} \\ %\eqname{Inverse Discrete Fourier Transform} \\
 \end{equation}
 
@@ -655,7 +627,7 @@ The symbol \(W\) represents the transformation matrix of the Discrete Fourier Tr
     \text{where } \omega_{N} = e^{- \frac{i 2 \pi}{N}} \\
 \end{equation*}
 
-By using this matrix multiplication form we can have a more efficient way to compute the DFT in hardware.  
+By using this matrix multiplication form we can have a more efficient way to compute the DFT.  
 
 \begin{equation*}
     X = W \cdot x \\ %\eqname{Matrix DFT} \\
@@ -664,10 +636,11 @@ By using this matrix multiplication form we can have a more efficient way to com
     x = W^{-1} \cdot X \\ %\eqname{Matrix IDFT} \\
 \end{equation*}
 
-Moreover we might also want to normalize the matrix by \( \sqrt{N} \) for both Matrix DFT and IDFT instead of just normalizing the IDFT by \(N\), that will make \(W\) a unitary matrix \cite{horn2012matrix}.
-The advantage of using a unitary matrix is that we only need to reasign the constant substution variable \(\omega_{N}\) to be able to invert the dft, the matrix multiplication stays the same for both DFT and IDFT. 
+Its also worth noting that normalizing the DFT and IDFT matrix be by  \( \sqrt{N} \) instead of just normalizing the IDFT by \(N\), will make \(W\) a unitary matrix \cite{horn2012matrix}. However this normalization by \( \sqrt{N} \) is not common in FFT implementations.
+
+%The advantage of using a unitary matrix is that we only need to reasign the constant substution variable \(\omega_{N}\) to be able to invert the dft, the matrix multiplication stays the same for both DFT and IDFT. 
 % FIXME: This phrase isn't good in this context, is contradicting the aforesaid.
-Nevertheless later we will verify that the use of sqrt function isn't desirable for the implementation of any dft.
+%Nevertheless later we will verify that the use of sqrt function isn't desirable for the implementation of any dft.
 
 % NOTE: 2.1.
 \paragraph{Example} \label{example1.2} Continuing the example \ref{example1}, we can adapt the aplication of the DFT to the matrix multiplication form.
@@ -711,25 +684,26 @@ It's conspicuous that the complexity time for each multiplication of every singu
 
 \section{Fast Fourier Transform} \label{sec:fast-fourier-transform}
 
-The Fast Fourier Transform (FFT) is a family of algorithms that effectively compute the Discrete Fourier Transform (DFT) of a sequence and its inverse. These algorihtms essentially compute the the same result as the DFT but the direct usage of the DFT formulation is too slow for its applications. Thus, FFT algorithms exploit the DFT matrix structure by employing a divide-and-conquer approach \cite{chu1999inside} to segment its application.
+The \acrfull{fft} is a family of algorithms that compute the Discrete Fourier Transform (DFT) of a sequence, and its inverse, efficiently. These algorihtms essentially compute the the same result as the DFT but the direct usage of the DFT formulation is too slow for its applications. Thus, FFT algorithms exploit the DFT matrix structure by employing a divide-and-conquer approach \cite{chu1999inside} to segment its application.
 
-Over time serveral variations of the algorithms were developed to improve the performance of the DFT and many aspects were rethought in the way we apply and produce the resulting transform, in this section we'll cover at some of those variations. % and utilities. % FIXME: Here 'utilities' doesn't fit quite right but i cant find the word i want. 
+Over time serveral variations of the algorithms were developed to improve the performance of the DFT and many aspects were rethought in the way we apply and produce the resulting transform.
 
 % NOTE: There's a newline here since the first block of text is introducing the FFT concept, and the next paragraph is about the algorithms and what well talk about next.
 
 % TODO:
-% 1.1 Mention some of the algorithms and authors names
-% 1.2 'The one well discuss now is Radix-2' and here talk about how this two main algorithms work and why its only for power of 2 cases
+% 1.1 [x] Mention some of the algorithms and authors names
+% 1.2 [x] 'The one well discuss now is Radix-2' and here talk about how this two main algorithms work and why its only for power of 2 cases
 % Algorithms
 % 2.1
 
 % 1.1
 \paragraph{}
-There are many algorithms and aproaches on the FFT family such as the well known Cooley-Tukey, known for its simplicity and effectiveness to compute any sequence with size as a power of two, but also Rader's algorithm \cite{rader1968discrete} and Bluestein's algorithm \cite{bluestein1970linear} which both deal prime sized sequences, and even the Split-radix FFT \cite{yavne1968economical} that recursively expresses a DFT of length \(N\) in terms of one smaller DFT of length \(N/2\) and two smaller DFTs of length \(N/4\). 
+There are many algorithms and aproaches on the FFT family such as the well known Cooley-Tukey, known for its simplicity and effectiveness to compute any sequence with size as a power of two, but also Rader's algorithm \cite{rader1968discrete} and Bluestein's algorithm \cite{bluestein1970linear} to deal with prime sized sequences, and even the Split-radix FFT \cite{yavne1968economical} that recursively expresses a DFT of length \(N\) in terms of one smaller DFT of length \(N/2\) and two smaller DFTs of length \(N/4\). 
 % FIXME: 'that recursively expresses a DFT of length N in terms of one smaller DFT of length N/2 and two smaller DFTs of length N/4.' this is cited directly from https://en.wikipedia.org/wiki/Split-radix_FFT_algorithm try to rewrite later from a good source
 
 % 1.2
-The next two sections focus on the Cooley–Tukey algorithm, most specifically the radix-2 decimation-in-time (DIT) FFT and radix-2 decimation-in-frequency (DIF) FFT, which requires the input sequence to have a power of two size.
+
+The next two sections focus on the Cooley–Tukey algorithm, most specifically the radix-2 decimation-in-time (DIT) FFT and radix-2 decimation-in-frequency (DIF) FFT, both requiring the input sequence to have a power of two size. These two variations of the Cooley–Tukey algorithm represent the state of the art of what an individual in need to implement FFT will most likely be familiar with.
 
 % Describe here everything that the DIT and DIF have in common
 
@@ -738,7 +712,15 @@ The next two sections focus on the Cooley–Tukey algorithm, most specifically t
 % 1. Explain the objective and what the DIT term means in the applied algorithm
 % (is one of the most used)
 
-The Radix-2 Decimation-in-Time FFT algorithm rearranges the original Discrete Fourier Transform (DFT) formula into two subtransforms, one as a sum over the even indexed elements and other as a sum over the odd indexed elements. The \autoref{eq:dit} describes this procedure with already simplified math, and hints the recursive decomposition of the DFT of size \(N/2\).
+The Radix-2 Decimation-in-Time FFT algorithm rearranges the original Discrete Fourier Transform (DFT) formula into two subtransforms, one as a sum over the even indexed elements and other as a sum over the odd indexed elements. Cooley and Tukey proved this possibility of dividing the DFT computation into two smaller DFT by exploiting the symmetry of this division, as presented in \autoref{eq:dit}. Hence it is hinted the recursive definition of this algorithm on both DFT of size \(N/2\).
+
+\begin{equation*}
+    X_{k} = \sum_{n=0}^{N-1}x_{n} \cdot e^{- \frac{i 2 \pi}{N}kn} \\
+\end{equation*}
+
+\begin{equation*}
+    X_{k} = \sum_{m=0}^{N/2-1}x_{2m} \cdot e^{- \frac{i 2 \pi}{N}k(2m)} + \sum_{m=0}^{N/2-1}x_{2m+1} \cdot e^{- \frac{i 2 \pi}{N}k(2m+1)} \\
+\end{equation*}
 
 \begin{equation} \label{eq:dit}
     X_{k} = \sum_{n=0}^{\frac{N}{2}-1}x_{2n} \cdot \omega_{N/2}^{k(2n)} + \omega_{N}^{k} \sum_{n=0}^{\frac{N}{2}-1}x_{2n+1} \cdot \omega_{N/2}^{k(2n+1)} \\
@@ -759,28 +741,40 @@ This algorithm is a Radix-2 Decimation-in-Time in the sence that the time values
 
 \begin{figure}[h] 
     \centering
-    \includegraphics[width=0.5\textwidth]{imgs/dit_fft.png}
+    \includegraphics[width=0.5\textwidth]{img/dit_fft.png}
     \caption{Radix-2 Decimation-in-Time FFT \source{jones2014digital}}
     \label{fig:dit-fft}
 \end{figure}
 
 % 2. Continue explaining this algorithm
 
-Effectivelly, this smaller DFT's are recursively reduced by this algorithm until theres only the computation of a length-2 DFT where its only applied the Cooley-Tukey butterfly operation \cite{chu1999inside} illustrated in \autoref{fig:dit-butterfly}.
+Effectively, this smaller DFT's are recursively reduced by this algorithm until theres only the computation of a length-2 DFT where its only applied the Cooley-Tukey butterfly operation \cite{chu1999inside} illustrated in \autoref{fig:dit-butterfly}.
 
 % NOTE: Handmade since there wan't one that had exacly what i wanted
 \begin{figure}[h] 
     \centering
-    \includegraphics[width=0.5\textwidth]{imgs/dit_butterfly.png}
+    \includegraphics[width=0.5\textwidth]{img/dit_butterfly.png}
     \caption{Cooley-Tukey butterfly}
     \label{fig:dit-butterfly}
 \end{figure}
 
 % "Whereas direct computation of all N DFT frequencies according to the DFT equation would require N2 complex multiplies and N2−N complex additions (for complex-valued data), by reusing the results of the two short-length DFTs as illustrated in Figure, the computational cost is now" 
 
-The complexity work within the algorithm is distributed with the DIT approach which decomposes each DFT by 2 having \(\log{N}\) stages \cite{smith2007mathematics} while there are approximately \(N\) complex multiplications needed for each stage of the DIT decomposition, therefore the multiplication complexity for a \(N\) sized DFT is reduced from \(O(N^{2})\) to \(O(N \log{N})\) without any programming specific optimizations.
+The complexity work within the algorithm is distributed with the DIT approach which decomposes each DFT by 2 having \(\log{N}\) stages \cite{smith2007mathematics} while there are \(N\) complex multiplications needed for each stage of the DIT decomposition, therefore the multiplication complexity for a \(N\) sized DFT is reduced from \(O(N^{2})\) to \(O(N \log{N})\) without any programming specific optimisations.
 
-In practice, \autoref{alg:dit} demonstrates the aforesaid with an iterative representation of a possible implementation. Although this algorithm is congruent with a code implementation, its worth noting that the input sequence can either have real or complex numbers, since the arithmetic is the same for both domains the only thing that needs to be specialized is the operator overloading in the inner most loop.
+One consequence of using this algorithm is that the elements it produces are out of order, therefore, applying the inverse on the Fourier transform of a sequence won't return the same elements. Consequently, we need to apply some kind of data reordering to the sequence.
+
+The most well-known reordering technique involves explicit bit reversal of the elements position, hence this algorithm and the one in \autoref{subsec:radix-2-dif} both contain a bit reversal step but used in different ways. For the DIT FFT  the input sequence of the algorithm must be in bit reversal order since the algorithm returns a natural order sequence but requires the input to be bit reversed. This way we need to apply the bit reversal at the beginning before applying the algorithm.
+
+However it seems shadowed in \autoref{alg:dit} the implementation of the bit reversal is quite simple and any decent version can be used in regards of this algorithm. The key idea is that each element must be placed in its bit reversed index, so for each element of the sequence the $bit\_reverse$ version of the index is calculated and the element is swapped with the on in the original index.
+
+The $bit\_reverse$ of an index depends directly on the indexing domain of the input sequence, therefore it needs the size $N$, or more precisely the $\log{N}$ value, to use as a reference to reverse the bit order while maintaining the value within the sequence range.
+
+For example, for a sequence of size 16, we have some index with $\log{16}$ bits $b_1 b_2 b_3 b_4$, which corresponds to the bit reversed index as $b_4 b_3 b_2 b_1$.
+\newline
+
+In practice, \autoref{alg:dit} demonstrates the aforesaid with an iterative representation of a possible implementation. Although this algorithm is congruent with a code implementation, its worth noting that the input sequence can either have real or complex numbers, since the arithmetic is the same for both domains the only thing that needs to be specialized is the operator overloading in the inner most loop. \newline
+\newline
 
 \break
 
@@ -815,7 +809,9 @@ In practice, \autoref{alg:dit} demonstrates the aforesaid with an iterative repr
     \textbf{return} $out$\;
 \end{algorithm}
 
-\subsection{Radix-2 Decimation-in-Frequency FFT} \label{subsec:radix-2-decimation-in-frequency-fft}
+
+
+\subsection{Radix-2 Decimation-in-Frequency FFT} \label{subsec:radix-2-dif} \label{subsec:radix-2-decimation-in-frequency-fft}
 
 % 1. Explain the objective and what the DIF term means in the applied algorithm
 The Radix-2 Decimation-in-Frequency FFT algorithm is very similar to the DIT approach, its based on the same principle of divide-and-conquer but it rearranges the original Discrete Fourier Transform (DFT) into the computation of two transforms, one with the even indexed elements and other with the odd indexed elements; as in this simplified formulation \autoref{eq:dif}.
@@ -841,7 +837,7 @@ This algorithm is a Radix-2 Decimation-in-Frequency since the DFT is deciminated
 
 \begin{figure}[h] 
     \centering
-    \includegraphics[width=0.5\textwidth]{imgs/dif_fft.png}
+    \includegraphics[width=0.5\textwidth]{img/dif_fft.png}
     \caption{Radix-2 Decimation-in-Frequency FFT \source{jones2014digital}}
     \label{fig:dif-fft}
 \end{figure}
@@ -851,7 +847,7 @@ Similarly to the DIT version, the DFT can be recursively reduced by the DIF algo
 % NOTE: Handmade since there wan't one that had exacly what i wanted
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.5\textwidth]{imgs/dif_butterfly.png}
+    \includegraphics[width=0.5\textwidth]{img/dif_butterfly.png}
     \caption{Gentleman-Sande butterfly}
     \label{fig:dif-butterfly}
 \end{figure}
@@ -859,6 +855,7 @@ Similarly to the DIT version, the DFT can be recursively reduced by the DIF algo
 Since this algorithm has similarities with the DIT, its complexity also lives to this similarity, maintaining the same \(O(N \log{N})\) for number of multiplications, despite that, \autoref{fig:dif-butterfly} and \autoref{fig:dit-butterfly} might look different in number of arithmetic operations since the first has 1 addition, 1 subtraction, and 2 multiplications, and the second has 1 addition, 1 subtraction, and 1 multiplication, but effectively the \(W_{N} \cdot b\) can be reused and only computed once as seen in \autoref{alg:dit}.
 % FIXME: The complexity work within the algorithm is distributed with the DIT approach which decomposes each DFT by 2 having \(\log{N}\) stages \cite{smith2007mathematics} while there are approximately \(N\) complex multiplications needed for each stage of the DIT decomposition, therefore the multiplication complexity for a \(N\) sized DFT is reduced from \(O(N^{2})\) to \(O(N \log{N})\) without any programming specific optimizations.
 
+As mentioned in \autoref{subsec:radix-2-decimation-in-time-fft} the bit reversal in DIF works a bit differently, this algorithm does the exact opposite of the DIT since it requires a natural order sequence and returns a bit reversed output, justifying why this step is applied after the algorithm.
 
 % FIXME: im repeating exactly whats in the DIT but its exactly what i want to say, what to do? keep this or change?
 In practice, \autoref{alg:dif} demonstrates the aforesaid with an iterative representation of a possible implementation. Although this algorithm is congruent with a code implementation, its worth noting that the input sequence can either have real or complex numbers, since the arithmetic is the same for both domains the only thing that needs to be specialized is the operator overloading in the inner most loop.
@@ -987,8 +984,41 @@ Nowadays there is a lot more to the computation of FFT's than just the basic Coo
 
 One could optimize the fft by providing precomputed twiddle factors, or spare space for the output sequence by adopting an in-place FFT algorithm  and all those factors influence the performance. Evidently a balance must be stablished depending on the constraints for the FFT to take advantage on the target environment.
 
+<<<<<<< HEAD
 \subsection{Natural order Cooley-Tukey}
 The main characteristic of Cooley\-Tukey algorithm is the presence of the bit reversal step needed to store the result in natural order. Both the DIT and DIF version apply this step, for the first it is done before the first stage, and for the later version its delayed up until the end of the last stage to be applied. This bit reversal step is essential for this algorithm to obtain the same input sequence if the inversion of the forward fft is computed, however, it is possible to change the algorithm a bit to rearrange the output in natural order.  
+=======
+\subsection{Natural order Cooley-Tukey} \label{subsec:natural-order-ct}
+
+TODO: Paste here the lost paragraph
+
+Despite existing already really fast solutions for index bit reversal (\cite{prado2004new}), this \textit{shufle} step still weights the algorithms with extra overhead. The natural order Cooley-Tukey FFT is a modification of the Cooley-Tukey algorithm that allows the removal of this step by computing the butterfly and reordering the elements per stage \cite{OTFFTnoct}.
+
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/dif_elements_composition.png}
+    \caption{Chain of even and odd compositions over each stage for a natural order DIF}
+    \label{fig:dif-elements-composition}
+\end{figure}
+% Caption: Chain of compositions over each stage for a natural order DIF
+
+At the end of each stage the even and odd elements are composed in such a way that the elements will be in natural order at the end. This composition follows the indexing scheme described in \autoref{eq:nat_order_even_indexing}.
+
+% FIXME: Nao sei como ter isto tudo junto na mesma equacao
+\begin{equation} \label{eq:nat_order_even_indexing}
+    x[q + 2*p] = y[q + p] \\
+\end{equation}
+\begin{equation} \label{eq:nat_order_odd_indexing}
+    x[q + 2*p + 1] = y[q + p + m] \\
+\end{equation}
+
+Where x and y are alternated sequences for read write over each stage, q corresponds to the sub FFT offset in this stage, p is the index of the sub fft element shift for the current butterfly being computed, and finally the m corresponds to the size of the sub FFT divided by 2.
+
+Although this composition got rid of the bit reversal step in the Cooley-Tukey's algorithm, the performance is deprecated with more work for each stage. Work which may seem unnecessary after we find out about the Stockham algorithm that supersedes this algorithm.
+
+% TODO: Rewrite better (maybe not very informative)
+We can also note that the composition of even and odd elements wont be necessary on the last stage of the DIF FFT since it will be a passthrough of the elements, so this is an unnecessary step, however this algorithm is an intermediate step to make the stockham algorithm more rational so there's no need to worry about this detail.
+>>>>>>> 0d7be6795fd826dc05857cf7de8a9f39e5ea5e7f
 
 % TODO: Composition of odd and even numbers
 \begin{figure}[h] 
@@ -1005,27 +1035,605 @@ this procedure is illustrated in \autoref{fig:natural-order}
 
 However this change gets rid of the bit reversal step, it is not optimal, for each stage there's a swap over the subtransform elements beyond the butterflies and that's what leads us to the next section, the stockham algorithm.
 
-\subsection{Stockham algorithm}
+
+\subsection{Stockham algorithm} \label{subsec:stockham-algorithm}
+
+As mentioned on the former section, the Stockham algorithm comes to save us from the bit reversal step, it does this by taking advantage of a reordering of the elements \cite{govindaraju2008high} illustrated in \autoref{fig:dif-elements-composition}. The natural order elements are composed stage by stage and the butterfly computations stay the same, so this approach takes advantage of the Cooley-Tukey algorithm and turns it into a more suitable form for highly parallelizable hardware such as GPUs, making it a best fit for our implementation in any GPU programmable language. \newline
+
+Similarly to \autoref{subsec:natural-order-ct} the algorithm requires the usage alternated sequences for read write over each stage, this prevents the read of an element which has been altered before read in a given stage therefore the return sequence will depend on the $\log{N}$ number parity.
+
+The stockham algorithm is described in \autoref{alg:stockham-dit} and this version may seem strictly different from the Cooley Tukey, specially the inner most loop, however most of the logic stays the same, the indexing is a bit different and simpler for this version and the if statements are a consequence of using alternated ping pong sequences since there has to be branches for read and write of both arrays for this out-of-place algorithm.
+%it only affects the indexing of the elements
+
+% TODO: Devo incluir a versão inversa? é que como so é preciso mudar um sinal nao acho que valha a pena e so fica mais verboso
+
+% FIXME: O if statement tem um end antes do else nao sei como retirar
+
+% 3. Algorithmic overview
+\SetKwComment{Comment}{/* }{ */}
+\RestyleAlgo{ruled}
+\begin{algorithm}[H]
+    \caption{Stockham Radix-2 Decimation-in-Time Forward FFT} \label{alg:stockham-dit}
+    \KwData{Sequence pingpong0 with size $N$ power of 2}
+    \KwResult{Sequence $out$ with size $N$ with the DFT of the input}
+
+    \Comment{FFT}
+    \ForEach{$s = 0$ \textbf{to} $\log{N}-1 $}{
+        $gs \gets N \gg s$\;
+        $stride \gets 1 \ll s$\;
+        %$w_{gs} \gets \exp(2\pi i / gs)$\;
+        \ForEach{$i = 0$ \textbf{to} $N-1$}{
+            $p \gets i $ div $ stride $\;
+            $q \gets i $ mod $ stride $\;
+            $w_{p} = \exp(-2 \pi i / gs * p)$\;
+            % HERE
+            \If{$stage $ mod $ 2 == 0$}{
+                $a \gets pingpong0[q + s*(p + 0)] $\;
+                $b \gets pingpong0[q + s*(p + gs/2)] $\;
+                \Comment{Perform butterfly}
+                $pingpong1[q + s*(2*p + 0)] = a + b$\;
+                $pingpong1[q + s*(2*p + 1)] = (a-b) * w_{p}$\;
+            }
+            \Else{
+                $a \gets pingpong1[q + s*(p + 0)] $\;
+                $b \gets pingpong1[q + s*(p + gs/2)] $\;
+                \Comment{Perform butterfly}
+                $pingpong0[q + s*(2*p + 0)] = a + b$\;
+                $pingpong0[q + s*(2*p + 1)] = (a-b) * w_{p}$\;
+            }
+            %\EndIf
+        }
+    }
+    \If{$\log{N} $ mod $ 2 == 0$}{
+        \textbf{return} pingpong1\;
+    }
+    \Else{
+        \textbf{return} pingpong0\;
+    }
+\end{algorithm}
+
+\paragraph{}
+Despite this algorithm description being an algorithmic or more close to a CPU implementation than GPU it will give us a solid structure to use as reference for our comparison subjects since it is feasible to make a similar implementation for GPGPU programmable languages due to the way of indexing and the usage of alternating sequences.
+
 \subsection{Radix-4 instead of Radix-2}
 
+Stepping forward on the need to optimize this algorithm we reach the topic of higher radix alternatives other than just radix-2, FFT algorithms can use higher radix for better performance and even mixed radix \cite{singleton1969algorithm} for more irregular sized input sequences.
+
+The Radix-4 is a good improvement over Radix-2 since getting to higher radixes than 4 might result in reduced performance, so improving the Stockham algorithm with Radix-4 upgrades the computation of the butterflies while reducing the number of stages which will be crucial in later sections.
+
+Theoretically Radix-4 formulation can be twice as fast as a Radix-2 \cite{hussain2010evaluation} since it only takes half the stages with a bit more complexity in the butterflies which are usually called dragonflies, and additionally can use less multiplications with better factorizations \cite{marti2009radix}.
+
+
+% 1. 
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.6\textwidth]{tese/img/dragonfly.png}
+    \caption{Radix-4 FFT butterfly structure \source{marti2009radix}}
+    \label{fig:radix4-dragonfly}
+\end{figure}
+
+
+TODO: WIP
+
+\SetKwComment{Comment}{/* }{ */}
+\RestyleAlgo{ruled}
+\begin{algorithm}[H]
+    \caption{Stockham Radix-2 Decimation-in-Time Forward FFT} \label{alg:stockham-dit}
+    \KwData{Sequence pingpong0 with size $N$ power of 2}
+    \KwResult{Sequence $out$ with size $N$ with the DFT of the input}
+
+    \Comment{FFT}
+    \ForEach{$s = 0$ \textbf{to} $\log{N}-1 $}{
+        $gs \gets N \gg s$\;
+        $stride \gets 1 \ll s$\;
+        %$w_{gs} \gets \exp(2\pi i / gs)$\;
+        \ForEach{$i = 0$ \textbf{to} $N-1$}{
+            $p \gets i $ div $ stride $\;
+            $q \gets i $ mod $ stride $\;
+            $w_{p} = \exp(-2 \pi i / gs * p)$\;
+            % HERE
+            \If{$stage $ mod $ 2 == 0$}{
+                $a \gets pingpong0[q + s*(p + 0)] $\;
+                $b \gets pingpong0[q + s*(p + half_gs)] $\;
+                \Comment{Perform butterfly}
+                $pingpong1[q + s*(2*p + 0)] = a + b$\;
+                $pingpong1[q + s*(2*p + 1)] = (a-b) * w_{p}$\;
+            }
+            \Else{
+                $a \gets pingpong1[q + s*(p + 0)] $\;
+                $b \gets pingpong1[q + s*(p + gs/2)] $\;
+                \Comment{Perform butterfly}
+                $pingpong0[q + s*(2*p + 0)] = a + b$\;
+                $pingpong0[q + s*(2*p + 1)] = (a-b) * w_{p}$\;
+            }
+            %\EndIf
+        }
+    }
+    \If{$\log{N} $ mod $ 2 == 0$}{
+        \textbf{return} pingpong1\;
+    }
+    \Else{
+        \textbf{return} pingpong0\;
+    }
+\end{algorithm}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                  Implementation on the GPU                   %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Implementation on the GPU}
-\section{Fourier Transform on the GPU}
-\section{Implementation in GLSL}
+
+To be able to analyse the implementation of FFT on the GPU, we need to provide some background on what kind of hardware were dealing with, whats constraints are relevant and what we can or can't do, after, we proceed with with description of how the Fourier Transform suits the GPU programming model and finally we'll move forward to a detailed analysis of the implementation of FFT algorithms in a compute shader in GLSL.
+
+\section{GPU Programming model}
+
+% Introducing GPU and why it is better
+% GPU architecture and programming model
+% What we can do and how to take advantage of the GPU
+% Compute pipeline in GLSL
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TODO: Rewrite this phrase
+The Graphics Processing Unit (GPU) provides much higher instruction throughput and memory bandwidth than the CPU within a similar price and power envelope having a much faster performance growth curve. Many applications leverage these higher capabilities to run faster on the GPU than on the CPU. While the hardware may change some components and architecture on different models, fundamentally most modern GPUs adopt a specific kind of single instruction multiple data (SIMD) stream architecture which is single instruction multiple threads (SIMT) that is an extension of the SIMD paradigm with large scale multi-threading, streaming memory and dynamic scheduling. \newline
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+A SIMT stream architecture forwards an instruction to multiple threads with dedicated memory for each instance, allowing data-level parallelism to compute more quickly and effectively.
+A modern CPU uses a von Neumann architecture, so it executes instructions sequentially one at a time and updates the memory progressively, however a stream architecture processor works in a slightly different way, they contain multiple streams of simpler processors with shared memory just like the illustration in \autoref{fig:cpu-gpu}. These processors execute programs called kernels that receive a finite set of input fragments to produce another set of output fragments in parallel \cite{fernando2004gpu}. \newline
+
+With the introduction of programmable General Purpose Graphics Processing Unit (GPGPU) the industry required a lot more parallel algorithms.
+
+%This paradigm revolutionised the industry and with its evolution came the General Purpose Graphics Processing Unit (GPGPU) which allows this type of hardware to compute highly parallel procedures similarly to a CPU but with all the advantages of a GPU. \newline
+
+%Nowadays most GPUs provide this general purpose programming functionality and many parallel computing platforms help us take advantage of that such as Nvidia’s CUDA, OpenCL, or even graphics APIs like OpenGL with compute shaders. These tools help abstract the hardware and provide facilities to allow developers to focus on higher-level computing procedures.
+
+platforms allow developers to ignore the language barrier that exists between the CPU and the GPU and, instead, focus on higher-level computing concepts.
+
+% TODO: Cite the source
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/cpu_gpu.png}
+    \caption{CPU architecture compared with a GPU architecture}
+    \label{fig:cpu-gpu}
+\end{figure}
+
+% FIXME: NOT SURE IF 'attend' HAS THE CORRECT MEANING IN THIS SENTENCE
+Developers and researchers often attend more specific scenarios and they configure multiple GPUs with distributed workflows in sync with each other to take better advantage of this hardware for more intensive problems \cite{heldens2022lightning}.
+
+The GPU programming model although sophisticated, at its core it provides thread groups hierarchies, shared memories and GPU barriers for synchronization of threads, such abstractions provide data and thread level parallelism for the developer to utilize. \newline
+
+%%%%%
+In this programming model we introduce the concept of granularity, that refers to the amount of computation relatively to the transfer of data. It is used to describe types of parallelism as fine-grained or coarse-grained. 
+Fine-grained parallelism describes a small multi threaded tasks in kernel size and execution time with frequent small data transfers between the processors. On the opposite side there's coarse-grained parallelism that describes larger amounts of computation followed by larger infrequent data transfers \cite{CUDAcppguide}.
+
+% SUMMARY OF: % In parallel programming, granularity means the amount of computation in relation to communication (or transfer) of data. Fine-grained parallelism means individual tasks are relatively small in terms of code size and execution time. The data is transferred among processors frequently in amounts of one or a few memory words. Coarse-grained is the opposite in that data is communicated infrequently, after larger amounts of computation.
+%%%%%%
+
+This concept is important to reflect on the association of the GPU programming model with further details on the provided implementations within the next chapters. \newline
+
+%%%%%
+Most GPGPU programming frameworks such as CUDA provide coarse-grained data and task parallelism with nested fine-grained data and thread parallelism. This type of task hierarchy architecture promotes the partitioning of the problems to independently solvable subgroups of smaller problems which fit into smaller blocks of threads that can be solved cooperatively in parallel. This relevant information provides us more insight of how the work groups for FFT should be dispatched.
+% SUMMARY OF: % The CUDA abstractions provide fine-grained data parallelism and thread parallelism, nested within coarse-grained data parallelism and task parallelism. They guide the programmer to partition the problem into coarse sub-problems that can be solved independently in parallel by blocks of threads, and each sub-problem into finer pieces that can be solved cooperatively in parallel by all threads within the block.
+%%%%%
+
+
+% NOTE - Cant sync in between local threads of the same thread group, only sync with work groups (Say thgis here, and then on the chapter of the explanation of the implementation on the GPU)
+
+% [x] Talk about the programming model, the concepts of a warp/Work groups and threads/local groups
+% What we can do and how to take advantage of the GPU
+
+
+
+\section{2D Fourier Transform on the GPU}
+% - 2D FFT's 
+%   - Greyscale images
+%   - RGB to Complex domain (relative luminance)
+%   - 2D FFT formula representation
+% - Two pass approach for Horizontal and Vetical passes
+
+
+% FIXME: Soft text, needs a more formal rewrtite
+% Reference page 4 
+Computing a 2D Fourier Transform requires a two dimensional input sequence to produce another for the output. However we could use any usable arbitrary values in the the real world we often use this 2D FFT on images and it isn't immediately obvious how this should be applied since the target data source might have three color channels, therefore three different values for this multidimensional sequence element that can be used, and not even in floating point complex domain. Precisely, it needs to be adapted to the application use case, we may use it as greyscale image if want a derivation of the luminance via quantized RGB signals of the image \citep{itu2002parameter}, use only the values of one channel, or compute multiple FFT's for each channel values. Either way we will preferably at the end have a two dimensional buffer with floating point complex values prepared to be used.
+\newline
+
+
+% USED %\cite{dudgeon1984multidimensional} % for horizontal and vertical passes
+The 2D FFT is computed by performing single dimension FFT's for every row and then for every columns after that \cite{dudgeon1984multidimensional}, so we can divide its application to a horizontal and vertical pass. This describes the way 2D FFT are computed but it is independent of the 1D FFT implementation chosen, so there's freedom to use any type of algorithm.
+
+% TODO: Formula
+% \cite{mermer2003efficient} % FOR THE FORMULA
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{tese/img/2d_fft.png}
+    \caption{High level illustration of horizontal and vertical passes}
+    \label{fig:2d-fft}
+\end{figure}
+
+At the end of a forward FFT vertical pass the result will be a 2D complex buffer with the frequency domain values of the original image as illustrated in \autoref{fig:2d-fft}.
+
+
+\section{GLSL implementation} \label{sec:glsl-implementation}
+
+The implementations were made using GLSL, a high-level shader language for graphics API's such as OpenGL, and it was used the compute pipeline from OpenGL to integrate a FFT implementation using compute shaders, which are general purpose programmable shaders.
+
+Since there are many aspects that may impact on the performance the implementation was an interactive process that required researching and testing to compose an optimal solution. One of the main targets was to keep the code generalised so that it can be used as base for other implementations using FFTs.
+\newline
+
+The next sections go in detail about the way every major iteration evolved into the next one and why there was the need to do it, starting by the Cooley-Tukey algorithm then progressively improving on the Stockham algorithm, all this while implementing good GPGPU programming strategies.
+
+% - [x] Brief about GLSL and the compute shaders used
+% - [x]  Compute pipeline in GLSL
+% - [x] Say it was an iterative process by applying, studying and testing
+
+\subsection{Cooley-Tukey} \label{sec:ct-impl}
+
+% Basic algorithm
+% - iterative version
+% - based on the dit described in state of art
+% -
+
+%FIXME: The beginning of this phrase is weird, rewrite
+The GPU implementation took as a starting point was with the DIT Cooley-Tukey algorithm, since it is the most popular one with time complexity of $O(N\log{N})$, and it is based on the iterative version adapted for parallel processors.
+
+Since this implementation is highly parallel there's the need to separate the reads and writes for each processor into two different buffers in memory due lack of order between processors, therefore the declaration of two complex pingpong buffers.
+
+\begin{lstlisting}[language=C, caption={Input buffer bindings}]
+ layout (binding = 0, rg32f) uniform image2D pingpong0;
+ layout (binding = 1, rg32f) uniform image2D pingpong1;
+\end{lstlisting}
+
+The read write control for this buffers can be achieved with a flag variable \texttt{pingpong}.
+
+Initially this algorithm will work with a pass per stage approach, where a kernel is dispatched every stage and since there's a synchronization step at the end of the pass its granted that all the work groups have finished off writing to the buffer when a pass ends. This case holds up for both the horizontal and vertical FFT steps.
+
+As a result, each kernel has the opportunity to work within every segment of the image, so the local threads can be dispatched with two dimensions, so each work group will have a total of 32 local threads, a reference number used in this implementations for setting up local threads in a work group, this may vary depending on the GPU for optimal performance but 32 is a good number to fill in the thread warp size os most GPUs.
+
+So an example dispatch group for this implementation could be $(fft\_width/8,fft\_height/8)$ work groups since 8 is the number of threads in the $y$ axis
+
+By using GLSL there is some advantages on the complex values operations, since the addition and subtraction for vector types already have operators overloading which function the same as in the complex domain. However the multiplication works a bit differently so we need to provide an auxiliary function to abstract and support this operator.
+
+\begin{lstlisting}[language=C, caption={Complex multiplication}]
+ vec2 complex_mult(vec2 v0, vec2 v1) {
+ 	return vec2(v0.x * v1.x - v0.y * v1.y,
+ 				v0.x * v1.y + v0.y * v1.x);
+ }
+\end{lstlisting}
+
+Due to the adoption of a different programming paradigm the FFT segment iteration loop doesn't exist such as in \autoref{alg:dit}, instead the processors identifiers are used to fetch the index of the butterflies they're gonna work on based on the work groups and threads dispatch setup, and this holds up for any implementation using compute shaders.
+
+\begin{lstlisting}[language=C, caption={Invocation indices}]
+ int line = int(gl_GlobalInvocationID.x);
+ int column = int(gl_GlobalInvocationID.y);
+\end{lstlisting}
+
+Since this first approach is a dynamic implementation that invokes a pass per stage some stage control variables need to be feed into the shader in order to compute the correct butterfly index or control the butterfly process.
+
+\begin{lstlisting}[language=C, caption={Uniform control variables}]
+ uniform int pingpong;
+ uniform int log_width;
+ uniform int stage;
+ uniform int fft_dir;
+\end{lstlisting}
+
+Effectively, we use these shader uniform input variables and obtain actual index we're gonna use on the 1D FFT of the image.
+
+\begin{lstlisting}[language=C, caption={FFT element index}]
+ int group_size = 2 << stage;
+ int shift = 1 << stage;
+ 
+ int idx = (line % shift) + group_size * (line / shift);
+\end{lstlisting}
+
+To calculate the twiddle factor we use Euler's formula such as in \autoref{eq:euler} and resort to the control variable \texttt{fft\_dir} to flip the twiddle factor for the inverse if we want to reuse this shader.
+
+\begin{lstlisting}[language=C,label={Euler's formula}]
+ vec2 euler(float angle) {
+     return vec2(cos(angle), sin(angle));
+ }
+ 
+ void main() {
+     // ...
+     vec2 w = euler(fft_dir * 2 * (M_PI / group_size) * ((idx % group_size) % shift));
+     // ...
+ }
+\end{lstlisting}
+
+% Explain butterfly
+% - butterfly alternate read writes
+Now with the computed twiddle factor we may proceed to compute and store the Cooley-Tukey FFT butterfly, and that's where we need to control the reads and writes for each stage. Since the \texttt{pingpong} variable is toggled every pass invocation, it is used to choose with what image we will use to lookup the elements and which one to store into, and that is achieved with an if statement, just like it is used in \autoref{alg:stockham-dit}.
+
+The butterfly computation itself is simply calculated as a Cooley-Tukey DIT butterfly as illustrated in \autoref{fig:dit-butterfly}.
+
+\begin{lstlisting}[language=C,label={Computation of the Cooley-Tukey butterfly}]
+ if (pingpong == 0) {
+     // Read
+     a = imageLoad(pingpong0, ivec2(idx, column)).rg;
+     b = imageLoad(pingpong0, ivec2(idx + shift, column)).rg;
+
+     // Compute and store
+     vec2 raux = a + complex_mult(w, b);
+     imageStore(pingpong1, ivec2(idx, column), vec4(raux, 0, 0));
+     raux = a - complex_mult(w, b);
+     imageStore(pingpong1, ivec2(idx + shift, column), vec4(raux, 0, 0));
+ }
+ else {
+     // Read
+     a = imageLoad(pingpong1, ivec2(idx, column)).rg;
+     b = imageLoad(pingpong1, ivec2(idx + shift, column)).rg;
+     
+     // Compute and store
+     vec2 raux = a + complex_mult(w, b);
+     imageStore(pingpong0, ivec2(idx, column), vec4(raux,0,0));    
+     raux = a - complex_mult(w, b);
+     imageStore(pingpong0, ivec2(idx + shift, column), vec4(raux,0,0));
+ }
+\end{lstlisting}
+
+Finally there's only one step missing, the bit reversal of indices to have a natural order result. A \texttt{bit\_reverse} function could be easily defined, however there's already a GLSL alternative which is \texttt{bitfieldReverse} together with \texttt{bitfieldExtract} \cite{kessenich4opengl}.
+
+Despite not having a noticeable performance hit, it is good practice to use GLSL predefined functions and operators since they might be optimised for that specific device hardware and using these functions instead of a handmade implementation reduces the kernel size significantly about approximately 400 bytes (evaluated using \textit{glslang}) since they are reusable functions. 
+
+\begin{lstlisting}[language=C,label={Auxiliary function that take advantage of GLSL's predefined utilities}]
+ int bit_reverse(int k) {
+     uint br = bitfieldReverse(k);
+     return int(bitfieldExtract(br, 32 - log_width, log_width));
+ }
+\end{lstlisting}
+
+% - butterfly initial bit reverse on first stage
+This auxiliary function will be conditionally used inside the branching if statement for alternating read writes to be only applied on the first stage of transform both for the possible values of \texttt{pingpong == 0} and \texttt{pingpong == 1}, since the vertical pass might start reading on the first pingpong buffer. This is not the case for the horizontal pass, its ensured that the first stage will always read from \texttt{pingpong0} reforcing that the bit reverse branching when \texttt{pingpong == 0} is disposable.
+
+\begin{lstlisting}[language=C,label={Computation of the Cooley-Tukey butterfly with bit reversal}]
+ if (pingpong == 0) {
+     if (stage == 0) {
+         a = imageLoad(pingpong0, ivec2(bit_reverse(idx), column)).rg;
+         b = imageLoad(pingpong0, ivec2(bit_reverse(idx + shift), column)).rg;
+     }
+     else {
+         a = imageLoad(pingpong0, ivec2(idx, column)).rg;
+         b = imageLoad(pingpong0, ivec2(idx + shift, column)).rg;
+     }
+
+     // ... Compute and store results
+ }
+ else {
+     a = imageLoad(pingpong1, ivec2(idx, column)).rg;
+     b = imageLoad(pingpong1, ivec2(idx + shift, column)).rg;
+
+     // ... Compute and store results
+ }
+\end{lstlisting}
+
+%We can already see some branching in this code that might not be desirable.
+% Cooley-Tukey
+
+% Initial implementation model
+% - [x]Read write requirements
+% - [x] Per stage synchronization (multiple submissions)
+% - [ ] 2D Work dispatch (with illustration)
+
+% - [x] Vector type operations
+% - [x] Mention to use GLSL bitreverse instead of manual implementation (perhaps no noticeable performance but the kernel size reduces significantly)
+% - pass per stage
+%     - The way it is dispatched and why it is made that way
+% - Updating to all stages in a single pass
+%     - One problem of this is the synchronization between threads
+%     - And by using only 1 pass for all stages there's a big difference, the implementation can be static for the size, so there's no branching associated, with that the pingpong variable now is constexpr so the compiler optimizes the kernel execution to inline the ifstatement and the while loop
+% - Reference somewhere with loop unroll glsl version
+
+
+
+% AT THE END OF THIS TOPIC MAKE A DIAGRAM WITH 2 REPRESEWNTATIONS OF THE PASSES EXECUTION AND THE INTEMEDIATE STEPS OF LUA SCRIPTS AND HOW MUCH SYNCHRONIZATION OVERHEAD THERE IS.
+
+With all this steps aggregated, the shader for the horizontal pass of this FFT DIT Cooley-Tukey implementation is presented in \autoref{lst:glsl-ct-horizontal}, see \autoref{apdx:ctfft}.
+
+
+% TODO: Mention this normalization in the 2D
+For the vertical pass shader there is however one extra multiplication by \texttt{mult\_factor} in the butterfly results for the last stage when the pass is inverse. This corresponds to the normalization of the multidimensional transform similar to the normalization in the inverse DFT in \autoref{eq4}, this is demonstrated in \autoref{lst:glsl-ct-vertical}.
+
+We can already see in \autoref{lst:glsl-ct-vetical} the above code a lot of branching that might be undesirable on the GPU  ... % TODO: Reference that thing where a warp branching has a huge performance hit due to the way it is implemented
+
+\subsubsection{All stages in one pass} \label{subsec:all-stages-in-one-pass}
+
+The previous implementation demonstrates a generic 2D FFT that may be reused for multiple FFT sizes, however this comes at a cost of efficiency when it comes to the synchronization of the of the stage itself, moreover it requires use multiple uniform variables for control of the FFT that are transferred between CPU and GPU when there are updates in between stages.
+\newline
+
+% NOTE: Uncertain if the 'kernel-wise' is a good way to say
+Undoubtedly the best solution here is to port this implementation synchronization step to be kernel-wise and this detail changes quite a bit the properties of how the code is structured and how it may be dispatched.
+
+At the moment there isn't a way to trivially ensure the reads and writes of all work groups  \cite{stuart2011efficient} without interrupting at the end of the stage, but there is functions that make use of barriers that synchronise all the threads within a work group. However there is a lot of literature on behalf of GPU compute execution synchronization (maybe list some references here) we'll make use of the GLSL predefined barrier synchronization functions.
+
+The current grouping of threads doesn't allow the use of these barrier synchronization since the computation of one dimensional FFT is distributed between multiple work groups, so using a call to \texttt{barrier()} inside the kernel wouldn't fix the race conditions of several segments of the image. We could however, change the setup of these work groups in such way that each 1D FFT threads fit in one work group as illustrated in \autoref{fig:invocation-sapce}. 
+
+
+\begin{figure}[h] 
+    \begin{subfigure}{.5\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{tese/img/inv_space_2d.png}
+    \end{subfigure}
+    \begin{subfigure}{.5\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{tese/img/inv_space_1d.png}
+    \end{subfigure}
+    % FIXME: Maybe this name is not very great
+    \caption{Difference in invocation spaces for size 256 FFT to allow barrier synchronization between local threads}
+    \label{fig:invocation-sapce}
+\end{figure}
+
+By restricting the invocation space to be only one dimensional we grant the possibility to use the barrier correctly but at the cost of resizability, the work group local size must now restricted to half the size of the FFT which corresponds to the width of the image.
+
+% Updating to all stages in a single pass %
+% - One problem of the previous is the synchronization between threads and multiple input variables for control that update on the cpu.
+% - For this we need to sync inside fft and we dont have a way to arbitrarly sync between work groups but we can sync between local threads
+% - Dispatch settings may be changed to allow an implementation to sync the stage between reads and writes for each one dimensional FFT
+%   - Image that represents the before and after of the dispatch architecture
+% ====================================== %
+% - Pros and const of this way of dispatching work groups
+%   - Cons: there is less immediate control over how many threads we want in each work group since we need as many as FFT_SIZE / 2.
+% - Mention we tested multiple butterflies and that doesn't improve the performance since the kernel wants to finish as soon as possible and the work group size isn't the problem here
+
+% - And by using only 1 pass for all stages there's a big difference, the implementation can be static for the size, so there's no branching associated, with that the pingpong variable now is constexpr so the compiler optimizes the kernel execution to inline the ifstatement and the while loop
+% - Reference somewhere with loop unroll glsl version
+
+\subsection{Radix-2 Stockham}
+
+\subsection{Radix-4 Stockham}
+% - We may use simple multiplication arithmethic to flip the operator according to the fft direction
+% - Explain what is branchless programming and how it may affect the code and how it may not affect this code
+% - Loop inlines and stripped down if statements on const expressions
+% - Information  obtained directly from compiling source code with a sahder compiler to intermediate representation
+% - Any shader compiler strips down every piece of the kernel and tries to apply optimizations to most operations 
+% TODO: Testing inlined loop vs the code provided
+
+
+
+% - Matrix transposition mention, and that the results aren't better
+
+% Results:
+% - List some graphs with evidence of the grade of performance difference between the implementations
+% - Results obtained using nau3d engine integrated profiller
+
+\section{Case of study}
+\subsection{Tensendorf waves}
+
+% Say "An application use case that relies heavily on FFT's to deliver fast performance"
+
+\subsection{Implementation details}
+\subsection{Results}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   Analysis and Comparison                    %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Analysis and Comparison}
-\section{Popular implementations}
-\subsection{cuFFT}
-\subsection{FFTW}
-\section{Comparison with GLSL implementation}
-\subsection{Analysis}
-Popular implementations
+% - Explain whats this chapter about
+% - First we'll make the comparison with same algorithms in CUDA
+% - Then we'll talk about popular implementations like cuFFT and the merit they have to compare them with our implementation in GLSL 
+
+Finally on this chapter an evaluation of the explored implementations and improvements is provided followed by an empirical analysis based on the results and testing that was done. 
+
+To establish a reference point on the results provided, we used \acrshort{cufft} which is the \acrshort{cuda} Fast Fourier Transform library from NVIDIA.
+
+Additionally, to deepen the analysis, this chapter also delivers an equivalent comparison of the researched algorithms applied to a different \acrshort{gpgpu} compute framework such as \acrshort{cuda}. %To convey a
+
+
+\section{cuFFT} \label{sec:cufft}
+% TODO:
+% - What it is
+% - Pros and cons (NVIDIA only)
+% - Sample code for in and out of place implementations
+% - It selects the best algorithm and properties of the fft to achieve best performance
+% - The performance of cufft is used as a reference for the difference of the other benchmarks
+% - Conditions used for the conmparison
+
+The cuFFT library is the NVIDIA framework designed to provide high performance \acrshort{fft} exclusively on its own GPUs that supports a wide range of \acrshort{fft} inputs and settings that compute \acrshort{fft}s effitiently on NVIDIA GPUs.
+
+The \acrshort{cufft} library is acknowledged as one of the most efficient FFT GPU framework for the flexibility it provides and it is "\textit{de-facto a standard GPU
+implementation for developers using CUDA}" (\cite{stvrelak2018performance\\}). Furthermore, it offers all kinds of settings needed for most use cases, such as multidimensional transforms, complex and real-valued input and output, support for half, single and double floating point precision, execution of multiple transforms simultaneously and finally since all this is implemented using \acrshort{cuda} we can take advantage of streamed execution, enabling asynchronous computation and data movement.
+
+Unfortunately, as mentioned before the main downside of \acrshort{cufft} is the unavailability of this library for GPUs from other vendors.
+\newline
+
+The \acrshort{cufft} library uses algorithms highly optimized for input sizes that can be written in the form $2^a \times 3^b \times 5^c \times 7^d$, so it factorizes the input size to allow arbitrary sized FFT sequences furthermore sizes with lower prime factors have intuitively better performance.
+\newline
+
+To use the results of the \acrshort{cufft} library as a reference point, we need to establish equivalent conditions to that of the GLSL implementations:
+
+\begin{itemize}
+    \item Out-of-place 2D FFT, input buffer is different from the output buffer;
+    \item Base 2 input sizes, such as 128, 256, 512 and 1024;
+    \item Complex to complex FFT, input and output buffer are complex valued;
+    \item The benchmarks are average milliseconds of multiple executions, however the first dispatch is not taking into account since  takes extra time to setup things on the \acrshort{gpu}.
+\end{itemize}
+
+The results of the cuFFT out-of-place benchmarks can be found in \autoref{fig:cufft-vs-glsl-radix2} and \autoref{fig:cufft-vs-glsl-radix4}.
+
+\section{Implementation analysis in GLSL}
+% - Compare all implementations from section 5.3.2
+% - List of benchmark conditions
+% - Details reasons why the results are this way (reference here the graphs)
+%   - First why the pass per stage approach has worst performance overall (include app frame count)
+%   - Discuss Radix-2 Cooley-Tukey vs Radix-2 Stockham
+% TODO:
+%   - Discuss how Radix-4 improves the Radix-2
+%     - Computes 4 values at a time
+%     - Less synchronization between Workgroup
+%     - Less stages so less synchronization -
+%     - Higher or lower sized kernel (comparing to radix-2)
+% - Include a comparison of the kernel size with loop unroll, and code improvements
+
+The implementations discussed in \autoref{sec:glsl-implementation}, as said before, were studied and benchmarks were made to come to a conclusion about the advantages and disadvantages of using each one and how do they perform. With this in mind we prepared an interactive test environment using Nau 3D engine \cite{nau3d} and profiled it using an internal pass profiler.
+
+All benchmarks, the ones in this section and \autoref{sec:implementation-analysis-in-cuda} were tested with the following hardware and software configuration:
+
+\begin{itemize} \label{itm:benchmark-conditions}
+    \item \textbf{CPU:} Intel(R) Core(TM) i7-8750H @ 2.20GHz;
+    \item \textbf{GPU:} NVIDIA GeForce GTX 1050 Ti Max-Q;
+    \item \textbf{NVIDIA driver:} 511.65;
+    \item \textbf{CUDA version:}  V11.6.124;
+    \item \textbf{GLSL version:}  4.60.
+\end{itemize}
+
+In \autoref{subsec:all-stages-in-one-pass} we discussed how the implementation would benefit by having a unique pass that synchronized by stage instead of dispatching multiple stage passes, accordingly we can clearly notice this difference in \autoref{fig:stage-pass-vs-unique-pass}.
+
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.65\textwidth]{img/results/glsl_stage_pass_vs_unique_pass.png}
+    \caption{Frame time difference between using stage per pass approach and unique pass for the Radix-2 Cooley-Tukey algorithm}
+    \label{fig:stage-pass-vs-unique-pass}
+\end{figure}
+
+The results in \autoref{fig:stage-pass-vs-unique-pass} show us how a real time application would behave by adopting both strategies. The pass per stage approach introduces a lot of runtime overhead in between stages, since it needs to update the stage for the next iteration dispatch, on the other hand the unique pass kernel is highly optimized for its own size so most calculation are inlined by the GLSL compiler and the synchronization is kept inside the GPU until the kernel is done executing.
+\newline
+
+% FIXME: Don't know how to blend the comparisons
+As we can see in \autoref{fig:cufft-vs-glsl-radix2} the GLSL radix-2 implementation of the Stockham algorithm has overall better performance comparing it to the Cooley-Tukey version. This happens due to the removal of the data reordering process of the bit reversal done in the Cooley-Tukey version only on the first stage. Effectively, this change improves the results consistently within the test size ranges, however, it is worth noting that the Stockham algorithm has worst data access locality than the Cooley-Tukey algorithm since it accesses data arbitrarily within the FFT instead of performing the sorting right away, therefore these results may not hold this way for larger sizes.
+
+
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.65\textwidth]{img/results/cufft_vs_glsl_radix2.png}
+    \caption{2D FFT benchmarks in milliseconds of out-of-place cuFFT and GLSL Radix-2 algorithms}
+    \label{fig:cufft-vs-glsl-radix2}
+\end{figure}
+
+% FIXME: 'hyalfway close'? nao tenho a certeza se isto é um bom ingles
+Even more important, the results for the radix-4 version of the Stockham algorithm outperform radix-2 as demonstrated in \autoref{fig:cufft-vs-glsl-radix4}, it drastically improved the performance halfway close to the cuFFT.
+
+By choosing a radix-4 approach the number of stages reduces to half but with a lot more complex operations per dragonfly on each stage, although the work complexity remains the same, there are much less barrier synchronization events.
+
+For each stage there's a synchronization barrier for each local thread inside a work group, so less stages means less sync points, hence finishing the work earlier.
+
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.65\textwidth]{img/results/cufft_vs_glsl_radix4.png}
+    \caption{2D FFT benchmarks of in milliseconds out-of-place cuFFT and GLSL Radix-4 Stockham algorithm}
+    \label{fig:cufft-vs-glsl-radix4}
+\end{figure}
+
+
+
+\section{Implementation analysis in CUDA} \label{sec:implementation-analysis-in-cuda}
+
+% We originally expected to have better performance than the GLSL implementation
+
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.65\textwidth]{img/results/cuda_vs_glsl_radix2.png}
+    \caption{2D FFT benchmarks in milliseconds of CUDA and GLSL Radix-2 algorithms}
+    \label{fig:cuda-vs-glsl-radix2}
+\end{figure}
+
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.65\textwidth]{img/results/cuda_vs_glsl_radix4.png}
+    \caption{2D FFT benchmarks in milliseconds of CUDA and GLSL Radix-4 Stockham algorithm}
+    \label{fig:cuda-vs-glsl-radix4}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                 Conclusion and Future work                   %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Conclusions and Future work}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                     END OF MAIN CHAPTERS                     %
@@ -1050,7 +1658,255 @@ Popular implementations
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% \part{Appendices}
+\part{Appendices}
+
+\chapter{GLSL FFT} \label{apdx:ctfft}
+
+\begin{lstlisting}[language=C,caption={FFT Cooley-Tukey Horizontal stage pass, see \autoref{sec:ct-impl}},label={lst:glsl-ct-horizontal}]
+ #version 440
+ 
+ #define M_PI 3.1415926535897932384626433832795
+ 
+ layout (local_size_x = 4, local_size_y = 8) in;
+ 
+ layout (binding = 0, rg32f) uniform image2D pingpong0;
+ layout (binding = 0, rg32f) uniform image2D pingpong1;
+ 
+ uniform int pingpong;
+ uniform int log_width;
+ uniform int stage;
+ uniform int fft_dir;
+ 
+ vec2 complex_mult(vec2 v0, vec2 v1) {
+ 	return vec2(v0.x * v1.x - v0.y * v1.y,
+ 				v0.x * v1.y + v0.y * v1.x);
+ }
+ 
+ int bit_reverse(int k) {
+     uint br = bitfieldReverse(k);
+     return int(bitfieldExtract(br, 32 - log_width, log_width));
+ }
+ 
+ vec2 euler(float angle) {
+ 	return vec2(cos(angle), sin(angle));
+ }
+ 
+ void main() {
+ 	int line = int(gl_GlobalInvocationID.x);
+ 	int column = int(gl_GlobalInvocationID.y);
+ 
+ 	int group_size = 2 << stage;
+ 	int shift = 1 << stage;
+ 
+ 	vec2 a, b;
+ 
+     int idx = (line % shift) + group_size * (line / shift);
+     vec2 w = euler(fft_dir * 2 * (M_PI / group_size) * ((idx % group_size) % shift));
+ 
+     if (pingpong == 0) {
+         if (stage == 0) {
+             a = imageLoad(pingpong0, ivec2(bit_reverse(idx), column)).rg;
+             b = imageLoad(pingpong0, ivec2(bit_reverse(idx + shift), column)).rg;
+         }
+         else {
+             a = imageLoad(pingpong0, ivec2(idx, column)).rg;
+             b = imageLoad(pingpong0, ivec2(idx + shift, column)).rg;
+         }
+ 
+         vec2 raux = a + complex_mult(w, b);
+         imageStore(pingpong1, ivec2(idx, column), vec4(raux, 0, 0));
+             
+         raux = a - complex_mult(w, b);
+         imageStore(pingpong1, ivec2(idx + shift, column), vec4(raux, 0, 0));
+     }
+     else {
+         a = imageLoad(pingpong1, ivec2(idx, column)).rg;
+         b = imageLoad(pingpong1, ivec2(idx + shift, column)).rg;
+ 
+         vec2 raux = a + complex_mult(w, b);
+         imageStore(pingpong0, ivec2(idx, column), vec4(raux,0,0));
+             
+         raux = a - complex_mult(w, b);
+         imageStore(pingpong0, ivec2(idx + shift, column), vec4(raux,0,0));
+     }
+ }
+\end{lstlisting}
+
+% TODO: Maybe remove the error checks for a less verbose listing
+
+\begin{lstlisting}[language=C,caption={FFT Cooley-Tukey Vertical stage pass, see \autoref{sec:ct-impl}},label={lst:glsl-ct-vertical}]
+#version 440
+
+#define M_PI 3.1415926535897932384626433832795
+
+layout (local_size_x = 8, local_size_y = 4) in;
+
+layout (binding = 0, rg32f) uniform image2D pingpong0;
+layout (binding = 1, rg32f) uniform image2D pingpong1;
+
+uniform int pingpong;
+uniform int log_width;
+uniform int stage;
+uniform int fft_dir;
+
+int iter = 1 << log_width;
+int shift = (1 << stage);
+
+vec2 complex_mult(vec2 v0, vec2 v1) {
+	return vec2(v0.x * v1.x - v0.y * v1.y,
+				v0.x * v1.y + v0.y * v1.x);
+}
+
+int bit_reverse(int k) {
+    uint br = bitfieldReverse(k);
+    return int(bitfieldExtract(br, 32 - log_width, log_width));
+}
+
+vec2 euler(float angle) {
+	return vec2(cos(angle), sin(angle));
+}
+
+void main() {
+	int line = int(gl_GlobalInvocationID.x);
+	int column = int(gl_GlobalInvocationID.y);
+
+	int group_size = 2 << stage;
+	int shift = 1 << stage;
+
+	vec2 a, b;
+
+    int idx = (column % shift) + group_size * (column / shift);
+    vec2 w = euler(fft_dir * 2 * (M_PI / group_size) * ((idx % group_size) % shift));
+
+    float mult_factor = 1.0;
+    if ((stage == log_width - 1) && fft_dir == 1) {
+        mult_factor = 1.0 / (iter*iter) ;
+    }
+
+    if (pingpong == 0) {
+        if (stage == 0) {
+            a = imageLoad(pingpong0, ivec2(line, bit_reverse(idx))).rg;
+            b = imageLoad(pingpong0, ivec2(line, bit_reverse(idx + shift))).rg;
+        }
+        else {
+            a = imageLoad(pingpong0, ivec2(line, idx)).rg;
+            b = imageLoad(pingpong0, ivec2(line, idx + shift)).rg;
+        }
+        
+        vec2 raux = (a + complex_mult(w, b)) * mult_factor;
+        imageStore(pingpong1, ivec2(line, idx), vec4(raux,0,0));
+            
+        raux = (a - complex_mult(w, b)) * mult_factor;
+        imageStore(pingpong1, ivec2(line, idx + shift), vec4(raux,0,0));
+    }
+    else {
+        if (stage == 0) {
+            a = imageLoad(pingpong1, ivec2(line, bit_reverse(idx))).rg;
+            b = imageLoad(pingpong1, ivec2(line, bit_reverse(idx + shift))).rg;
+        }
+        else {	
+            a = imageLoad(pingpong1, ivec2(line, idx)).rg;
+            b = imageLoad(pingpong1, ivec2(line, idx + shift)).rg;
+        }
+
+        vec2 raux = (a + complex_mult(w, b)) * mult_factor;
+        imageStore(pingpong0, ivec2(line, idx), vec4(raux,0,0));
+            
+        raux = (a - complex_mult(w, b)) * mult_factor;
+        imageStore(pingpong0, ivec2(line, idx + shift), vec4(raux,0,0));
+    }
+}
+\end{lstlisting}
+
+\chapter{cuFFT} \label{apdx:cufft}
+
+\begin{lstlisting}[language=C++,caption={cuFFT, see \autoref{sec:cufft}},label={lst:cufft}]
+#include <cstdio>
+#include <cufft.h>
+#include <cuda.h>
+
+#define FFT_SIZE 2048
+
+#define CU_ERR_CHECK_MSG(err, msg) {       \
+    if(err != cudaSuccess) {               \
+        fprintf(stderr, msg);              \
+        exit(1);                           \
+    }                                      \
+}
+
+#define CU_CHECK_MSG(res, msg) {           \
+    if(res != CUFFT_SUCCESS) {             \
+        fprintf(stderr, msg);              \
+        exit(1);                           \
+    }                                      \
+}
+
+int main() {
+    const size_t data_size = sizeof(cufftComplex)*FFT_SIZE*FFT_SIZE;
+    cufftComplex* data = reinterpret_cast<cufftComplex*>(malloc(data_size));
+    cufftComplex* gpu_data_in;
+    cufftComplex* gpu_data_out;
+    cudaError_t err;
+    
+    // Initializing input sequence
+    for(size_t i = 0; i < FFT_SIZE*FFT_SIZE; ++i) {
+        data[i].x = i;
+        data[i].y = 0.00;
+    }
+    
+    // Allocate Input GPU buffer
+    err = cudaMalloc(&gpu_data_in, data_size);
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to allocate\n");
+    
+    // Allocate Output GPU buffer
+    err = cudaMalloc(&gpu_data_out, data_size);
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to allocate\n");
+    
+    // Copy data to GPU buffer
+    err = cudaMemcpy(gpu_data_in, data, data_size, cudaMemcpyHostToDevice);
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU\n");
+    
+    // Setup cufft plan
+    cufftHandle plan;
+    cufftResult_t res;
+    res = cufftPlan2d(&plan, FFT_SIZE, FFT_SIZE, CUFFT_C2C);
+    CU_CHECK_MSG(res, "cuFFT error: Plan creation failed\n");
+    
+    // Execute Forward 2D FFT
+    res = cufftExecC2C(plan, gpu_data_in, gpu_data_out, CUFFT_FORWARD);
+    CU_CHECK_MSG(res, "cuFFT error: ExecC2C Forward failed\n");
+    
+    // Await end of execution
+    err = cudaDeviceSynchronize();
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
+    
+    // Execute Inverse 2D FFT
+    res = cufftExecC2C(plan, gpu_data_in, gpu_data_out, CUFFT_FORWARD);
+    CU_CHECK_MSG(res, "cuFFT error: ExecC2C Forward failed\n");
+    
+    // Await end of execution
+    err = cudaDeviceSynchronize();
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to synchronize\n");
+    
+    // Retrieve computed FFT buffer
+    err = cudaMemcpy(data, gpu_data_in, data_size, cudaMemcpyDeviceToHost);
+    CU_ERR_CHECK_MSG(err, "Cuda error: Failed to copy buffer to GPU\n");
+    
+    // Destroy Cuda and cuFFT resources
+    cufftDestroy(plan);
+    cudaFree(gpu_data_in);
+
+    return 0;
+}
+\end{lstlisting}
+
+
+% TODO: Add Cooley-Tukey full pass Horizontal
+% TODO: Add Cooley-Tukey full pass Vertical
+% TODO: Add Radix-2 Stockham full pass Horizontal
+% TODO: Add Radix-2 Stockham full pass Vertical
+% TODO: Add Radix-4 Stockham full pass Horizontal
+% TODO: Add Radix-4 Stockham full pass Vertical
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

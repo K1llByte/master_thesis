@@ -1,37 +1,48 @@
 \vspace {-\cftbeforepartskip }
-\contentsline {paragraph}{{Keywords}}{a}{paragraph*.1}%
-\contentsline {paragraph}{{Palavras-chave}}{b}{paragraph*.2}%
+\contentsline {paragraph}{{Keywords}}{c}{paragraph*.1}%
+\contentsline {paragraph}{{Palavras-chave}}{d}{paragraph*.2}%
 \contentsline {chapter}{\numberline {1}{Introduction}}{5}{chapter.1}%
 \contentsline {section}{\numberline {1.1}{Contextualization}}{5}{section.1.1}%
 \contentsline {section}{\numberline {1.2}{Motivation}}{5}{section.1.2}%
 \contentsline {section}{\numberline {1.3}{Objectives}}{5}{section.1.3}%
 \contentsline {section}{\numberline {1.4}{Document Organization}}{6}{section.1.4}%
-\contentsline {chapter}{\numberline {2}{State of the Art}}{7}{chapter.2}%
-\contentsline {section}{\numberline {2.1}{Fourier Transform}}{7}{section.2.1}%
-\contentsline {subsection}{\numberline {2.1.1}{What is Fourier Transform}}{7}{subsection.2.1.1}%
-\contentsline {subsection}{\numberline {2.1.2}{Where it is used}}{8}{subsection.2.1.2}%
+\contentsline {chapter}{\numberline {2}{The Fourier Transform}}{7}{chapter.2}%
+\contentsline {section}{\numberline {2.1}{Continuous Fourier Transform}}{8}{section.2.1}%
 \contentsline {section}{\numberline {2.2}{Discrete Fourier Transform}}{9}{section.2.2}%
-\contentsline {paragraph}{{Example}}{10}{paragraph*.6}%
+\contentsline {paragraph}{{Example}}{9}{paragraph*.6}%
 \contentsline {subsection}{\numberline {2.2.1}{Matrix multiplication}}{10}{subsection.2.2.1}%
 \contentsline {paragraph}{{Example}}{11}{paragraph*.7}%
 \contentsline {section}{\numberline {2.3}{Fast Fourier Transform}}{12}{section.2.3}%
 \contentsline {paragraph}{{}}{12}{paragraph*.8}%
 \contentsline {subsection}{\numberline {2.3.1}{Radix-2 Decimation-in-Time FFT}}{12}{subsection.2.3.1}%
-\contentsline {subsection}{\numberline {2.3.2}{Radix-2 Decimation-in-Frequency FFT}}{14}{subsection.2.3.2}%
-\contentsline {chapter}{\numberline {3}{Algorithms analysis}}{17}{chapter.3}%
-\contentsline {chapter}{\numberline {4}{Computation of the Fourier Transform}}{18}{chapter.4}%
-\contentsline {section}{\numberline {4.1}{Improving the Cooley-Tukey algorithm}}{18}{section.4.1}%
-\contentsline {subsection}{\numberline {4.1.1}{Natural order Cooley-Tukey}}{18}{subsection.4.1.1}%
-\contentsline {subsection}{\numberline {4.1.2}{Stockham algorithm}}{18}{subsection.4.1.2}%
-\contentsline {subsection}{\numberline {4.1.3}{Radix-4 instead of Radix-2}}{18}{subsection.4.1.3}%
-\contentsline {chapter}{\numberline {5}{Implementation on the GPU}}{20}{chapter.5}%
-\contentsline {section}{\numberline {5.1}{Fourier Transform on the GPU}}{20}{section.5.1}%
-\contentsline {section}{\numberline {5.2}{Implementation in GLSL}}{20}{section.5.2}%
-\contentsline {chapter}{\numberline {6}{Analysis and Comparison}}{21}{chapter.6}%
-\contentsline {section}{\numberline {6.1}{Popular implementations}}{21}{section.6.1}%
-\contentsline {subsection}{\numberline {6.1.1}{cuFFT}}{21}{subsection.6.1.1}%
-\contentsline {subsection}{\numberline {6.1.2}{FFTW}}{21}{subsection.6.1.2}%
-\contentsline {section}{\numberline {6.2}{Comparison with GLSL implementation}}{21}{section.6.2}%
-\contentsline {subsection}{\numberline {6.2.1}{Analysis}}{21}{subsection.6.2.1}%
-\contentsline {chapter}{Bibliography}{22}{subsection.6.2.1}%
+\contentsline {subsection}{\numberline {2.3.2}{Radix-2 Decimation-in-Frequency FFT}}{15}{subsection.2.3.2}%
+\contentsline {chapter}{\numberline {3}{Algorithms analysis}}{19}{chapter.3}%
+\contentsline {chapter}{\numberline {4}{Computation of the Fourier Transform}}{20}{chapter.4}%
+\contentsline {section}{\numberline {4.1}{Improving the Cooley-Tukey algorithm}}{20}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}{Natural order Cooley-Tukey}}{20}{subsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.1.2}{Natural order Cooley-Tukey}}{20}{subsection.4.1.2}%
+\contentsline {subsection}{\numberline {4.1.3}{Stockham algorithm}}{22}{subsection.4.1.3}%
+\contentsline {paragraph}{{}}{23}{paragraph*.16}%
+\contentsline {subsection}{\numberline {4.1.4}{Radix-4 instead of Radix-2}}{24}{subsection.4.1.4}%
+\contentsline {chapter}{\numberline {5}{Implementation on the GPU}}{26}{chapter.5}%
+\contentsline {section}{\numberline {5.1}{GPU Programming model}}{26}{section.5.1}%
+\contentsline {section}{\numberline {5.2}{2D Fourier Transform on the GPU}}{28}{section.5.2}%
+\contentsline {section}{\numberline {5.3}{GLSL implementation}}{29}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}{Cooley-Tukey}}{29}{subsection.5.3.1}%
+\contentsline {subsubsection}{{All stages in one pass}}{33}{subsubsection*.20}%
+\contentsline {subsection}{\numberline {5.3.2}{Radix-2 Stockham}}{34}{subsection.5.3.2}%
+\contentsline {subsection}{\numberline {5.3.3}{Radix-4 Stockham}}{34}{subsection.5.3.3}%
+\contentsline {section}{\numberline {5.4}{Case of study}}{34}{section.5.4}%
+\contentsline {subsection}{\numberline {5.4.1}{Tensendorf waves}}{34}{subsection.5.4.1}%
+\contentsline {subsection}{\numberline {5.4.2}{Implementation details}}{34}{subsection.5.4.2}%
+\contentsline {subsection}{\numberline {5.4.3}{Results}}{34}{subsection.5.4.3}%
+\contentsline {chapter}{\numberline {6}{Analysis and Comparison}}{35}{chapter.6}%
+\contentsline {section}{\numberline {6.1}{cuFFT}}{35}{section.6.1}%
+\contentsline {section}{\numberline {6.2}{Implementation analysis in GLSL}}{36}{section.6.2}%
+\contentsline {section}{\numberline {6.3}{Implementation analysis in CUDA}}{37}{section.6.3}%
+\contentsline {chapter}{\numberline {7}{Conclusions and Future work}}{40}{chapter.7}%
+\contentsline {chapter}{Bibliography}{41}{chapter.7}%
+\contentsline {part}{\numberline {i}{Appendices}}{43}{part.1}%
+\contentsline {chapter}{\numberline {A}{GLSL FFT}}{44}{appendix.A}%
+\contentsline {chapter}{\numberline {B}{cuFFT}}{48}{appendix.B}%
 \providecommand \tocbasic@end@toc@file {}\tocbasic@end@toc@file 

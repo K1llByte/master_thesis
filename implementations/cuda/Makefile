@@ -10,4 +10,5 @@ test:
 run: all
 	./a.out
 
-# nvcc src/main.cu -Xcompiler="/Zc:preprocessor" && .\a.exe
+# nvcc -lcufft src/main.cu -Xcompiler="/Zc:preprocessor" && .\a.exe
+# cuda-memcheck .\a.exe
