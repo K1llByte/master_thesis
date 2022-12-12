@@ -12,7 +12,7 @@ void main(void) {
 
 	vec2 k = vec2(kx, kz) * 2 * M_PI/L;
 	
-	float aux = getSpectrum(spectrum, k, L, windDir, windSpeed, directionalMode, 			
+	float aux = getSpectrum(spectrum, k, L, windDir, windSpeed, directionalMode,
 					dispersionMode, propagate, depth, fetch, swell) * spectrumScale;
 	
 	float p = sqrt(aux * 0.5f);

@@ -1,10 +1,10 @@
 #version 440
 
 #define M_PI 3.1415926535897932384626433832795
-#define NUM_BUTTERFLIES 1
-#define FFT_SIZE 256
-#define LOG_SIZE 8 // log2(FFT_SIZE)
-#define HALF_LOG_SIZE 4 // log2(FFT_SIZE) / 2
+#define NUM_BUTTERFLIES 2
+#define FFT_SIZE 1024
+#define LOG_SIZE 10 // log2(FFT_SIZE)
+#define HALF_LOG_SIZE 5 // log2(FFT_SIZE) / 2
 
 layout (local_size_x = (FFT_SIZE/4)/NUM_BUTTERFLIES, local_size_y = 1) in;
 
@@ -36,6 +36,9 @@ void main() {
         // for this thread
 
         // 1. Compute Butterflies
+        int group_size = 2 << stage;
+        int shift = 1 << stage;
+
         int n = 1 << ((HALF_LOG_SIZE - stage)*2);
         int s = 1 << (stage*2);
 

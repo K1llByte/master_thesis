@@ -47,15 +47,15 @@ def ms_graph(title, sizes, data, filename=''):
 #     , filename='cufft_vs_glsl_radix2'
 # )
 
-ms_graph("cuFFT vs GLSL Radix-4",
-    sizes=[256, 1024],
-    data=[
-        ("cuFFT", [0.0494, 0.5609]),
-        ("GLSL Radix-2 Stockham",[0.135, 2.341]),
-        ("GLSL Radix-4 Stockham",[0.087, 1.363]),
-    ]
-    , filename='cufft_vs_glsl_radix4'
-)
+# ms_graph("cuFFT vs GLSL Radix-4",
+#     sizes=[256, 1024],
+#     data=[
+#         ("cuFFT", [0.0494, 0.5609]),
+#         ("GLSL Radix-2 Stockham",[0.135, 2.341]),
+#         ("GLSL Radix-4 Stockham",[0.087, 1.363]),
+#     ]
+#     , filename='cufft_vs_glsl_radix4'
+# )
 
 
 # ms_graph("CUDA Radix-2 vs GLSL Radix-2",
@@ -74,8 +74,11 @@ ms_graph("cuFFT vs GLSL Radix-4",
 # ms_graph("CUDA vs GLSL Radix-4",
 #     sizes=[256, 1024],
 #     data=[
+#         ("CUDA Radix-2 Stockham", [0.209, 4.813]),
 #         ("CUDA Radix-4 Stockham", [0.123, 1.993]),
+#         ("GLSL Radix-2 Stockham",[0.135, 2.341]),
 #         ("GLSL Radix-4 Stockham",[0.087, 1.363]),
+        
 #     ]
 #     , filename='cuda_vs_glsl_radix4'
 # )
@@ -88,3 +91,13 @@ ms_graph("cuFFT vs GLSL Radix-4",
 #     ]
 #     , filename='glsl_stage_pass_vs_unique_pass'
 # )
+
+ms_graph("Radix-2 Stockham with multiple butterflies",
+    sizes=[128, 256, 512, 1024],
+    data=[
+        ("1 Butterfly", [0.049, 0.135, 0.545, 2.341]),
+        ("2 Butterfly", [0.067, 0.234, 0.934, 4.104]),
+        ("4 Butterfly", [0.092, 0.298, 3.047, 14.934]),
+    ]
+    , filename='glsl_multiple_butterflies'
+)

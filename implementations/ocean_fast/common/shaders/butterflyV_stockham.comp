@@ -1,7 +1,7 @@
 #define M_PI 3.1415926535897932384626433832795
 #define NUM_BUTTERFLIES 1
-#define FFT_SIZE 512
-#define LOG_SIZE 9 // log2(FFT_SIZE)
+#define FFT_SIZE 1024
+#define LOG_SIZE 10 // log2(FFT_SIZE)
 
 layout (local_size_x = (FFT_SIZE/2)/NUM_BUTTERFLIES, local_size_y = 1) in;
 

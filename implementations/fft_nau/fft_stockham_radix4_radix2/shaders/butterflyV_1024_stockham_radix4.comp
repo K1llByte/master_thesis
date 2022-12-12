@@ -1,0 +1,110 @@
+#version 440
+
+#define M_PI 3.1415926535897932384626433832795
+#define NUM_BUTTERFLIES 2
+#define FFT_SIZE 1024
+#define LOG_SIZE 10 // log2(FFT_SIZE)
+#define HALF_LOG_SIZE 5 // log2(FFT_SIZE) / 2
+
+layout (local_size_x = (FFT_SIZE/4)/NUM_BUTTERFLIES, local_size_y = 1) in;
+
+// ping pong textures
+layout (binding = 0, rg32f) uniform image2D pingpong0;
+layout (binding = 1, rg32f) uniform image2D pingpong1;
+
+uniform int fft_dir;
+
+vec2 complex_mult(vec2 v0, vec2 v1) {
+	return vec2(v0.x * v1.x - v0.y * v1.y,
+				v0.x * v1.y + v0.y * v1.x);
+}
+
+
+vec2 euler(float angle) {
+	return vec2(cos(angle), sin(angle));
+}
+
+
+void main() {
+    // FIXME: This variables are working but not correct, to be able to change
+	int line = int(gl_WorkGroupID.y);
+	int column = int(gl_GlobalInvocationID.x);
+    int pingpong = HALF_LOG_SIZE % 2;
+
+    for(int stage = 0; stage < HALF_LOG_SIZE; ++stage) {
+        // Each iteration on this loop corresponds
+        // to a stage iteration on each reserved positions
+        // for this thread
+
+        // 1. Compute Butterflies
+        int group_size = 2 << stage;
+        int shift = 1 << stage;
+
+        int n = 1 << ((HALF_LOG_SIZE - stage)*2);
+        int s = 1 << (stage*2);
+
+        int n0 = 0;
+        int n1 = n/4;
+        int n2 = n/2;
+        int n3 = n1 + n2; // 3N/4
+
+        // last stage
+	    float mult_factor = 1.0;
+	    if((stage == HALF_LOG_SIZE - 1) && fft_dir == 1) {
+	    	mult_factor = 1.0 / (FFT_SIZE*FFT_SIZE) ;
+	    }
+
+        for(int i = 0; i < NUM_BUTTERFLIES; ++i) {
+            int idx = (column*NUM_BUTTERFLIES + i);
+            // Compute p and q
+            int p = idx / s;
+            int q = idx % s;
+
+            // Compute the twiddle factors
+            vec2 w1p = euler(2*(M_PI / n) * p * fft_dir);
+            vec2 w2p = complex_mult(w1p,w1p);
+            vec2 w3p = complex_mult(w1p,w2p);
+
+            if(pingpong == 0) {
+                // Compute natural order butterflies
+                vec2 a = imageLoad(pingpong0, ivec2(line, q + s*(p + n0))).rg;
+                vec2 b = imageLoad(pingpong0, ivec2(line, q + s*(p + n1))).rg;
+                vec2 c = imageLoad(pingpong0, ivec2(line, q + s*(p + n2))).rg;
+                vec2 d = imageLoad(pingpong0, ivec2(line, q + s*(p + n3))).rg;
+
+                vec2 apc = a + c;
+                vec2 amc = a - c;
+                vec2 bpd = b + d;
+                vec2 jbmd = complex_mult(vec2(0,1), b - d);
+
+                imageStore(pingpong1, ivec2(line, q + s*(4*p + 0)), vec4(mult_factor * (apc + bpd), 0,0));
+                imageStore(pingpong1, ivec2(line, q + s*(4*p + 1)), vec4(mult_factor * (complex_mult(w1p, amc + jbmd*fft_dir)), 0,0));
+                imageStore(pingpong1, ivec2(line, q + s*(4*p + 2)), vec4(mult_factor * (complex_mult(w2p, apc - bpd )), 0,0));
+                imageStore(pingpong1, ivec2(line, q + s*(4*p + 3)), vec4(mult_factor * (complex_mult(w3p, amc - jbmd*fft_dir)), 0,0));
+            }
+            else {
+                // Compute natural order butterflies
+                vec2 a = imageLoad(pingpong1, ivec2(line, q + s*(p + n0))).rg;
+                vec2 b = imageLoad(pingpong1, ivec2(line, q + s*(p + n1))).rg;
+                vec2 c = imageLoad(pingpong1, ivec2(line, q + s*(p + n2))).rg;
+                vec2 d = imageLoad(pingpong1, ivec2(line, q + s*(p + n3))).rg;
+
+                vec2 apc = a + c;
+                vec2 amc = a - c;
+                vec2 bpd = b + d;
+                vec2 jbmd = complex_mult(vec2(0,1), b - d);
+
+                imageStore(pingpong0, ivec2(line, q + s*(4*p + 0)), vec4(mult_factor * (apc + bpd), 0,0));
+                imageStore(pingpong0, ivec2(line, q + s*(4*p + 1)), vec4(mult_factor * (complex_mult(w1p, amc + jbmd*fft_dir)), 0,0));
+                imageStore(pingpong0, ivec2(line, q + s*(4*p + 2)), vec4(mult_factor * (complex_mult(w2p, apc - bpd )), 0,0));
+                imageStore(pingpong0, ivec2(line, q + s*(4*p + 3)), vec4(mult_factor * (complex_mult(w3p, amc - jbmd*fft_dir)), 0,0));
+            }
+        }
+
+        // 2. Update Variables
+        pingpong = ((pingpong + 1) % 2);
+
+        // 3. Sync by Memory Barrier
+        barrier();
+    }
+}

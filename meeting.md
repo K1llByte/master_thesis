@@ -2,7 +2,13 @@
 
 <!-- Questions -->
 <!--
-- Devo remover o que estiver a bold?
+- É 'Case of study' ou 'Case study'?
+- Exclarecimento de comentários ainda nao resolvidos:
+    - "O detalhe que puseste na transformação discreta é necessário aqui. Da forma como isto está escrito tem muitos passos em que é preciso "trust me bro" :-)"
+    - "Ainda falta um passo, a fugira 3 tal como está se obtém directamente da figura 2" 
+        - Duvidas sobre se é a figura 3 e 2 do link ou da tese, e tentar justificar o porque de ter deixado assim
+- Should i have a subsection called 'Tensendorf waves'? Because the method wasn't invented by him, but the popular research paper was, so should i change it to 'Ocean waves'?
+- PROBABLY CUDA DOESNT UNROLL LOOP MAYBE?
 -->
 
 <!-- Notes -->
@@ -22,6 +28,8 @@ Todo[Content]:
     * Section 2.3.1.
 - Duvida: É suposto apagar o exemplo?
 
+- [ ] Adicionar notas sobre as inversas no estado de arte e capitulo 4
+- [ ] Remover bold no chapter 2
 - [ ] Prove that the difference inverse vs forward times are negligible and that's there's no need to include the inverse
 - [ ] Mention why we only benchmark out-of-place
 - [ ] Include code snipet of cuFFT in apendix
@@ -47,8 +55,6 @@ Todo[Fixes]:
 
 **Last submission day:** 31 Dec
 
-- [1 month] Write until chapters 4 and 5 (incomplete stuff for the last pratical phase, algos, code blocks, etc ...) []
-- [2 weeks] Final practical corrections ...
 
 ### Writing
 
@@ -65,21 +71,21 @@ i - incomplete, because needs something from the final pratical phase
         - [x] 4.1 Improving the Cooley-Tukey algorithm
             - [x] 4.1.1 Natural order Cooley-Tukey
             - [x] 4.1.2 Stockham algorithm
-            - [i] 4.1.3 Radix-4 instead of Radix-2
+            - [x] 4.1.3 Radix-4 instead of Radix-2
     - [i] 5 IMPLEMENTATION ON THE GPU 
         - [x] 5.1 GPU Programming model 
         - [x] 5.2 2D Fourier Transform on the GPU
-        - [ ] 5.3 Implementation Analysis in GLSL
-            <!-- - [ ] 5.3.1 GLSL  -->
-            - [ ] 5.3.2 Implementation
+        - [ ] 5.3 GLSL implementation
+            - [ ] 5.3.1 Cooley-Tukey
+            - [ ] 5.3.2 Radix-2 Stockham
+            - [ ] 5.3.3 Radix-4 Stockham
         - [ ] 5.4 Case of study
             - [ ] 5.4.1 Tensendorf waves
-            - [ ] 5.4.2 Implementation details
             - [ ] 5.4.3 Results
-    - [ ] 6 ANALYSIS AND COMPARISON
-        - [ ] 6.1 cuFFT
-        - [ ] 6.2 Implementation analysis in GLSL
-        - [ ] 6.3 Implementation analysis in CUDA
+    - [x] 6 ANALYSIS AND COMPARISON
+        - [x] 6.1 cuFFT
+        - [x] 6.2 Implementation analysis in GLSL
+        - [x] 6.3 Implementation analysis in CUDA
     - [ ] 7 CONCLUSIONS AND FUTURE WORK
 
 ### Practical
@@ -158,19 +164,6 @@ matter and impact the performance
 -->
 
 
-## 5.4 Case of study
-### 5.4.1 Tensendorf waves
-- Mention it is a good example to benchmark since the fft takes a big role into play (2 ffts multiple times) and effects most of the performance
-
-### 5.4.2 Implementation details
-- Explain the old implementation (and explain that it is an example of generic cooley-tukey pass per stage fft)
-- Explain how it was implemented a better version using previous concepts
-
-### 5.4.3 Results
-- Compare the results of the previous implementation with the new implementation
-- Possibly use many comfigurations for more deep testing
-- Preview of the rendered image and graphs with the improvements results
-
 <!-- #### Setup
 - Implementation setup
     - Using Nau3D engine with 2 passes and 2 pingpong image buffers
@@ -200,6 +193,22 @@ matter and impact the performance
 Mention benchmark method (cuda events over the default stream)
 - Explain how the similar implementations scale differently and this is worth noting when implementing fft for a specific platform
 - Attach results and graphs and reflect
+
+## 6.4 Case of study
+- [x] Explain that since the results are direct benchmarks of the FFT performance of converting a 2D image to frequency domain, that we felt the need to improve an implementation of a real use case that heavily relies on FFT to analyse the impact of a good FFT implementation.
+- [x] Say the application we choose was realistic ocean rendering using tensendorf waves.
+
+### 6.4.1 Tensendorf waves
+- Mention it is a good example to benchmark since the fft takes a big role into play (2 ffts multiple times) and effects most of the performance
+
+- Explain the old implementation, as it corresponds to the starting point we mentioned in the Implementation section 5.3.1 (cooley-tukey pass per stage FFT)
+- Write the total number of FFT's the app requires per frame
+- Explain how it the FFT pass has to compute multiple at a time
+
+### 6.4.3 Results
+- Compare the results of the previous implementation with the new implementation
+- Possibly use many comfigurations for more deep testing
+- Preview of the rendered image and graphs with the improvements results
 
 <!--
 ## 6.1 Popular implementations

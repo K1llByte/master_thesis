@@ -2,7 +2,7 @@ This is BibTeX, Version 0.99d (TeX Live 2022/Arch Linux)
 Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: dissertation.aux
 The style file: plainnat.bst
-Illegal, another \bibstyle command---line 377 of file dissertation.aux
+Illegal, another \bibstyle command---line 431 of file dissertation.aux
  : \bibstyle
  :          {acm}
 I'm skipping whatever remains of this command
@@ -11,12 +11,14 @@ Repeated entry---line 175 of file dissertation.bib
  : @inproceedings{govindaraju2008high
  :                                   ,
 I'm skipping whatever remains of this entry
+Warning--I didn't find a database entry for "thong1981algebraic"
 Warning--I didn't find a database entry for "itu2002parameter"
 Warning--I didn't find a database entry for "dudgeon1984multidimensional"
 Warning--I didn't find a database entry for "kessenich4opengl"
 Warning--I didn't find a database entry for "stuart2011efficient"
 Warning--I didn't find a database entry for "stvrelak2018performance\\"
 Warning--I didn't find a database entry for "nau3d"
+Warning--I didn't find a database entry for "tessendorf2001simulating"
 Warning--empty institution in flugge2017realtime
 Warning--empty journal in jones2014digital
 Warning--empty year in fftntiaudio
@@ -26,7 +28,7 @@ Warning--empty year in nvidiacufft
 Warning--empty year in OTFFTnoct
 You've used 23 entries,
             2773 wiz_defined-function locations,
-            729 strings with 8364 characters,
+            731 strings with 8406 characters,
 and the built_in function-call counts, 9379 in all, are:
 = -- 850
 > -- 391

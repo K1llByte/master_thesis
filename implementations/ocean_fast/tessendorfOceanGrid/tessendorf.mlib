@@ -143,7 +143,7 @@
 			<ps>
 				<file name= "shaders/lambert.frag" />
 			</ps>	
-		</shader>						
+		</shader>
 	</shaders>
 	
 	
