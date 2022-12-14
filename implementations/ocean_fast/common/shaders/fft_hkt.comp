@@ -41,7 +41,8 @@ void main(void) {
 	float magnitude = length(k);
 //	imageStore(tilde_hkt, ivec3(gl_GlobalInvocationID.xy, LAYER_DY), vec4(magnitude,depth,k));
 //	return;	
-	if (magnitude < 0.00000000001) magnitude = 0.00000000001;
+	// if (magnitude < 0.00000000001) magnitude = 0.00000000001;
+	magnitude = max(magnitude, 0.00000000001);
 	
 	float w = getDispersionW(magnitude, depth, dispersionMode);
 	

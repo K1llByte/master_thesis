@@ -1,0 +1,105 @@
+#version 440
+
+#define M_PI 3.1415926535897932384626433832795
+#define NUM_BUTTERFLIES 1
+#define FFT_SIZE 1024
+#define LOG_SIZE 10 // log2(FFT_SIZE)
+#define HALF_LOG_SIZE 5 // log2(FFT_SIZE) / 2
+
+layout (local_size_x = (FFT_SIZE/4)/NUM_BUTTERFLIES, local_size_y = 1) in;
+
+// ping pong textures
+layout (binding = 0, rgba32f) uniform image2D pingpong0;
+layout (binding = 1, rgba32f) uniform image2D pingpong1;
+
+uniform int fft_dir;
+
+vec2 complex_mult(vec2 v0, vec2 v1) {
+    return vec2(v0.x * v1.x - v0.y * v1.y,
+                v0.x * v1.y + v0.y * v1.x);
+}
+
+vec4 complex_mult_twice(vec2 v0, vec4 v1) {
+    return vec4(v0.x * v1.x - v0.y * v1.y,
+                v0.x * v1.y + v0.y * v1.x,
+                v0.x * v1.z - v0.y * v1.w,
+                v0.x * v1.w + v0.y * v1.z);
+}
+
+vec2 euler(float angle) {
+    return vec2(cos(angle), sin(angle));
+}
+
+
+void main() {
+    int line = int(gl_GlobalInvocationID.x);
+    int column = int(gl_WorkGroupID.y);
+    int pingpong = 0;
+
+    for(int stage = 0; stage < HALF_LOG_SIZE; ++stage) {
+        // Each iteration on this loop corresponds
+        // to a stage iteration on each reserved positions
+        // for this thread
+
+        // 1. Compute Butterflies
+        int n = 1 << ((HALF_LOG_SIZE - stage)*2);
+        int s = 1 << (stage*2);
+
+        int n0 = 0;
+        int n1 = n/4;
+        int n2 = n/2;
+        int n3 = n1 + n2; // 3N/4
+
+        for(int i = 0; i < NUM_BUTTERFLIES; ++i) {
+            int idx = (line*NUM_BUTTERFLIES + i);
+            // Compute p and q
+            int p = idx / s;
+            int q = idx % s;
+            // Compute the twiddle factors
+            vec2 w1p = euler(2*(M_PI / n) * p * fft_dir);
+            vec2 w2p = complex_mult(w1p,w1p);
+            vec2 w3p = complex_mult(w1p,w2p);
+
+            if(pingpong == 0) {
+                // Compute natural order butterflies
+                vec4 a = imageLoad(pingpong0, ivec2(q + s*(p + n0), column));
+                vec4 b = imageLoad(pingpong0, ivec2(q + s*(p + n1), column));
+                vec4 c = imageLoad(pingpong0, ivec2(q + s*(p + n2), column));
+                vec4 d = imageLoad(pingpong0, ivec2(q + s*(p + n3), column));
+
+                vec4 apc = a + c;
+                vec4 amc = a - c;
+                vec4 bpd = b + d;
+                vec4 jbmd = complex_mult_twice(vec2(0,1), b - d);
+
+                imageStore(pingpong1, ivec2(q + s*(4*p + 0), column), apc + bpd);
+                imageStore(pingpong1, ivec2(q + s*(4*p + 1), column), complex_mult_twice(w1p, amc + jbmd*fft_dir));
+                imageStore(pingpong1, ivec2(q + s*(4*p + 2), column), complex_mult_twice(w2p, apc - bpd));
+                imageStore(pingpong1, ivec2(q + s*(4*p + 3), column), complex_mult_twice(w3p, amc - jbmd*fft_dir));
+            }
+            else {
+                // Compute natural order butterflies
+                vec4 a = imageLoad(pingpong1, ivec2(q + s*(p + n0), column));
+                vec4 b = imageLoad(pingpong1, ivec2(q + s*(p + n1), column));
+                vec4 c = imageLoad(pingpong1, ivec2(q + s*(p + n2), column));
+                vec4 d = imageLoad(pingpong1, ivec2(q + s*(p + n3), column));
+
+                vec4 apc = a + c;
+                vec4 amc = a - c;
+                vec4 bpd = b + d;
+                vec4 jbmd = complex_mult_twice(vec2(0,1), b - d);
+
+                imageStore(pingpong0, ivec2(q + s*(4*p + 0), column), apc + bpd);
+                imageStore(pingpong0, ivec2(q + s*(4*p + 1), column), complex_mult_twice(w1p, amc + jbmd*fft_dir));
+                imageStore(pingpong0, ivec2(q + s*(4*p + 2), column), complex_mult_twice(w2p, apc - bpd ));
+                imageStore(pingpong0, ivec2(q + s*(4*p + 3), column), complex_mult_twice(w3p, amc - jbmd*fft_dir));
+            }
+        }
+
+        // 2. Update Variables
+        pingpong = ((pingpong + 1) % 2);
+
+        // 3. Sync by Memory Barrier
+        barrier();
+    }
+}
