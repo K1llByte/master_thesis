@@ -1,10 +1,10 @@
 #version 440
 
 #define M_PI 3.1415926535897932384626433832795
-#define NUM_BUTTERFLIES 2
-#define FFT_SIZE 1024
-#define LOG_SIZE 10 // log2(FFT_SIZE)
-#define HALF_LOG_SIZE 5 // log2(FFT_SIZE) / 2
+#define NUM_BUTTERFLIES 1
+#define FFT_SIZE 128
+#define LOG_SIZE 7 // log2(FFT_SIZE)
+#define HALF_LOG_SIZE 3 // log2(FFT_SIZE) / 2
 
 layout (local_size_x = (FFT_SIZE/4)/NUM_BUTTERFLIES, local_size_y = 1) in;
 
@@ -29,7 +29,7 @@ void main() {
     // FIXME: This variables are working but not correct, to be able to change
 	int line = int(gl_WorkGroupID.y);
 	int column = int(gl_GlobalInvocationID.x);
-    int pingpong = HALF_LOG_SIZE % 2;
+    int pingpong = LOG_SIZE % 2;
 
     for(int stage = 0; stage < HALF_LOG_SIZE; ++stage) {
         // Each iteration on this loop corresponds
@@ -37,22 +37,14 @@ void main() {
         // for this thread
 
         // 1. Compute Butterflies
-        int group_size = 2 << stage;
-        int shift = 1 << stage;
 
-        int n = 1 << ((HALF_LOG_SIZE - stage)*2);
+        int n = 1 << ((HALF_LOG_SIZE - stage)*2 + 1);
         int s = 1 << (stage*2);
 
         int n0 = 0;
         int n1 = n/4;
         int n2 = n/2;
         int n3 = n1 + n2; // 3N/4
-
-        // last stage
-	    float mult_factor = 1.0;
-	    if((stage == HALF_LOG_SIZE - 1) && fft_dir == 1) {
-	    	mult_factor = 1.0 / (FFT_SIZE*FFT_SIZE) ;
-	    }
 
         for(int i = 0; i < NUM_BUTTERFLIES; ++i) {
             int idx = (column*NUM_BUTTERFLIES + i);
@@ -64,6 +56,11 @@ void main() {
             vec2 w1p = euler(2*(M_PI / n) * p * fft_dir);
             vec2 w2p = complex_mult(w1p,w1p);
             vec2 w3p = complex_mult(w1p,w2p);
+
+            float mult_factor = 1.0;
+            if((stage == HALF_LOG_SIZE - 1) && (LOG_SIZE % 2 == 0) && fft_dir == 1) {
+                mult_factor = 1.0 / (FFT_SIZE*FFT_SIZE);
+            }
 
             if(pingpong == 0) {
                 // Compute natural order butterflies
@@ -102,9 +99,39 @@ void main() {
         }
 
         // 2. Update Variables
-        pingpong = ((pingpong + 1) % 2);
+        pingpong = (pingpong + 1) % 2;
 
         // 3. Sync by Memory Barrier
         barrier();
+    }
+
+    // Final stage as radix-2
+    if(LOG_SIZE % 2 == 1) {
+        float mult_factor = 1.0;
+        if(fft_dir == 1) {
+            mult_factor = 1.0 / (FFT_SIZE*FFT_SIZE);
+        }
+
+        int s = FFT_SIZE >> 1;
+        int q = 2*column;
+
+        vec2 a = imageLoad(pingpong1, ivec2(line, q + 0)).rg;
+        vec2 b = imageLoad(pingpong1, ivec2(line, q + s)).rg;
+
+        imageStore(pingpong0, ivec2(line, q + 0), vec4(mult_factor * (a + b), 0,0));
+        imageStore(pingpong0, ivec2(line, q + s), vec4(mult_factor * (a - b), 0,0));
+        // imageStore(pingpong0, ivec2(line, q + 0), vec4(mult_factor * a, 0,0));
+        // imageStore(pingpong0, ivec2(line, q + s), vec4(mult_factor * b, 0,0));
+
+        // There's only SIZE/4 local threads therefore we compute 2 values
+        q = 2*column + 1;
+
+        a = imageLoad(pingpong1, ivec2(line, q + 0)).rg;
+        b = imageLoad(pingpong1, ivec2(line, q + s)).rg;
+
+        imageStore(pingpong0, ivec2(line, q + 0), vec4(mult_factor * (a + b), 0,0));
+        imageStore(pingpong0, ivec2(line, q + s), vec4(mult_factor * (a - b), 0,0));
+        // imageStore(pingpong0, ivec2(line, q + 0), vec4(mult_factor * a, 0,0));
+        // imageStore(pingpong0, ivec2(line, q + s), vec4(mult_factor * b, 0,0));
     }
 }

@@ -37,10 +37,8 @@ void main() {
         // for this thread
 
         // 1. Compute Butterflies
-        int group_size = 2 << stage;
-        int shift = 1 << stage;
 
-        int n = 1 << ((HALF_LOG_SIZE - stage)*2);
+        int n = 1 << ((HALF_LOG_SIZE - stage)*2 + 1);
         int s = 1 << (stage*2);
 
         int n0 = 0;
@@ -101,16 +99,14 @@ void main() {
         }
 
         // 2. Update Variables
-        pingpong = ((pingpong + 1) % 2);
+        pingpong = (pingpong + 1) % 2;
 
         // 3. Sync by Memory Barrier
         barrier();
     }
 
-    // Additional stage for power of 2 sizes
-
+    // Final stage as radix-2
     if(LOG_SIZE % 2 == 1) {
-        // Final stage as radix-2
         float mult_factor = 1.0;
         if(fft_dir == 1) {
             mult_factor = 1.0 / (FFT_SIZE*FFT_SIZE);

@@ -40,7 +40,7 @@
         </texture>
         
         <!-- the original image  -->
-        <texture name="original" filename="textures/dog.jpg" mipmap="0" />
+        <texture name="original" filename="textures/mandrill.png" mipmap="0" />
 
         <!-- texture do display the image reconstructed -->
         <!-- result = ifft (fft(original)) -->
@@ -74,8 +74,8 @@
                                         ps="shaders/toComplex.frag"/> 
 
         <!-- compute shader to perform a single butterfly -->
-        <shader name="butterflyH" 	cs="shaders/butterflyH_1024_stockham_radix4.comp" /> 
-        <shader name="butterflyV" 	cs="shaders/butterflyV_1024_stockham_radix4.comp" /> 
+        <shader name="butterflyH" 	cs="shaders/butterflyH_128_stockham_radix4_radix2.comp" />
+        <shader name="butterflyV" 	cs="shaders/butterflyV_128_stockham_radix4_radix2.comp" />
 
         <!-- gets the real component of (fftinv(fft(image)) 
             to display the reconstructed image -->

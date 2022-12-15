@@ -4,11 +4,11 @@
         
         <aliases>
             <!--texture size-->
-            <alias name="SIZE" value="1024" />
+            <alias name="SIZE" value="512" />
             <alias name="GPU_SIZE_X" value="1" /> 
             <!-- compute shader dimXY = SIZE/8 -->
             
-            <alias name="LOGWIDTH_PLUS_ONE" value = "10" />
+            <alias name="LOGWIDTH_PLUS_ONE" value = "9" />
         </aliases>
 
         <stringAliases>
@@ -43,10 +43,10 @@
                 <SIZE width=0.5 height=1 />
                 <CLEAR_COLOR  r=1.0 g=1.0 b=1.0 />
             </viewport>
-        </viewports>	
+        </viewports>
         
         <materialLibs>
-            <materialLib filename="fft1024_stockham_radix4.mlib"/>
+            <materialLib filename="fft512_stockham_radix4_radix2.mlib"/>
         </materialLibs>
         
     </assets>
@@ -67,17 +67,17 @@
                 
                 <!-- script to control the stage loop and pingpong -->
                 <!-- <testScript file="scripts/fft.lua" script="fft_gpuonly" TEST_MODE="RUN_IF" /> -->
+                
                 <!-- script to switch pingpong texture if needed -->
-                <postScript file="scripts/fft.lua" script="switch_pingpong" />
+                <!-- <testScript file="scripts/fft.lua" script="fft_gpuonly" TEST_MODE="RUN_IF" /> -->
+                
                 <!-- compute shader to perform a single butterfly -->
                 <material name="fftHorizontal" fromLibrary="FFT" dimX="GPU_SIZE_X" dimY="SIZE" dimZ=1 />
             </pass>
-
+            
             <!-- FFT forward pass for columns -->
-            <pass class="compute" name="fftVertical">
-                <preScript file="scripts/fft.lua" script="resetForwardVertical" />				
+            <pass class="compute" name="fftVertical"> 				
                 <!-- <testScript file="scripts/fft.lua" script="fft" TEST_MODE="RUN_WHILE" /> -->
-                <postScript file="scripts/fft.lua" script="switch_pingpong" />
                 <material name="fftVertical" fromLibrary="FFT" dimX="GPU_SIZE_X" dimY="SIZE" dimZ=1 />
             </pass>
             
@@ -90,13 +90,11 @@
             <!-- inverse FFT horizontal pass -->
             <pass class="compute" name="ifftHorizontal"> 
                 <preScript file="scripts/fft.lua" script="resetInverse" />
-                <postScript file="scripts/fft.lua" script="switch_pingpong" />
                 <material name="fftHorizontal" fromLibrary="FFT" dimX="GPU_SIZE_X" dimY="SIZE" dimZ=1 />
             </pass>
             
             <!-- inverse FFT vertical pass -->
             <pass class="compute" name="ifftVertical"> 
-                <postScript file="scripts/fft.lua" script="switch_pingpong" />
                 <material name="fftVertical" fromLibrary="FFT" dimX="GPU_SIZE_X" dimY="SIZE" dimZ=1 />
             </pass>
             
