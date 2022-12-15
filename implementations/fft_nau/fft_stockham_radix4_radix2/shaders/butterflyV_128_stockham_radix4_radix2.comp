@@ -29,7 +29,7 @@ void main() {
     // FIXME: This variables are working but not correct, to be able to change
 	int line = int(gl_WorkGroupID.y);
 	int column = int(gl_GlobalInvocationID.x);
-    int pingpong = LOG_SIZE % 2;
+    int pingpong = 0;
 
     for(int stage = 0; stage < HALF_LOG_SIZE; ++stage) {
         // Each iteration on this loop corresponds
@@ -120,8 +120,6 @@ void main() {
 
         imageStore(pingpong0, ivec2(line, q + 0), vec4(mult_factor * (a + b), 0,0));
         imageStore(pingpong0, ivec2(line, q + s), vec4(mult_factor * (a - b), 0,0));
-        // imageStore(pingpong0, ivec2(line, q + 0), vec4(mult_factor * a, 0,0));
-        // imageStore(pingpong0, ivec2(line, q + s), vec4(mult_factor * b, 0,0));
 
         // There's only SIZE/4 local threads therefore we compute 2 values
         q = 2*column + 1;
@@ -131,7 +129,5 @@ void main() {
 
         imageStore(pingpong0, ivec2(line, q + 0), vec4(mult_factor * (a + b), 0,0));
         imageStore(pingpong0, ivec2(line, q + s), vec4(mult_factor * (a - b), 0,0));
-        // imageStore(pingpong0, ivec2(line, q + 0), vec4(mult_factor * a, 0,0));
-        // imageStore(pingpong0, ivec2(line, q + s), vec4(mult_factor * b, 0,0));
     }
 }
