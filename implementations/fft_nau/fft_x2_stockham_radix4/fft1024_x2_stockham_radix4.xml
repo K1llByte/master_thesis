@@ -14,8 +14,8 @@
         <stringAliases>
             <!--texture size-->
             <alias name="TEXTURE_NAME" value="original" /> 
-        </stringAliases >
-        
+        </stringAliases>
+
         <attributes>
             <!-- texture width -->
             <attribute type="RENDERER" name="width" data="INT" value="SIZE" />

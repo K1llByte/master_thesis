@@ -11,7 +11,7 @@ in vec2 texCoord;
 
 out vec4 complex;
 
-void main () {
+void main() {
 	
 	vec3 texColor = texture(texUnit, texCoord).rgb;
 	vec3 texColor2 = texture(texUnit2, texCoord).rgb;

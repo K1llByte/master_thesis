@@ -18,7 +18,7 @@
 Todo[Content]:
 - [x] 1. "Where it is used" como parte introdutória na secção de Fourier Transform.~
     * Resumido um bocado, como sugerido
-- [ ] 2. Juntar Continuous Fourier Transform com a parte de Discrete Fourier Transform.
+- [x] 2. Juntar Continuous Fourier Transform com a parte de Discrete Fourier Transform.
 - [x] 3. Dizer que a razao pela qual está no estado de arte so o Cooley-Tukey DIT e DIF é porque sao as versões que mais sao usadas.
     * End of section 2.3
 - [ ] 5. Justificar a derivação da fórmula de DIT em 2.3.1 e igualmente fazer um equivalente para 2.3.2
@@ -75,13 +75,13 @@ i - incomplete, because needs something from the final pratical phase
     - [i] 5 IMPLEMENTATION ON THE GPU 
         - [x] 5.1 GPU Programming model 
         - [x] 5.2 2D Fourier Transform on the GPU
-        - [ ] 5.3 GLSL implementation
-            - [ ] 5.3.1 Cooley-Tukey
-            - [ ] 5.3.2 Radix-2 Stockham
-            - [ ] 5.3.3 Radix-4 Stockham
-        - [ ] 5.4 Case of study
-            - [ ] 5.4.1 Tensendorf waves
-            - [ ] 5.4.3 Results
+        - [x] 5.3 GLSL implementation
+            - [x] 5.3.1 Cooley-Tukey
+            - [x] 5.3.2 Radix-2 Stockham
+            - [x] 5.3.3 Radix-4 Stockham
+        - [x] 5.4 Case of study
+            - [x] 5.4.1 Tensendorf waves
+            - [x] 5.4.3 Results
     - [x] 6 ANALYSIS AND COMPARISON
         - [x] 6.1 cuFFT
         - [x] 6.2 Implementation analysis in GLSL

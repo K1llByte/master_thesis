@@ -8,7 +8,7 @@
 #include <cuda.h>
 
 #define FFT_SIZE 256
-// #define BATCH
+#define BATCH 2
 #define BENCHMARK_RUNS 30
 
 // #define CU_ERR_CHECK_MSG(err, msg, ...) {          \
@@ -80,7 +80,11 @@ void print_matrix(cufftComplex const *const  arr)
 
 void compute_2d_fft_batch()
 {
-    const int batch_size = 2;
+    #ifdef BATCH
+        constexpr int batch_size = BATCH;
+    #else
+        constexpr int batch_size = 2;
+    #endif
     const size_t data_size = sizeof(cufftComplex)*FFT_SIZE*FFT_SIZE*batch_size;
     cufftComplex* data = reinterpret_cast<cufftComplex*>(malloc(data_size));
     cufftComplex* gpu_data_in;
