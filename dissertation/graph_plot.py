@@ -37,20 +37,21 @@ def ms_graph(title, sizes, data, filename=''):
 
 #################################
 
-# ms_graph("cuFFT vs GLSL Radix-2",
-#     sizes=[128, 256, 512, 1024],
-#     data=[
-#         ("cuFFT", [0.0359, 0.0494, 0.1335, 0.5609]),
-#         ("GLSL Radix-2 Cooley-Tukey", [0.073, 0.257, 1.032, 2.646]),
-#         ("GLSL Radix-2 Stockham",[0.049, 0.135, 0.545, 2.341]),
-#     ]
-#     , filename='cufft_vs_glsl_radix2'
-# )
+ms_graph("GLSL and cuFFT Forward 2D FFT benchmarks",
+    sizes=[128, 256, 512, 1024],
+    data=[
+        ("cuFFT", [0.0359, 0.0494, 0.1335, 0.5609]),
+        ("GLSL Radix-2 Cooley-Tukey", [0.073, 0.257, 1.032, 2.646]),
+        ("GLSL Radix-2 Stockham",[0.049, 0.135, 0.545, 2.341]),
+        ("GLSL Radix-4 Stockham",[0.042, 0.087, 0.389, 1.363]),
+    ]
+    , filename='cufft_glsl_benchmarks'
+)
 
 # ms_graph("cuFFT vs GLSL Radix-4",
 #     sizes=[256, 1024],
 #     data=[
-#         ("cuFFT", [0.0494, 0.5609]),
+#         ("cuFFT", [0.0359, 0.0494, 0.1335, 0.5609]),
 #         ("GLSL Radix-2 Stockham",[0.135, 2.341]),
 #         ("GLSL Radix-4 Stockham",[0.087, 1.363]),
 #     ]
@@ -92,12 +93,35 @@ def ms_graph(title, sizes, data, filename=''):
 #     , filename='glsl_stage_pass_vs_unique_pass'
 # )
 
-ms_graph("Radix-2 Stockham with multiple butterflies",
+# ms_graph("Radix-2 Stockham with multiple butterflies",
+#     sizes=[128, 256, 512, 1024],
+#     data=[
+#         ("1 Butterfly", [0.049, 0.135, 0.545, 2.341]),
+#         ("2 Butterfly", [0.067, 0.234, 0.934, 4.104]),
+#         ("4 Butterfly", [0.092, 0.298, 3.047, 14.934]),
+#     ]
+#     , filename='glsl_multiple_butterflies'
+# )
+
+
+
+# ms_graph("Stockham for power of 2 sizes",
+#     sizes=[128, 256, 512, 1024],
+#     data=[
+        
+#         ("GLSL Radix-2 Stockham",[0.049, 0.135, 0.545, 2.341]),
+#         ("GLSL Radix-4 Stockham",[0.042, 0.087, 0.389, 1.363]),
+#     ]
+#     , filename='glsl_stockham'
+# )
+
+
+ms_graph("GLSL and cuFFT multiple forward 2D FFT benchmarks",
     sizes=[128, 256, 512, 1024],
     data=[
-        ("1 Butterfly", [0.049, 0.135, 0.545, 2.341]),
-        ("2 Butterfly", [0.067, 0.234, 0.934, 4.104]),
-        ("4 Butterfly", [0.092, 0.298, 3.047, 14.934]),
+        ("cuFFT", [0.0359, 0.0494, 0.1335, 0.5609]),
+        ("GLSL Radix-2 Cooley-Tukey", [0.073, 0.257, 1.032, 2.646]),
+        ("GLSL Radix-2 Stockham",[0.049, 0.135, 0.545, 2.341]),
     ]
-    , filename='glsl_multiple_butterflies'
+    , filename='cufft_glsl_multiple_fft_benchmarks'
 )
