@@ -116,12 +116,11 @@ ms_graph("GLSL and cuFFT Forward 2D FFT benchmarks",
 # )
 
 
-ms_graph("GLSL and cuFFT multiple forward 2D FFT benchmarks",
+ms_graph("GLSL and cuFFT 2 forward 2D FFT benchmarks",
     sizes=[128, 256, 512, 1024],
     data=[
-        ("cuFFT", [0.0359, 0.0494, 0.1335, 0.5609]),
-        ("GLSL Radix-2 Cooley-Tukey", [0.073, 0.257, 1.032, 2.646]),
-        ("GLSL Radix-2 Stockham",[0.049, 0.135, 0.545, 2.341]),
+        ("cuFFT", [0.036, 0.098, 0.230, 1.031]),
+        ("GLSL Radix-4 Stockham", [0, 0.132, 0, 2.702]),
     ]
     , filename='cufft_glsl_multiple_fft_benchmarks'
 )
