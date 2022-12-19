@@ -11,6 +11,8 @@
 - Perguntar ao professor se é plausivel a justificação da data access locality do stockham
 - CONFIRMAR: Delete example in the state of art?
 - (MULTIPLE FFTs USING VEC4 AND SIMD OPERATORS) Should I put the code in appendix? not that relevant in my oppinion not an implementation, more like an adaptation for the use case.
+- "Não é o mesmo algoritmo mas com outro radix?" da mesma forma que Cooley-Tukey é o mesmo algoritmo que Stockham radix-2.
+- "Um ponto importante é a possibilidade de realizar duas transformações de inputs reais com o mesmo número de operações que uma transformação complexa." 
 -->
 
 <!-- Notes -->
@@ -25,7 +27,6 @@ Todo[Content]:
 - Duvida: É suposto apagar o exemplo?
 
 - [ ] Adicionar notas sobre as inversas no estado de arte e capitulo 4
-- [ ] Remover bold no chapter 2
 - [ ] Prove that the difference inverse vs forward times are negligible and that's there's no need to include the inverse
 
 - [ ] Corrigir informaçao sobre que o warp size deve ser por volta de 32
@@ -37,23 +38,10 @@ Todo[Fixes]:
 - Lists items end with ';' and last item with '.'
 
 - [ ] "listings" on the first page of the pre-dissertation stuff
-- [ ] Add/Update Keywords
 -->
 
 <!-- Temporary -->
 <!--
-- [x] 6. Fazer alguma coisa relativamente a versão da DFT que divide por raiz de N em que a torna reversível 
-    * Section 2.2.1, mudei o texto para que a informação de como tornar a matriz unitária seja vista mais como uma nota, e não uma informação critica.
-- [x] 7. Justificar o porquê de termos que usar um bit reversal step.
-    * Section 2.3.1.
-- [x] 1. "Where it is used" como parte introdutória na secção de Fourier Transform.~
-    * Resumido um bocado, como sugerido
-- [x] 2. Juntar Continuous Fourier Transform com a parte de Discrete Fourier Transform.
-- [x] 3. Dizer que a razao pela qual está no estado de arte so o Cooley-Tukey DIT e DIF é porque sao as versões que mais sao usadas.
-    * End of section 2.3
-
-- [x] Mention why we only benchmark out-of-place
-- [x] Include code snipet of cuFFT in apendix
 
 -->
 
@@ -93,8 +81,6 @@ i - incomplete, because needs something from the final pratical phase
         - [x] 6.2 Implementation analysis in GLSL
         - [x] 6.3 Implementation analysis in CUDA
     - [ ] 7 CONCLUSIONS AND FUTURE WORK
-
-### Practical
 
 ___
 <!--

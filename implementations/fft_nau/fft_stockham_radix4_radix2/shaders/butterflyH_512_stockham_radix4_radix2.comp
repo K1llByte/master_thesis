@@ -102,19 +102,37 @@ void main() {
         int s = FFT_SIZE >> 1;
         int q = 2*line;
 
-        vec2 a = imageLoad(pingpong0, ivec2(q + 0, column)).rg;
-        vec2 b = imageLoad(pingpong0, ivec2(q + s, column)).rg;
+        if(pingpong == 0) {
+            vec2 a = imageLoad(pingpong0, ivec2(q + 0, column)).rg;
+            vec2 b = imageLoad(pingpong0, ivec2(q + s, column)).rg;
 
-        imageStore(pingpong1, ivec2(q + 0, column), vec4(a + b, 0,0));
-        imageStore(pingpong1, ivec2(q + s, column), vec4(a - b, 0,0));
+            imageStore(pingpong1, ivec2(q + 0, column), vec4(a + b, 0,0));
+            imageStore(pingpong1, ivec2(q + s, column), vec4(a - b, 0,0));
 
-        // There's only SIZE/4 local threads therefore we compute 2 values
-        q = 2*line + 1;
+            // There's only SIZE/4 local threads therefore we compute 2 values
+            q = 2*line + 1;
 
-        a = imageLoad(pingpong0, ivec2(q + 0, column)).rg;
-        b = imageLoad(pingpong0, ivec2(q + s, column)).rg;
+            a = imageLoad(pingpong0, ivec2(q + 0, column)).rg;
+            b = imageLoad(pingpong0, ivec2(q + s, column)).rg;
 
-        imageStore(pingpong1, ivec2(q + 0, column), vec4(a + b, 0,0));
-        imageStore(pingpong1, ivec2(q + s, column), vec4(a - b, 0,0));
+            imageStore(pingpong1, ivec2(q + 0, column), vec4(a + b, 0,0));
+            imageStore(pingpong1, ivec2(q + s, column), vec4(a - b, 0,0));
+        }
+        else {
+            vec2 a = imageLoad(pingpong1, ivec2(q + 0, column)).rg;
+            vec2 b = imageLoad(pingpong1, ivec2(q + s, column)).rg;
+
+            imageStore(pingpong0, ivec2(q + 0, column), vec4(a + b, 0,0));
+            imageStore(pingpong0, ivec2(q + s, column), vec4(a - b, 0,0));
+
+            // There's only SIZE/4 local threads therefore we compute 2 values
+            q = 2*line + 1;
+
+            a = imageLoad(pingpong1, ivec2(q + 0, column)).rg;
+            b = imageLoad(pingpong1, ivec2(q + s, column)).rg;
+
+            imageStore(pingpong0, ivec2(q + 0, column), vec4(a + b, 0,0));
+            imageStore(pingpong0, ivec2(q + s, column), vec4(a - b, 0,0));
+        }
     }
 }

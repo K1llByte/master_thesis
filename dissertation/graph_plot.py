@@ -37,16 +37,16 @@ def ms_graph(title, sizes, data, filename=''):
 
 #################################
 
-ms_graph("GLSL and cuFFT Forward 2D FFT benchmarks",
-    sizes=[128, 256, 512, 1024],
-    data=[
-        ("cuFFT", [0.0359, 0.0494, 0.1335, 0.5609]),
-        ("GLSL Radix-2 Cooley-Tukey", [0.073, 0.257, 1.032, 2.646]),
-        ("GLSL Radix-2 Stockham",[0.049, 0.135, 0.545, 2.341]),
-        ("GLSL Radix-4 Stockham",[0.042, 0.087, 0.389, 1.363]),
-    ]
-    , filename='cufft_glsl_benchmarks'
-)
+# ms_graph("GLSL and cuFFT Forward 2D FFT benchmarks",
+#     sizes=[128, 256, 512, 1024],
+#     data=[
+#         ("cuFFT", [0.0359, 0.0494, 0.1335, 0.5609]),
+#         ("GLSL Radix-2 Cooley-Tukey", [0.073, 0.257, 1.032, 2.646]),
+#         ("GLSL Radix-2 Stockham",[0.049, 0.135, 0.545, 2.341]),
+#         ("GLSL Radix-4 Stockham",[0.042, 0.087, 0.389, 1.363]),
+#     ]
+#     , filename='cufft_glsl_benchmarks'
+# )
 
 # ms_graph("cuFFT vs GLSL Radix-4",
 #     sizes=[256, 1024],
@@ -120,7 +120,32 @@ ms_graph("GLSL and cuFFT 2 forward 2D FFT benchmarks",
     sizes=[128, 256, 512, 1024],
     data=[
         ("cuFFT", [0.036, 0.098, 0.230, 1.031]),
-        ("GLSL Radix-4 Stockham", [0, 0.132, 0, 2.702]),
+        ("GLSL Radix-4 Stockham", [0.044, 0.132, 0.703, 2.702]),
     ]
     , filename='cufft_glsl_multiple_fft_benchmarks'
 )
+
+# ms_graph("GLSL and cuFFT 2 forward 2D FFT benchmarks",
+#     sizes=[128, 256, 512, 1024],
+#     data=[
+#         ("cuFFT", [0.037/2, 0.098/2, 0.230/2, 1.031/2]),
+#         ("GLSL Radix-4 Stockham", [0.044/2, 0.132/2, 0.703/2, 2.702/2]),
+#     ]
+#     , filename='cufft_glsl_multiple_fft_benchmarks_per_fft'
+# )
+
+# def diff(la, lb, label=""):
+#     print([(a-b) / a * 100 for a,b in zip(la,lb)])
+
+
+# diff(
+#     [0.035, 0.049, 0.133, 0.560],
+#     [0.019, 0.049, 0.115, 0.516],
+#     label="cuFFT"
+# )
+
+# diff(
+#     [0.042, 0.087, 0.389, 1.363],
+#     [0.022, 0.066, 0.352, 1.351],
+#     label="GLSL"
+# )
