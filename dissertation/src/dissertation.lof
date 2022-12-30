@@ -1,0 +1,39 @@
+\deactivateaddvspace 
+\ttl@tocsep 
+\ttl@tocsep 
+\ttl@tocsep 
+\ttl@tocsep 
+\ttl@tocsep 
+\ttl@tocsep 
+\ttl@tocsep 
+\ttl@tocsep 
+\ttl@tocsep 
+\ttl@tocsep 
+\ttl@tocsep 
+\contentsline {figure}{\numberline {1}{\ignorespaces Time to frequency signal decomposition \textbf {Source:} \cite {fftntiaudio}\relax }}{7}{figure.caption.5}%
+\contentsline {figure}{\numberline {2}{\ignorespaces Radix-2 Decimation-in-Time FFT \textbf {Source:} \cite {jones2014digital}\relax }}{13}{figure.caption.9}%
+\contentsline {figure}{\numberline {3}{\ignorespaces Cooley-Tukey butterfly\relax }}{18}{figure.caption.10}%
+\contentsline {figure}{\numberline {4}{\ignorespaces Bit reverse permutation\relax }}{18}{figure.caption.11}%
+\contentsline {figure}{\numberline {5}{\ignorespaces Radix-2 Decimation-in-Frequency FFT \textbf {Source:} \cite {jones2014digital}\relax }}{18}{figure.caption.12}%
+\contentsline {figure}{\numberline {6}{\ignorespaces Gentleman-Sande butterfly\relax }}{19}{figure.caption.13}%
+\ttl@tocsep 
+\contentsline {figure}{\numberline {7}{\ignorespaces Chain of even and odd compositions over each stage for a natural order DIF\relax }}{21}{figure.caption.14}%
+\contentsline {figure}{\numberline {8}{\ignorespaces Illustration of a stage in radix-4 Stockham with each color representing a radix-4 butterfly computation\relax }}{23}{figure.caption.16}%
+\contentsline {figure}{\numberline {9}{\ignorespaces Radix-4 FFT butterfly structure \textbf {Source:} \cite {marti2009radix}\relax }}{24}{figure.caption.17}%
+\contentsline {figure}{\numberline {10}{\ignorespaces FFT for an element without an imaginary part\relax }}{27}{figure.caption.19}%
+\contentsline {figure}{\numberline {11}{\ignorespaces FFT for an element with an imaginary part\relax }}{27}{figure.caption.20}%
+\ttl@tocsep 
+\contentsline {figure}{\numberline {12}{\ignorespaces High-level illustration of horizontal and vertical passes\relax }}{29}{figure.caption.21}%
+\contentsline {figure}{\numberline {13}{\ignorespaces Difference in invocation spaces for size 256 FFT to allow barrier synchronization between local threads\relax }}{34}{figure.caption.23}%
+\ttl@tocsep 
+\contentsline {figure}{\numberline {14}{\ignorespaces CPU and GPU time for using stage per pass approach and unique pass for the Radix-2 Cooley-Tukey algorithm\relax }}{44}{figure.caption.24}%
+\contentsline {figure}{\numberline {15}{\ignorespaces Forward 2D FFT benchmarks in milliseconds of out-of-place cuFFT and unique pass algorithms in GLSL\relax }}{45}{figure.caption.25}%
+\contentsline {figure}{\numberline {16}{\ignorespaces Forward 2D FFT benchmarks of double the transforms in milliseconds of out-of-place cuFFT and radix-4 Stockham GLSL\relax }}{45}{figure.caption.26}%
+\contentsline {figure}{\numberline {17}{\ignorespaces Tensendorf waves in Nau3D Engine\relax }}{48}{figure.caption.28}%
+\contentsline {figure}{\numberline {18}{\ignorespaces Time spent in the CPU and GPU for the size 512 FFT horizontal and vertical passes\relax }}{48}{figure.caption.29}%
+\contentsline {figure}{\numberline {19}{\ignorespaces Total time spent in the CPU and GPU for the size 1024 FFT horizontal and vertical passes\relax }}{49}{figure.caption.30}%
+\ttl@tocsep 
+\ttl@tocsep 
+\ttl@tocsep 
+\ttl@tocsep 
+\providecommand \tocbasic@end@toc@file {}\tocbasic@end@toc@file 

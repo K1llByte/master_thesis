@@ -172,4 +172,137 @@ name={FFTW},%
 sort={FFTW},%
 type={acronym},%
 first={Fastest Fourier Transform in the West\glsspace (FFTW)},%
-firstplural={Fastest Fourier Transform in the W
+firstplural={Fastest Fourier Transform in the West\acrpluralsuffix \glsspace (FFTW\acrpluralsuffix )},%
+text={FFTW},%
+plural={FFTW\acrpluralsuffix },%
+description={Fastest Fourier Transform in the West},%
+descriptionplural={Fastest Fourier Transform in the West\acrpluralsuffix },%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={Fastest Fourier Transform in the West},%
+longplural={Fastest Fourier Transform in the Wests},%
+short={FFTW},%
+shortplural={FFTWs},%
+counter={page},%
+parent={},%
+%
+}%
+
+\glsdefs@newdocentry{cpu}%
+{%
+name={CPU},%
+sort={CPU},%
+type={acronym},%
+first={Central Processing Unit\glsspace (CPU)},%
+firstplural={Central Processing Unit\acrpluralsuffix \glsspace (CPU\acrpluralsuffix )},%
+text={CPU},%
+plural={CPU\acrpluralsuffix },%
+description={Central Processing Unit},%
+descriptionplural={Central Processing Unit\acrpluralsuffix },%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={Central Processing Unit},%
+longplural={Central Processing Units},%
+short={CPU},%
+shortplural={CPUs},%
+counter={page},%
+parent={},%
+%
+}%
+
+\glsdefs@newdocentry{gpu}%
+{%
+name={GPU},%
+sort={GPU},%
+type={acronym},%
+first={Graphics Processing Unit\glsspace (GPU)},%
+firstplural={Graphics Processing Unit\acrpluralsuffix \glsspace (GPU\acrpluralsuffix )},%
+text={GPU},%
+plural={GPU\acrpluralsuffix },%
+description={Graphics Processing Unit},%
+descriptionplural={Graphics Processing Unit\acrpluralsuffix },%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={Graphics Processing Unit},%
+longplural={Graphics Processing Units},%
+short={GPU},%
+shortplural={GPUs},%
+counter={page},%
+parent={},%
+%
+}%
+
+\glsdefs@newdocentry{simd}%
+{%
+name={SIMD},%
+sort={SIMD},%
+type={acronym},%
+first={Single Instruction, Multiple Data\glsspace (SIMD)},%
+firstplural={Single Instruction, Multiple Data\acrpluralsuffix \glsspace (SIMD\acrpluralsuffix )},%
+text={SIMD},%
+plural={SIMD\acrpluralsuffix },%
+description={Single Instruction, Multiple Data},%
+descriptionplural={Single Instruction, Multiple Data\acrpluralsuffix },%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={Single Instruction, Multiple Data},%
+longplural={Single Instruction, Multiple Datas},%
+short={SIMD},%
+shortplural={SIMDs},%
+counter={page},%
+parent={},%
+%
+}%
+
+\glsdefs@newdocentry{simt}%
+{%
+name={SIMT},%
+sort={SIMT},%
+type={acronym},%
+first={Single Instruction, Multiple Threads\glsspace (SIMT)},%
+firstplural={Single Instruction, Multiple Threads\acrpluralsuffix \glsspace (SIMT\acrpluralsuffix )},%
+text={SIMT},%
+plural={SIMT\acrpluralsuffix },%
+description={Single Instruction, Multiple Threads},%
+descriptionplural={Single Instruction, Multiple Threads\acrpluralsuffix },%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={Single Instruction, Multiple Threads},%
+longplural={Single Instruction, Multiple Threadss},%
+short={SIMT},%
+shortplural={SIMTs},%
+counter={page},%
+parent={},%
+%
+}%
+

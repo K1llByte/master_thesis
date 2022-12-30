@@ -152,6 +152,17 @@ constexpr std::array<vec2, N> sample_complex()
 //     benchmark_all();
 // }
 
+template<std::size_t N>
+std::array<vec2,N> unpack(const std::array<vec2,N>& in) {
+    std::array<vec2,N> res = {};
+    for(size_t k = 0; k < in.size(); ++k) {
+        res[k] = vec2{
+            (in[k][0] + (in[N-k-1][0]-in[N-k-1][1]))/2,
+            in[k][1]/2
+        };
+    }
+}
+
 int main()
 {
     constexpr auto N = 4;
@@ -186,6 +197,7 @@ int main()
     auto real_freq1 = dit::fft(in);
     print_array(in);
     print_complex_array(real_freq1);
+    print_complex_array(dif::ifft(real_freq1));
     // auto val1 = stockham::ifft(real_freq1);
     // std::cout << "EXPECTED: ";
     // print_array(input);

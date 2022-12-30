@@ -8,13 +8,21 @@ MARKERS = ['o', 'v', '^', '>', '<', '8', 's', 'p', '*', 'h', 'H', 'D', 'd', 'P',
 
 to_snakecase = lambda s : re.sub(r'((?<=[a-z0-9])[A-Z]|(?!^)[A-Z](?=[a-z]))', r'_\1', s).lower()
 
-def ms_graph(title, sizes, data, filename=''):
+def ms_graph(title, sizes, data, filename='', lstyles=[], colors=[], ylim=None):
+    assert(colors == [] or len(colors) == len(data))
     default_sizes_ticks = range(len(sizes))
     plt.xticks(default_sizes_ticks, sizes)
     for i,(lbl,ms) in enumerate(data):
-        plt.plot(default_sizes_ticks, ms, label=lbl, marker=MARKERS[i])
+        style = '-' if lstyles == [] else lstyles[i]
+        if colors == []:
+            plt.plot(default_sizes_ticks, ms, label=lbl, linestyles=style, marker=MARKERS[i])
+        else:
+            plt.plot(default_sizes_ticks, ms, label=lbl, color=colors[i], linestyle=style, marker=MARKERS[i])
     plt.xlabel('FFT size')
     plt.ylabel('ms')
+    if ylim != None:
+        # plt.set_ylim(0,ylim)
+        plt.ylim(0,ylim)
     plt.margins(0.1, 0.2)
     plt.title(title)
     plt.legend()
@@ -37,16 +45,17 @@ def ms_graph(title, sizes, data, filename=''):
 
 #################################
 
-# ms_graph("GLSL and cuFFT Forward 2D FFT benchmarks",
-#     sizes=[128, 256, 512, 1024],
-#     data=[
-#         ("cuFFT", [0.0359, 0.0494, 0.1335, 0.5609]),
-#         ("GLSL Radix-2 Cooley-Tukey", [0.073, 0.257, 1.032, 2.646]),
-#         ("GLSL Radix-2 Stockham",[0.049, 0.135, 0.545, 2.341]),
-#         ("GLSL Radix-4 Stockham",[0.042, 0.087, 0.389, 1.363]),
-#     ]
-#     , filename='cufft_glsl_benchmarks'
-# )
+ms_graph("GLSL and cuFFT Forward 2D FFT benchmarks",
+    sizes=[128, 256, 512, 1024],
+    data=[
+        ("cuFFT", [0.0359, 0.0494, 0.1335, 0.5609]),
+        ("GLSL Radix-2 Cooley-Tukey", [0.073, 0.257, 1.032, 2.646]),
+        ("GLSL Radix-2 Stockham",[0.049, 0.135, 0.545, 2.341]),
+        ("GLSL Radix-4 Stockham",[0.042, 0.087, 0.389, 1.363]),
+    ]
+    , filename='cufft_glsl_benchmarks'
+    , colors=['tab:pink', 'tab:red', 'tab:green', 'tab:blue']
+)
 
 # ms_graph("cuFFT vs GLSL Radix-4",
 #     sizes=[256, 1024],
@@ -119,10 +128,14 @@ def ms_graph(title, sizes, data, filename=''):
 ms_graph("GLSL and cuFFT 2 forward 2D FFT benchmarks",
     sizes=[128, 256, 512, 1024],
     data=[
-        ("cuFFT", [0.036, 0.098, 0.230, 1.031]),
-        ("GLSL Radix-4 Stockham", [0.044, 0.132, 0.703, 2.702]),
+        ("cuFFT double", [0.036, 0.098, 0.230, 1.031]),
+        ("cuFFT single", [0.0359, 0.0494, 0.1335, 0.5609]),
+        ("GLSL Radix-4 Stockham double", [0.044, 0.132, 0.703, 2.702]),
+        ("GLSL Radix-4 Stockham single", [0.042, 0.087, 0.389, 1.363]),
     ]
     , filename='cufft_glsl_multiple_fft_benchmarks'
+    , colors=['tab:pink','tab:pink','tab:blue','tab:blue']
+    , lstyles=['-', '--','-', '--']
 )
 
 # ms_graph("GLSL and cuFFT 2 forward 2D FFT benchmarks",
@@ -149,3 +162,26 @@ ms_graph("GLSL and cuFFT 2 forward 2D FFT benchmarks",
 #     [0.022, 0.066, 0.352, 1.351],
 #     label="GLSL"
 # )
+
+################ Unique vs Stage ################
+
+ms_graph("CPU time of forward 2D FFT benchmarks in GLSL",
+    sizes=[128, 256, 512, 1024],
+    data=[
+        ("Unique pass", [0.034 + 0.026, 0.030 + 0.022, 0.029 + 0.020, 0.039 + 0.021]),
+        ("Stage per pass", [0.194 + 0.189, 0.210 + 0.192, 0.234 + 0.210, 0.255 + 0.245]),
+    ]
+    , filename='glsl_stage_pass_vs_unique_pass_cpu'
+    , ylim = 4
+    , colors=['tab:red', 'tab:orange']
+)
+
+ms_graph("GPU time of forward 2D FFT benchmarks in GLSL",
+    sizes=[128, 256, 512, 1024],
+    data=[
+        ("Unique pass", [0.026+0.024, 0.078+0.072, 0.305+0.293, 1.390+1.308]),
+        ("Stage per pass", [0.055+0.055, 0.100+0.099, 0.500+0.473, 1.988+1.911]),
+    ]
+    , filename='glsl_stage_pass_vs_unique_pass_gpu'
+    , colors=['tab:red', 'tab:orange']
+)

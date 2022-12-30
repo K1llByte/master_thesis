@@ -2,8 +2,21 @@ import cmath
 import numpy as np
 from math import sqrt
 
+def unpack(m):
+    N = len(m)
+    f1 = []
+    f2 = []
+    j = complex(0,-1)
+    for k, yk in enumerate(m):
+        ynk = m[N-k-1].real - m[N-k-1].imag
+        f1.append((yk + ynk)/2)
+        f2.append(j*(yk - ynk)/2)
+    return (f1,f2)
+
+
+
 def dft(x):
-    x = np.asarray(x, dtype=float)
+    x = np.asarray(x, dtype=type(x[0]))
     N = x.shape[0]
     n = np.arange(N)
     k = n.reshape((N, 1))
@@ -58,7 +71,7 @@ def fft_np(x, inverse=False):
         X_even = fft_np(x[::2],inverse)
         X_odd = fft_np(x[1::2],inverse)
 
-        factor = np.exp(-2j*np.pi*np.arange(N)/ N)
+        factor = np.exp(2j*np.pi*np.arange(N)/ N) if inverse else np.exp(-2j*np.pi*np.arange(N)/ N)
 
         X = np.concatenate(\
             [X_even+factor[:int(N/2)]*X_odd,

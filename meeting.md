@@ -1,15 +1,71 @@
 # Meeting
 
+<!-- 
+--------------[DUVIDAS ATE ENTREGA]--------------
+- Eu vou ir melhorando coisas ate entrega, mas alguma coisa em especifico que me devia focar que seja mais importante?
+- Qual a melhor hora para submeter? pergunto por causa 
+
+
+
+
+--------------[PRECISA EXCLARECIMENTO]--------------
+- Euler formula, é so usado para a implementação
+
+
+- Fazer tabelas para resultados e com o ratio
+    - Primeiro, selecionar quais sao relevantes de fazer tabelas
+    - Consultar o stor sobre essa seleção, e mandar print sobre se encaixam bem ou nao.
+- Gráficos que estão lado a lado, junta-los para ter uma noção melhor da diferença (fiz para o case of study)
+    - Consultar, porque em algums a escala da jeito para a diferença para o grafico ao lado, mas noutros casos nota-se se é constante/linear
+- Dizer para nao apagar o exemplo no Estado de arte, porque dá jeito para mostrar a simetria que se segue no 2 real por 1 complex (Not sure about this)
+- Explain the pack and unpack process of the mixed double FFT for the price of 1 (added formulas for packing and unpacking)
+    - O unpack acho que nao funciona, as frequencias nao sao simetricas, so o pack é que funciona
+    - https://developer.apple.com/documentation/accelerate/data_packing_for_fourier_transforms
+- I said that the ocean waves FFTs produce two real values for a complex, so 4*2 2D FFTs
+----------------------[TODO]----------------------
+- Referencias antigas
+    - added > bengtsson2020development
+    - old > stuart2011efficient, 
+    - referencias de FFT
+    - "s, especially for specific hardware (Mermer et al. (2003))."
+    - Radix-4 referencias recentes
+    - Referencia de cuFFT ser mais rapida mais recente, e varias
+- Listing 4.9 dragonfly, reuse code e tal (opcional)
+- acronimos no inicio a full e depois so os short
+- Update radix-4 code implementation to have the final stage radix2
+- Falar na implementação em GLSL da for each loop feature e de como funciona
+    - So variaveis constexpr
+    - Citar alguma referencia a falar sobre isto
+    - Restrições de usar este for loop
+--------------[DONE]--------------
+- Passar 2D FFT para Fast Fourier Transform
+- Merge chapter 2 e 3
+- Reais para complexa na parte de computing the FFT
+- Nao refenrecias as imagens "The results of the cuFFT out-of-place benchmarks can be found in Figure 13 and ??"
+- Detalhar results e lua scripting e CPU time em que consiste
+    - Dizer que é motor generico
+- Figura 12 está mal apagar ou corrigir
+- Remover multiple butterflies
+- Figura 13 legenda ou texto indicar que sao as unique pass approaches
+- Remover o "é linear"
+- Corrigir " despite sizes above 1024, it is"
+- Mudar tabela 2 para ter os resultados individuais e com dupla
+- Nao recomendar fortementemente o radix-4
+    - Remover radix-2 "is simpler"
+-->
+
 <!-- Questions -->
 <!--
+------------[Updated]------------
+- "compensating for the 70\% kernel size increase" Como/onde devo informar as condições com que avaliamos isto? avaliei com um shader compiler para SPIR-V
+-----------------------------------
+- CONFIRMAR: Delete example in the state of art?
 - É 'Case of study' ou 'Case study'?
 - Exclarecimento de comentários ainda nao resolvidos:
     - "O detalhe que puseste na transformação discreta é necessário aqui. Da forma como isto está escrito tem muitos passos em que é preciso "trust me bro" :-)"
     - "Ainda falta um passo, a fugira 3 tal como está se obtém directamente da figura 2" 
         - Duvidas sobre se é a figura 3 e 2 do link ou da tese, e tentar justificar o porque de ter deixado assim
-- Should i have a subsection called 'Tensendorf waves'? Because the method wasn't invented by him, but the popular research paper was, so should i change it to 'Ocean waves'?
 - Perguntar ao professor se é plausivel a justificação da data access locality do stockham
-- CONFIRMAR: Delete example in the state of art?
 - (MULTIPLE FFTs USING VEC4 AND SIMD OPERATORS) Should I put the code in appendix? not that relevant in my oppinion not an implementation, more like an adaptation for the use case.
 - "Não é o mesmo algoritmo mas com outro radix?" da mesma forma que Cooley-Tukey é o mesmo algoritmo que Stockham radix-2.
 - "Um ponto importante é a possibilidade de realizar duas transformações de inputs reais com o mesmo número de operações que uma transformação complexa." 
@@ -61,26 +117,28 @@ i - incomplete, because needs something from the final pratical phase
 > Note: Every topic title is volatile so they can be reorganized and changed
 
 - Content topics:
-    - [i] 4 COMPUTATION OF THE FOURIER TRANSFORM
-        - [x] 4.1 Improving the Cooley-Tukey algorithm
-            - [x] 4.1.1 Natural order Cooley-Tukey
-            - [x] 4.1.2 Stockham algorithm
-            - [x] 4.1.3 Radix-4 instead of Radix-2
-    - [i] 5 IMPLEMENTATION ON THE GPU 
-        - [x] 5.1 GPU Programming model 
-        - [x] 5.2 2D Fourier Transform on the GPU
-        - [x] 5.3 GLSL implementation
-            - [x] 5.3.1 Cooley-Tukey
-            - [x] 5.3.2 Radix-2 Stockham
-            - [x] 5.3.3 Radix-4 Stockham
-        - [x] 5.4 Case of study
-            - [x] 5.4.1 Tensendorf waves
-            - [x] 5.4.3 Results
-    - [x] 6 ANALYSIS AND COMPARISON
-        - [x] 6.1 cuFFT
-        - [x] 6.2 Implementation analysis in GLSL
-        - [x] 6.3 Implementation analysis in CUDA
-    - [ ] 7 CONCLUSIONS AND FUTURE WORK
+    - 2 THE FOURIER TRASFORM
+        - 2.1 Continuous Fourier Transform
+        - 2.2 Discrete Fourier Transform
+            - 2.2.1 Matrix multiplication 
+        - 2.3 Fast Fourier Transform
+            - 2.3.1 Radix-2 Decimation-in-Time FFT 
+            - 2.3.2 Radix-2 Decimation-in-Frequency FFT
+        - 2.4 Stockham algorithm
+        - 2.5 Radix-4 instead of Radix-2
+        - 2.6 Two real inputs within one complex input 
+        - 2.7 2D Fourier Transform
+    - 3 IMPLEMENTATION ON THE GPU 
+        - 3.1 Cooley-Tukey
+        - 3.2 Radix-2 Stockham
+        - 3.3 Radix-4 Stockham
+    - 4 ANALYSIS AND COMPARISON
+        - 4.1 cuFFT
+        - 4.2 GLSL implementation results
+        - 4.3 Case of study
+            - 4.3.1 Tensendorf waves
+            - 4.3.2 Results
+    - 5 CONCLUSIONS AND FUTURE WORK
 
 ___
 <!--
