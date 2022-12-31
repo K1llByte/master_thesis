@@ -7,7 +7,7 @@
 #include <cufft.h>
 #include <cuda.h>
 
-#define FFT_SIZE 256
+#define FFT_SIZE 128
 #define BATCH 2
 #define BENCHMARK_RUNS 30
 

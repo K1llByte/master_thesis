@@ -100,7 +100,7 @@
 				<file name= "../common/shaders/header.glsl" />
 				<file name= "../common/shaders/definesGlobal.glsl" />
 				<file name= "../common/shaders/defines.glsl" />
-				<file name= "../common/shaders/butterflyH_stockham.comp" />
+				<file name= "../common/shaders/butterflyH_stockham_radix4.comp" />
 			</cs>
 		</shader>
 		<shader name="butterflyV" > 
@@ -108,7 +108,7 @@
 				<file name= "../common/shaders/header.glsl" />
 				<file name= "../common/shaders/definesGlobal.glsl" />
 				<file name= "../common/shaders/defines.glsl" />
-				<file name= "../common/shaders/butterflyV_stockham.comp" />
+				<file name= "../common/shaders/butterflyV_stockham_radix4.comp" />
 			</cs>
 		</shader>
 		
@@ -143,7 +143,7 @@
 			<ps>
 				<file name= "shaders/lambert.frag" />
 			</ps>	
-		</shader>
+		</shader>						
 	</shaders>
 	
 	
